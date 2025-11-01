@@ -4,607 +4,945 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Family Connections Game</title>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            box-sizing: border-box;
         }
-        #root {
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(to bottom right, #fef2f2, #f0fdf4, #eff6ff);
             min-height: 100vh;
+            padding: 1rem;
+        }
+        
+        .container {
+            max-width: 48rem;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        h1 {
+            font-size: 2.25rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            color: #4b5563;
+        }
+        
+        .admin-btn {
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            color: #6b7280;
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        
+        .admin-btn:hover {
+            color: #374151;
+        }
+        
+        .category-found {
+            color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .category-title {
+            font-weight: bold;
+            font-size: 1.125rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .category-words {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+        
+        .easy { background: #facc15; }
+        .medium { background: #22c55e; }
+        .hard { background: #3b82f6; }
+        .tricky { background: #9333ea; }
+        
+        .words-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .word-btn {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            background: white;
+            color: #1f2937;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: none;
+            cursor: pointer;
+        }
+        
+        .word-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.15);
+        }
+        
+        .word-btn.selected {
+            background: #374151;
+            color: white;
+            transform: scale(0.95);
+            box-shadow: none;
+        }
+        
+        .mistakes-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            color: #4b5563;
+        }
+        
+        .mistake-dot {
+            width: 0.75rem;
+            height: 0.75rem;
+            border-radius: 50%;
+            background: #d1d5db;
+        }
+        
+        .mistake-dot.used {
+            background: #ef4444;
+        }
+        
+        .message {
+            text-align: center;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .message.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .message.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .message.info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        
+        .btn-secondary {
+            background: white;
+            border: 2px solid #d1d5db;
+            color: #1f2937;
+        }
+        
+        .btn-secondary:hover {
+            background: #f3f4f6;
+        }
+        
+        .btn-primary {
+            background: #1f2937;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #111827;
+        }
+        
+        .btn-primary:disabled {
+            background: #d1d5db;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+        
+        .game-over {
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        .game-over-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Admin Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            max-width: 28rem;
+            width: 100%;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+        
+        .modal-text {
+            color: #4b5563;
+            margin-bottom: 1rem;
+        }
+        
+        .input {
+            width: 100%;
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .modal-btn {
+            flex: 1;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .modal-btn-primary {
+            background: #9333ea;
+            color: white;
+        }
+        
+        .modal-btn-secondary {
+            background: #d1d5db;
+            color: #374151;
+        }
+        
+        .admin-container {
+            min-height: 100vh;
+            background: linear-gradient(to bottom right, #0f172a, #581c87, #0f172a);
+            padding: 1rem;
+        }
+        
+        .admin-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: white;
+        }
+        
+        .admin-title {
+            font-size: 2.25rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .admin-panel {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            max-width: 56rem;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .admin-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .admin-btn-action {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .btn-blue {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-red {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-green {
+            background: linear-gradient(to right, #10b981, #059669);
+            color: white;
+            padding: 1rem 2rem;
+            font-size: 1.125rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .category-editor {
+            border-left: 4px solid;
+            padding: 1rem;
+            border-radius: 0 0.5rem 0.5rem 0;
+            margin-bottom: 1.5rem;
+        }
+        
+        .category-editor.easy-border {
+            border-color: #facc15;
+            background: #fefce8;
+        }
+        
+        .category-editor.medium-border {
+            border-color: #22c55e;
+            background: #f0fdf4;
+        }
+        
+        .category-editor.hard-border {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+        
+        .category-editor.tricky-border {
+            border-color: #9333ea;
+            background: #faf5ff;
+        }
+        
+        .form-group {
+            margin-bottom: 0.75rem;
+        }
+        
+        .label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.25rem;
+        }
+        
+        .words-input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+        
+        select {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+        }
+        
+        @media (max-width: 640px) {
+            .words-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            h1 {
+                font-size: 1.75rem;
+            }
+        }
+        
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <div id="root"></div>
-    
-    <script type="text/babel">
-        const { useState, useEffect } = React;
-        const { Shuffle, Award, RotateCcw, Save, Eye, Trash2, Settings, X } = lucide;
+    <div id="app"></div>
 
-        const ConnectionsComplete = () => {
-            const [mode, setMode] = useState('player');
-            const [gameData, setGameData] = useState(null);
-            const [selectedWords, setSelectedWords] = useState([]);
-            const [foundCategories, setFoundCategories] = useState([]);
-            const [remainingWords, setRemainingWords] = useState([]);
-            const [mistakes, setMistakes] = useState(0);
-            const [gameOver, setGameOver] = useState(false);
-            const [message, setMessage] = useState('');
-            const [loading, setLoading] = useState(true);
-            const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
-            const [passwordInput, setPasswordInput] = useState('');
-            
-            const [categories, setCategories] = useState([
+    <script>
+        // Game State
+        let state = {
+            mode: 'player',
+            gameData: null,
+            selectedWords: [],
+            foundCategories: [],
+            remainingWords: [],
+            mistakes: 0,
+            gameOver: false,
+            message: '',
+            messageType: '',
+            showPasswordPrompt: false,
+            passwordInput: '',
+            categories: [
                 { title: '', words: ['', '', '', ''], difficulty: 'easy' },
                 { title: '', words: ['', '', '', ''], difficulty: 'medium' },
                 { title: '', words: ['', '', '', ''], difficulty: 'hard' },
                 { title: '', words: ['', '', '', ''], difficulty: 'tricky' }
-            ]);
+            ]
+        };
 
-            const MAX_MISTAKES = 4;
+        const MAX_MISTAKES = 4;
 
-            useEffect(() => {
-                loadGame();
-            }, []);
+        // Utility Functions
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
 
-            const loadGame = () => {
-                setLoading(true);
-                try {
-                    const saved = localStorage.getItem('connections-game');
-                    if (saved) {
-                        const data = JSON.parse(saved);
-                        setGameData(data);
-                        setCategories(data.categories);
-                        const allWords = data.categories.flatMap(cat => cat.words);
-                        setRemainingWords(shuffleArray([...allWords]));
-                        setFoundCategories([]);
-                        setSelectedWords([]);
-                        setMistakes(0);
-                        setGameOver(false);
-                        setMessage('');
-                    } else {
-                        setMessage('No game available yet. Use Admin Mode to create one!');
-                    }
-                } catch (error) {
-                    setMessage('No game available yet. Use Admin Mode to create one!');
-                }
-                setLoading(false);
-            };
-
-            const shuffleArray = (array) => {
-                const newArray = [...array];
-                for (let i = newArray.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-                }
-                return newArray;
-            };
-
-            const toggleWord = (word) => {
-                if (selectedWords.includes(word)) {
-                    setSelectedWords(selectedWords.filter(w => w !== word));
-                } else if (selectedWords.length < 4) {
-                    setSelectedWords([...selectedWords, word]);
-                }
-            };
-
-            const shuffleWords = () => {
-                setRemainingWords(shuffleArray([...remainingWords]));
-                setMessage('Words shuffled!');
-                setTimeout(() => setMessage(''), 2000);
-            };
-
-            const deselectAll = () => {
-                setSelectedWords([]);
-            };
-
-            const submitGuess = () => {
-                if (selectedWords.length !== 4) return;
-
-                const matchedCategory = gameData.categories.find(cat => {
-                    const categoryWords = cat.words.sort();
-                    const selectedSorted = [...selectedWords].sort();
-                    return JSON.stringify(categoryWords) === JSON.stringify(selectedSorted);
-                });
-
-                if (matchedCategory) {
-                    setFoundCategories([...foundCategories, matchedCategory]);
-                    setRemainingWords(remainingWords.filter(w => !selectedWords.includes(w)));
-                    setSelectedWords([]);
-                    setMessage('Correct! 🎉');
-                    
-                    if (foundCategories.length + 1 === gameData.categories.length) {
-                        setGameOver(true);
-                        setMessage('Congratulations! You won! 🎊');
-                    }
+        function loadGame() {
+            try {
+                const saved = localStorage.getItem('connections-game');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    state.gameData = data;
+                    state.categories = data.categories;
+                    const allWords = data.categories.flatMap(cat => cat.words);
+                    state.remainingWords = shuffleArray([...allWords]);
+                    state.foundCategories = [];
+                    state.selectedWords = [];
+                    state.mistakes = 0;
+                    state.gameOver = false;
+                    state.message = '';
                 } else {
-                    const newMistakes = mistakes + 1;
-                    setMistakes(newMistakes);
-                    setSelectedWords([]);
-                    
-                    if (newMistakes >= MAX_MISTAKES) {
-                        setGameOver(true);
-                        setMessage('Game Over! Better luck next time!');
-                        
-                        const unsolvedCategories = gameData.categories.filter(
-                            cat => !foundCategories.some(fc => fc.title === cat.title)
-                        );
-                        setFoundCategories([...foundCategories, ...unsolvedCategories]);
-                    } else {
-                        setMessage(`Not quite! ${MAX_MISTAKES - newMistakes} mistakes remaining.`);
-                    }
+                    state.message = 'No game available yet. Use Admin Mode to create one!';
+                    state.messageType = 'info';
                 }
+            } catch (error) {
+                state.message = 'No game available yet. Use Admin Mode to create one!';
+                state.messageType = 'info';
+            }
+            render();
+        }
 
+        function toggleWord(word) {
+            if (state.selectedWords.includes(word)) {
+                state.selectedWords = state.selectedWords.filter(w => w !== word);
+            } else if (state.selectedWords.length < 4) {
+                state.selectedWords.push(word);
+            }
+            render();
+        }
+
+        function shuffleWords() {
+            state.remainingWords = shuffleArray([...state.remainingWords]);
+            state.message = 'Words shuffled!';
+            state.messageType = 'info';
+            render();
+            setTimeout(() => {
+                state.message = '';
+                render();
+            }, 2000);
+        }
+
+        function deselectAll() {
+            state.selectedWords = [];
+            render();
+        }
+
+        function submitGuess() {
+            if (state.selectedWords.length !== 4) return;
+
+            const matchedCategory = state.gameData.categories.find(cat => {
+                const categoryWords = [...cat.words].sort();
+                const selectedSorted = [...state.selectedWords].sort();
+                return JSON.stringify(categoryWords) === JSON.stringify(selectedSorted);
+            });
+
+            if (matchedCategory) {
+                state.foundCategories.push(matchedCategory);
+                state.remainingWords = state.remainingWords.filter(w => !state.selectedWords.includes(w));
+                state.selectedWords = [];
+                state.message = 'Correct! 🎉';
+                state.messageType = 'success';
+                
+                if (state.foundCategories.length === state.gameData.categories.length) {
+                    state.gameOver = true;
+                    state.message = 'Congratulations! You won! 🎊';
+                }
+            } else {
+                state.mistakes++;
+                state.selectedWords = [];
+                
+                if (state.mistakes >= MAX_MISTAKES) {
+                    state.gameOver = true;
+                    state.message = 'Game Over! Better luck next time!';
+                    state.messageType = 'error';
+                    
+                    const unsolvedCategories = state.gameData.categories.filter(
+                        cat => !state.foundCategories.some(fc => fc.title === cat.title)
+                    );
+                    state.foundCategories.push(...unsolvedCategories);
+                } else {
+                    state.message = `Not quite! ${MAX_MISTAKES - state.mistakes} mistakes remaining.`;
+                    state.messageType = 'error';
+                }
+            }
+
+            render();
+            setTimeout(() => {
+                if (state.mistakes < MAX_MISTAKES && state.foundCategories.length < state.gameData.categories.length) {
+                    state.message = '';
+                    render();
+                }
+            }, 2000);
+        }
+
+        function switchToAdmin() {
+            state.showPasswordPrompt = true;
+            render();
+        }
+
+        function handlePasswordSubmit() {
+            if (state.passwordInput === 'admin123') {
+                state.mode = 'admin';
+                state.showPasswordPrompt = false;
+                state.passwordInput = '';
+                loadGame();
+            } else {
+                state.message = '❌ Incorrect password!';
+                state.messageType = 'error';
+                state.passwordInput = '';
+                render();
                 setTimeout(() => {
-                    if (mistakes + 1 < MAX_MISTAKES && foundCategories.length + 1 < gameData.categories.length) {
-                        setMessage('');
-                    }
+                    state.message = '';
+                    render();
                 }, 2000);
-            };
+            }
+        }
 
-            const updateCategoryTitle = (index, value) => {
-                const newCategories = [...categories];
-                newCategories[index].title = value;
-                setCategories(newCategories);
-            };
+        function handlePasswordCancel() {
+            state.showPasswordPrompt = false;
+            state.passwordInput = '';
+            render();
+        }
 
-            const updateWord = (categoryIndex, wordIndex, value) => {
-                const newCategories = [...categories];
-                newCategories[categoryIndex].words[wordIndex] = value;
-                setCategories(newCategories);
-            };
+        function switchToPlayer() {
+            state.mode = 'player';
+            loadGame();
+        }
 
-            const updateDifficulty = (index, value) => {
-                const newCategories = [...categories];
-                newCategories[index].difficulty = value;
-                setCategories(newCategories);
-            };
+        function updateCategoryTitle(index, value) {
+            state.categories[index].title = value;
+            render();
+        }
 
-            const validateGame = () => {
-                for (let i = 0; i < categories.length; i++) {
-                    const cat = categories[i];
-                    if (!cat.title.trim()) {
-                        return `Category ${i + 1} needs a title`;
+        function updateWord(categoryIndex, wordIndex, value) {
+            state.categories[categoryIndex].words[wordIndex] = value;
+            render();
+        }
+
+        function updateDifficulty(index, value) {
+            state.categories[index].difficulty = value;
+            render();
+        }
+
+        function validateGame() {
+            for (let i = 0; i < state.categories.length; i++) {
+                const cat = state.categories[i];
+                if (!cat.title.trim()) {
+                    return `Category ${i + 1} needs a title`;
+                }
+                for (let j = 0; j < cat.words.length; j++) {
+                    if (!cat.words[j].trim()) {
+                        return `Category ${i + 1} is missing word ${j + 1}`;
                     }
-                    for (let j = 0; j < cat.words.length; j++) {
-                        if (!cat.words[j].trim()) {
-                            return `Category ${i + 1} is missing word ${j + 1}`;
-                        }
-                    }
                 }
-                
-                const allWords = categories.flatMap(cat => cat.words.map(w => w.trim().toLowerCase()));
-                const uniqueWords = new Set(allWords);
-                if (uniqueWords.size !== allWords.length) {
-                    return 'All words must be unique (no duplicates)';
-                }
-                
-                return null;
-            };
+            }
+            
+            const allWords = state.categories.flatMap(cat => cat.words.map(w => w.trim().toLowerCase()));
+            const uniqueWords = new Set(allWords);
+            if (uniqueWords.size !== allWords.length) {
+                return 'All words must be unique (no duplicates)';
+            }
+            
+            return null;
+        }
 
-            const saveGame = () => {
-                const error = validateGame();
-                if (error) {
-                    setMessage(`Error: ${error}`);
-                    setTimeout(() => setMessage(''), 4000);
-                    return;
-                }
-
-                const gameDataToSave = {
-                    categories: categories.map(cat => ({
-                        ...cat,
-                        title: cat.title.trim(),
-                        words: cat.words.map(w => w.trim())
-                    })),
-                    createdAt: new Date().toISOString()
-                };
-
-                try {
-                    localStorage.setItem('connections-game', JSON.stringify(gameDataToSave));
-                    setMessage('✅ Game saved! Switch to Player Mode to test it!');
-                    setTimeout(() => setMessage(''), 3000);
-                } catch (error) {
-                    setMessage('❌ Error saving game. Please try again.');
-                    setTimeout(() => setMessage(''), 3000);
-                }
-            };
-
-            const clearAll = () => {
-                if (confirm('Are you sure you want to clear all categories?')) {
-                    setCategories([
-                        { title: '', words: ['', '', '', ''], difficulty: 'easy' },
-                        { title: '', words: ['', '', '', ''], difficulty: 'medium' },
-                        { title: '', words: ['', '', '', ''], difficulty: 'hard' },
-                        { title: '', words: ['', '', '', ''], difficulty: 'tricky' }
-                    ]);
-                    setMessage('All fields cleared');
-                    setTimeout(() => setMessage(''), 2000);
-                }
-            };
-
-            const fillExample = () => {
-                setCategories([
-                    {
-                        title: 'Christmas Movies',
-                        words: ['Elf', 'Home Alone', 'The Grinch', 'Miracle'],
-                        difficulty: 'easy'
-                    },
-                    {
-                        title: 'Winter Activities',
-                        words: ['Skiing', 'Sledding', 'Ice Skating', 'Snowboarding'],
-                        difficulty: 'medium'
-                    },
-                    {
-                        title: 'Holiday Foods',
-                        words: ['Turkey', 'Ham', 'Stuffing', 'Cranberry'],
-                        difficulty: 'hard'
-                    },
-                    {
-                        title: 'Words with "Snow"',
-                        words: ['Snowman', 'Snowflake', 'Snowball', 'Snowstorm'],
-                        difficulty: 'tricky'
-                    }
-                ]);
-                setMessage('Example loaded! Edit and save when ready.');
-                setTimeout(() => setMessage(''), 3000);
-            };
-
-            const switchToAdmin = () => {
-                setShowPasswordPrompt(true);
-            };
-
-            const handlePasswordSubmit = () => {
-                if (passwordInput === 'admin123') {
-                    setMode('admin');
-                    setShowPasswordPrompt(false);
-                    setPasswordInput('');
-                    loadGame();
-                } else {
-                    setMessage('❌ Incorrect password!');
-                    setTimeout(() => setMessage(''), 2000);
-                    setPasswordInput('');
-                }
-            };
-
-            const handlePasswordCancel = () => {
-                setShowPasswordPrompt(false);
-                setPasswordInput('');
-            };
-
-            const switchToPlayer = () => {
-                setMode('player');
-                loadGame();
-            };
-
-            const getDifficultyColor = (difficulty) => {
-                const colors = {
-                    easy: 'bg-yellow-400',
-                    medium: 'bg-green-500',
-                    hard: 'bg-blue-500',
-                    tricky: 'bg-purple-600'
-                };
-                return colors[difficulty] || 'bg-gray-400';
-            };
-
-            const getDifficultyBorderColor = (difficulty) => {
-                const colors = {
-                    easy: 'border-yellow-400 bg-yellow-50',
-                    medium: 'border-green-500 bg-green-50',
-                    hard: 'border-blue-500 bg-blue-50',
-                    tricky: 'border-purple-600 bg-purple-50'
-                };
-                return colors[difficulty] || 'border-gray-400 bg-gray-50';
-            };
-
-            if (loading) {
-                return (
-                    <div style={{minHeight: '100vh', background: 'linear-gradient(to bottom right, #fef2f2, #f0fdf4, #eff6ff)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'}}>
-                        <div style={{fontSize: '1.25rem', color: '#4b5563'}}>Loading game...</div>
-                    </div>
-                );
+        function saveGame() {
+            const error = validateGame();
+            if (error) {
+                state.message = `Error: ${error}`;
+                state.messageType = 'error';
+                render();
+                setTimeout(() => {
+                    state.message = '';
+                    render();
+                }, 4000);
+                return;
             }
 
-            if (showPasswordPrompt) {
-                return (
-                    <div style={{minHeight: '100vh', background: 'linear-gradient(to bottom right, #fef2f2, #f0fdf4, #eff6ff)', padding: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                        <div style={{background: 'white', borderRadius: '0.5rem', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '2rem', maxWidth: '28rem', width: '100%'}}>
-                            <h2 style={{fontSize: '1.5rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '1rem'}}>Admin Access</h2>
-                            <p style={{color: '#4b5563', marginBottom: '1rem'}}>Enter the admin password:</p>
-                            <input
-                                type="password"
-                                value={passwordInput}
-                                onChange={(e) => setPasswordInput(e.target.value)}
-                                onKeyPress={(e) => e.key === 'Enter' && handlePasswordSubmit()}
-                                placeholder="Password"
-                                style={{width: '100%', padding: '0.5rem 1rem', border: '1px solid #d1d5db', borderRadius: '0.5rem', marginBottom: '1rem'}}
-                                autoFocus
-                            />
-                            <div style={{display: 'flex', gap: '0.5rem'}}>
-                                <button
-                                    onClick={handlePasswordSubmit}
-                                    style={{flex: 1, padding: '0.5rem 1rem', background: '#9333ea', color: 'white', borderRadius: '0.5rem', fontWeight: '600', border: 'none', cursor: 'pointer'}}
-                                >
-                                    Submit
-                                </button>
-                                <button
-                                    onClick={handlePasswordCancel}
-                                    style={{flex: 1, padding: '0.5rem 1rem', background: '#d1d5db', color: '#374151', borderRadius: '0.5rem', fontWeight: '600', border: 'none', cursor: 'pointer'}}
-                                >
-                                    Cancel
-                                </button>
-                            </div>
+            const gameDataToSave = {
+                categories: state.categories.map(cat => ({
+                    ...cat,
+                    title: cat.title.trim(),
+                    words: cat.words.map(w => w.trim())
+                })),
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                localStorage.setItem('connections-game', JSON.stringify(gameDataToSave));
+                state.message = '✅ Game saved! Switch to Player Mode to test it!';
+                state.messageType = 'success';
+                render();
+                setTimeout(() => {
+                    state.message = '';
+                    render();
+                }, 3000);
+            } catch (error) {
+                state.message = '❌ Error saving game. Please try again.';
+                state.messageType = 'error';
+                render();
+                setTimeout(() => {
+                    state.message = '';
+                    render();
+                }, 3000);
+            }
+        }
+
+        function clearAll() {
+            if (confirm('Are you sure you want to clear all categories?')) {
+                state.categories = [
+                    { title: '', words: ['', '', '', ''], difficulty: 'easy' },
+                    { title: '', words: ['', '', '', ''], difficulty: 'medium' },
+                    { title: '', words: ['', '', '', ''], difficulty: 'hard' },
+                    { title: '', words: ['', '', '', ''], difficulty: 'tricky' }
+                ];
+                state.message = 'All fields cleared';
+                state.messageType = 'info';
+                render();
+                setTimeout(() => {
+                    state.message = '';
+                    render();
+                }, 2000);
+            }
+        }
+
+        function fillExample() {
+            state.categories = [
+                {
+                    title: 'Christmas Movies',
+                    words: ['Elf', 'Home Alone', 'The Grinch', 'Miracle'],
+                    difficulty: 'easy'
+                },
+                {
+                    title: 'Winter Activities',
+                    words: ['Skiing', 'Sledding', 'Ice Skating', 'Snowboarding'],
+                    difficulty: 'medium'
+                },
+                {
+                    title: 'Holiday Foods',
+                    words: ['Turkey', 'Ham', 'Stuffing', 'Cranberry'],
+                    difficulty: 'hard'
+                },
+                {
+                    title: 'Words with "Snow"',
+                    words: ['Snowman', 'Snowflake', 'Snowball', 'Snowstorm'],
+                    difficulty: 'tricky'
+                }
+            ];
+            state.message = 'Example loaded! Edit and save when ready.';
+            state.messageType = 'success';
+            render();
+            setTimeout(() => {
+                state.message = '';
+                render();
+            }, 3000);
+        }
+
+        // Render Functions
+        function render() {
+            const app = document.getElementById('app');
+            
+            if (state.showPasswordPrompt) {
+                app.innerHTML = renderPasswordPrompt();
+                attachPasswordEventListeners();
+                return;
+            }
+            
+            if (state.mode === 'admin') {
+                app.innerHTML = renderAdmin();
+                attachAdminEventListeners();
+                return;
+            }
+            
+            app.innerHTML = renderPlayer();
+            attachPlayerEventListeners();
+        }
+
+        function renderPasswordPrompt() {
+            return `
+                <div class="modal">
+                    <div class="modal-content">
+                        <h2 class="modal-title">Admin Access</h2>
+                        <p class="modal-text">Enter the admin password:</p>
+                        <input type="password" id="password-input" class="input" placeholder="Password" value="${state.passwordInput}">
+                        <div class="modal-buttons">
+                            <button class="modal-btn modal-btn-primary" id="submit-password">Submit</button>
+                            <button class="modal-btn modal-btn-secondary" id="cancel-password">Cancel</button>
                         </div>
                     </div>
-                );
-            }
+                </div>
+            `;
+        }
 
-            if (mode === 'admin') {
-                return (
-                    <div style={{minHeight: '100vh', background: 'linear-gradient(to bottom right, #0f172a, #581c87, #0f172a)', padding: '1rem'}}>
-                        <div style={{maxWidth: '56rem', margin: '0 auto'}}>
-                            <div style={{textAlign: 'center', marginBottom: '2rem'}}>
-                                <h1 style={{fontSize: '2.25rem', fontWeight: 'bold', color: 'white', marginBottom: '0.5rem'}}>🎮 Admin Mode</h1>
-                                <p style={{color: '#d1d5db'}}>Create and manage your family's game</p>
-                                <button
-                                    onClick={switchToPlayer}
-                                    style={{marginTop: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.2)', color: 'white', borderRadius: '0.5rem', border: 'none', cursor: 'pointer'}}
-                                >
-                                    <X size={18} />
-                                    Exit Admin Mode
-                                </button>
-                            </div>
-
-                            {message && (
-                                <div style={{marginBottom: '1.5rem', padding: '1rem', borderRadius: '0.5rem', textAlign: 'center', fontWeight: '600', background: message.includes('Error') || message.includes('❌') ? '#ef4444' : '#10b981', color: 'white'}}>
-                                    {message}
-                                </div>
-                            )}
-
-                            <div style={{background: 'white', borderRadius: '0.5rem', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '1.5rem', marginBottom: '1.5rem'}}>
-                                <div style={{display: 'flex', gap: '0.5rem', marginBottom: '1.5rem'}}>
-                                    <button
-                                        onClick={fillExample}
-                                        style={{display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: '#3b82f6', color: 'white', borderRadius: '0.5rem', border: 'none', cursor: 'pointer'}}
-                                    >
-                                        <Eye size={18} />
-                                        Load Example
-                                    </button>
-                                    <button
-                                        onClick={clearAll}
-                                        style={{display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: '#ef4444', color: 'white', borderRadius: '0.5rem', border: 'none', cursor: 'pointer'}}
-                                    >
-                                        <Trash2 size={18} />
-                                        Clear All
-                                    </button>
-                                </div>
-
-                                <div style={{display: 'flex', flexDirection: 'column', gap: '1.5rem'}}>
-                                    {categories.map((category, catIndex) => (
-                                        <div
-                                            key={catIndex}
-                                            style={{borderLeft: `4px solid`, padding: '1rem', borderRadius: '0 0.5rem 0.5rem 0'}}
-                                            className={getDifficultyBorderColor(category.difficulty)}
-                                        >
-                                            <div style={{marginBottom: '0.75rem'}}>
-                                                <label style={{display: 'block', fontSize: '0.875rem', fontWeight: '600', color: '#374151', marginBottom: '0.25rem'}}>
-                                                    Category {catIndex + 1} Title
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    value={category.title}
-                                                    onChange={(e) => updateCategoryTitle(catIndex, e.target.value)}
-                                                    placeholder="e.g., Types of Fruit"
-                                                    style={{width: '100%', padding: '0.5rem 0.75rem', border: '1px solid #d1d5db', borderRadius: '0.5rem'}}
-                                                />
-                                            </div>
-
-                                            <div style={{marginBottom: '0.75rem'}}>
-                                                <label style={{display: 'block', fontSize: '0.875rem', fontWeight: '600', color: '#374151', marginBottom: '0.25rem'}}>
-                                                    Difficulty
-                                                </label>
-                                                <select
-                                                    value={category.difficulty}
-                                                    onChange={(e) => updateDifficulty(catIndex, e.target.value)}
-                                                    style={{width: '100%', padding: '0.5rem 0.75rem', border: '1px solid #d1d5db', borderRadius: '0.5rem'}}
-                                                >
-                                                    <option value="easy">Easy (Yellow)</option>
-                                                    <option value="medium">Medium (Green)</option>
-                                                    <option value="hard">Hard (Blue)</option>
-                                                    <option value="tricky">Tricky (Purple)</option>
-                                                </select>
-                                            </div>
-
-                                            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem'}}>
-                                                {category.words.map((word, wordIndex) => (
-                                                    <input
-                                                        key={wordIndex}
-                                                        type="text"
-                                                        value={word}
-                                                        onChange={(e) => updateWord(catIndex, wordIndex, e.target.value)}
-                                                        placeholder={`Word ${wordIndex + 1}`}
-                                                        style={{padding: '0.5rem 0.75rem', border: '1px solid #d1d5db', borderRadius: '0.5rem'}}
-                                                    />
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div style={{display: 'flex', gap: '1rem', justifyContent: 'center'}}>
-                                <button
-                                    onClick={saveGame}
-                                    style={{display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '1rem 2rem', background: 'linear-gradient(to right, #10b981, #059669)', color: 'white', borderRadius: '0.5rem', fontWeight: 'bold', fontSize: '1.125rem', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', border: 'none', cursor: 'pointer'}}
-                                >
-                                    <Save size={24} />
-                                    Save Game
-                                </button>
-                            </div>
-
-                            <div style={{marginTop: '2rem', background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)', borderRadius: '0.5rem', padding: '1.5rem', color: 'white'}}>
-                                <h3 style={{fontWeight: 'bold', fontSize: '1.125rem', marginBottom: '0.5rem'}}>💡 Tips:</h3>
-                                <ul style={{fontSize: '0.875rem', color: '#e5e7eb'}}>
-                                    <li>• Each category needs a title and 4 unique words</li>
-                                    <li>• Easy (yellow) should be the most obvious category</li>
-                                    <li>• Tricky (purple) should be the hardest to figure out</li>
-                                    <li>• All 16 words must be unique across all categories</li>
-                                    <li>• After saving, exit admin mode to test your game!</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                );
-            }
-
-            return (
-                <div style={{minHeight: '100vh', background: 'linear-gradient(to bottom right, #fef2f2, #f0fdf4, #eff6ff)', padding: '1rem'}}>
-                    <div style={{maxWidth: '48rem', margin: '0 auto'}}>
-                        <div style={{textAlign: 'center', marginBottom: '2rem'}}>
-                            <h1 style={{fontSize: '2.25rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '0.5rem'}}>Family Connections</h1>
-                            <p style={{color: '#4b5563'}}>Find groups of four items that share something in common</p>
-                            <button
-                                onClick={switchToAdmin}
-                                style={{marginTop: '0.5rem', fontSize: '0.75rem', color: '#6b7280', background: 'none', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.25rem'}}
-                            >
-                                <Settings size={14} />
-                                Admin
+        function renderAdmin() {
+            return `
+                <div class="admin-container">
+                    <div style="max-width: 56rem; margin: 0 auto;">
+                        <div class="admin-header">
+                            <h1 class="admin-title">🎮 Admin Mode</h1>
+                            <p style="color: #d1d5db;">Create and manage your family's game</p>
+                            <button class="admin-btn" id="exit-admin" style="margin-top: 0.75rem; color: white; padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border-radius: 0.5rem;">
+                                ✕ Exit Admin Mode
                             </button>
                         </div>
 
-                        {!gameData ? (
-                            <div style={{textAlign: 'center'}}>
-                                <p style={{fontSize: '1.125rem', color: '#4b5563', marginBottom: '1rem'}}>{message}</p>
-                                <button
-                                    onClick={switchToAdmin}
-                                    style={{padding: '0.75rem 1.5rem', background: '#9333ea', color: 'white', borderRadius: '0.5rem', fontWeight: '600', border: 'none', cursor: 'pointer'}}
-                                >
-                                    Go to Admin Mode
-                                </button>
+                        ${state.message ? `<div class="message ${state.messageType}" style="max-width: 56rem; margin: 0 auto 1.5rem;">${state.message}</div>` : ''}
+
+                        <div class="admin-panel">
+                            <div class="admin-controls">
+                                <button class="admin-btn-action btn-blue" id="load-example">👁 Load Example</button>
+                                <button class="admin-btn-action btn-red" id="clear-all">🗑 Clear All</button>
                             </div>
-                        ) : (
-                            <>
-                                {foundCategories.map((category, idx) => (
-                                    <div
-                                        key={idx}
-                                        style={{color: 'white', padding: '1rem', borderRadius: '0.5rem', marginBottom: '0.75rem', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}}
-                                        className={getDifficultyColor(category.difficulty)}
-                                    >
-                                        <div style={{fontWeight: 'bold', fontSize: '1.125rem', marginBottom: '0.25rem'}}>{category.title.toUpperCase()}</div>
-                                        <div style={{fontSize: '0.875rem', opacity: 0.9}}>{category.words.join(', ')}</div>
+
+                            ${state.categories.map((cat, idx) => `
+                                <div class="category-editor ${cat.difficulty}-border">
+                                    <div class="form-group">
+                                        <label class="label">Category ${idx + 1} Title</label>
+                                        <input type="text" class="input" data-category="${idx}" data-field="title" value="${cat.title}" placeholder="e.g., Types of Fruit">
                                     </div>
-                                ))}
-
-                                {!gameOver && remainingWords.length > 0 && (
-                                    <>
-                                        <div style={{display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem', marginBottom: '1.5rem'}}>
-                                            {remainingWords.map((word, idx) => (
-                                                <button
-                                                    key={idx}
-                                                    onClick={() => toggleWord(word)}
-                                                    style={{
-                                                        padding: '1rem',
-                                                        borderRadius: '0.5rem',
-                                                        fontWeight: '600',
-                                                        fontSize: '0.875rem',
-                                                        transition: 'all 0.2s',
-                                                        background: selectedWords.includes(word) ? '#374151' : 'white',
-                                                        color: selectedWords.includes(word) ? 'white' : '#1f2937',
-                                                        boxShadow: selectedWords.includes(word) ? 'none' : '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-                                                        border: 'none',
-                                                        cursor: 'pointer'
-                                                    }}
-                                                >
-                                                    {word}
-                                                </button>
-                                            ))}
-                                        </div>
-
-                                        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginBottom: '1rem'}}>
-                                            <div style={{fontSize: '0.875rem', color: '#4b5563'}}>
-                                                Mistakes remaining: {MAX_MISTAKES - mistakes}
-                                            </div>
-                                            {[...Array(MAX_MISTAKES)].map((_, idx) => (
-                                                <div
-                                                    key={idx}
-                                                    style={{width: '0.75rem', height: '0.75rem', borderRadius: '50%', background: idx < mistakes ? '#ef4444' : '#d1d5db'}}
-                                                />
-                                            ))}
-                                        </div>
-
-                                        {message && (
-                                            <div style={{
-                                                textAlign: 'center',
-                                                marginBottom: '1rem',
-                                                padding: '0.75rem',
-                                                borderRadius: '0.5rem',
-                                                background: message.includes('Correct') ? '#dcfce7' : message.includes('Not quite') ? '#fee2e2' : '#dbeafe',
-                                                color: message.includes('Correct') ? '#166534' : message.includes('Not quite') ? '#991b1b' : '#1e40af'
-                                            }}>
-                                                {message}
-                                            </div>
-                                        )}
-
-                                        <div style={{display: 'flex', gap: '0.5rem', justifyContent: 'center'}}>
-                                            <button
-                                                onClick={shuffleWords}
-                                                style={{display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.5rem', background: 'white', border: '2px solid #d1d5db', borderRadius: '9999px', fontWeight: '600', cursor: 'pointer'}}
-                                            >
-                                                <Shuffle size={20} />
-                                                Shuffle
-                                            </button>
-                                            <button
-                                                onClick={deselectAll}
-                                                style={{padding: '0.75rem 1.5rem', background: 'white', border: '2px solid #d1d5db', borderRadius: '9999px', fontWeight: '600', cursor: 'pointer'}}
-                                            >
-                                                Deselect All
-                                            </button>
-                                            <button
-                                                onClick={submitGuess}
-                                                disabled={selectedWords.length !== 4}
-                                                style={{
-                                                    padding: '0.75rem 1.5rem',
-                                                    borderRadius: '9999px',
-                                                    fontWeight: '600',
-                                                    transition: 'all 0.2s',
-                                                    background: selectedWords.length === 4 ? '#1f2937' : '#d1d5db',
-                                                    color: selectedWords.length === 4 ? 'white' : '#6b7280',
-                                                    border: 'none',
-                                                    cursor: selectedWords.length === 4 ? 'pointer' : 'not-allowed'
-                                                }}
-                                            >
-                                                Submit
-                                            </button>
-                                        </div>
-                                    </>
-                                )}
-
-                                {gameOver && (
-                                    <div style={{textAlign: 'center', marginTop: '2rem'}}>
-                                        <div style={{marginBottom: '1.5rem', fontSize: '4rem'}}>
-                                            {mistakes < MAX_MISTAKES ? '🏆' : '😅'}
-                                        </div>
-                                        <button
-                                            onClick={loadGame}
-                                            style={{display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '1rem 2rem', background: '#1f2937', color: 'white', borderRadius: '9999px', fontWeight: '600', border: 'none', cursor: 'pointer'}}
-                                        >
-                                            <RotateCcw size={20} />
-                                            Play Again
-                                        </button>
+                                    <div class="form-group">
+                                        <label class="label">Difficulty</label>
+                                        <select class="input" data-category="${idx}" data-field="difficulty">
+                                            <option value="easy" ${cat.difficulty === 'easy' ? 'selected' : ''}>Easy (Yellow)</option>
+                                            <option value="medium" ${cat.difficulty === 'medium' ? 'selected' : ''}>Medium (Green)</option>
+                                            <option value="hard" ${cat.difficulty === 'hard' ? 'selected' : ''}>Hard (Blue)</option>
+                                            <option value="tricky" ${cat.difficulty === 'tricky' ? 'selected' : ''}>Tricky (Purple)</option>
+                                        </select>
                                     </div>
-                                )}
-                            </>
-                        )}
+                                    <div class="words-input-grid">
+                                        ${cat.words.map((word, wordIdx) => `
+                                            <input type="text" class="input" data-category="${idx}" data-word="${wordIdx}" value="${word}" placeholder="Word ${wordIdx + 1}">
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <div style="display: flex; justify-content: center; margin-bottom: 2rem;">
+                            <button class="admin-btn-action btn-green" id="save-game">💾 Save Game</button>
+                        </div>
+
+                        <div style="max-width: 56rem; margin: 0 auto; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 0.5rem; padding: 1.5rem; color: white;">
+                            <h3 style="font-weight: bold; font-size: 1.125rem; margin-bottom: 0.5rem;">💡 Tips:</h3>
+                            <ul style="font-size: 0.875rem; color: #e5e7eb; list-style-position: inside;">
+                                <li>• Each category needs a title and 4 unique words</li>
+                                <li>• Easy (yellow) should be the most obvious category</li>
+                                <li>• Tricky (purple) should be the hardest to figure out</li>
+                                <li>• All 16 words must be unique across all categories</li>
+                                <li>• After saving, exit admin mode to test your game!</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-            );
-        };
+            `;
+        }
 
-        ReactDOM.render(<ConnectionsComplete />, document.getElementById('root'));
-    </script>
-</body>
-</html>
+        function renderPlayer() {
+            if (!state.gameData) {
+                return `
+                    <div class="container">
+                        <header>
+                            <h1>Family Connections</h1>
+                            <p class="subtitle">Find groups of four items that share something in common</p>
+                            <button class="admin-btn" id="admin-btn">⚙ Admin</button>
+                        </header>
+                        <div style="text-align: center;">
+                            <p style="font-size: 1.125rem; color: #4b5563; margin-bottom: 1rem;">${state.message}</p>
+                            <button class="btn btn-primary" id="go-admin">Go to Admin Mode</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="container">
+                    <header>
+                        <h1>Family Connections</h1>
+                        <p class="subtitle">Find groups of four items that share something in common</p>
+                        <button class="admin-btn" id="admin-btn">⚙ Admin</button>
+                    </header>
+
+                    ${state.foundCategories.map(cat => `
+                        <div class="category-found ${cat.difficulty}">
+                            <div class="category-title">${cat.title.toUpperCase()}</div>
+                            <div class="category-words">${cat.words.join(', ')}</div>
+                        </div>
+                    `).join('')}
+
+                    ${!state.gameOver && state.remainingWords.length > 0 ? `
+                        <div class="words-grid">
+                            ${state.remainingWords.map(word => `
+                                <button class="word-btn ${state.selectedWords.includes(word) ? 'selected' : ''}" data-word="${word}">
+                                    ${word}
+                                </button>
+                            `).join('')}
+                        </div>
+
+                        <div class="mistakes-display">
+                            <span>Mistakes remaining: ${MAX_MISTAKES - state.mistakes}</span>
+                            ${[...Array(MAX_MISTAKES)].map((_, idx) => `
+                                <div class="mistake-dot ${idx < state.mistakes ? 'used' : ''}"></div>
+                            `).join('')}
+                        </div>
+
+                        ${state.message ? `<div class="message ${state.messageType}">${state.message}</div>` : ''}
+
+                        <div class="controls">
+                            <button class="btn btn-secondary" id="shuffle-btn">🔀 Shuffle</button>
+                            <button class="btn btn-secondary" id="deselect-btn">Deselect All</button>
+                            <button class="btn btn-primary" id="submit-btn" ${state.selectedWords.length !== 4 ? 'disabled' : ''}>Submit</button>
+                        </div>
+                    ` : ''}
+
+                    ${state.gameOver ? `
+                        <div class="game-over">
+                            <div class="game-over-icon">${state.mistakes < MAX_MISTAKES ? '🏆' : '😅'}</div>
+                            <button class="btn btn-primary" id="play-again-btn">🔄 Play Again</button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function attachPasswordEventListeners() {
+            const submitBtn = document.getElementById('submit-password');
+            const cancelBtn = document.getElementById('cancel-password');
+            const input = document.getElementById('password-input');
+            
+            if (submitBtn) submitBtn.onclick = handlePasswordSubmit;
+            if (cancelBtn) cancelBtn.onclick = handlePasswordCancel;
+            if (input) {
+                input.focus();
+                input.oninput = (e) => {
+                    state.passwordInput = e.target.value;
+                };
+                input.onkeypress = (e) => {
+                    if (e.key === 'Enter') handlePasswordSubmit();
+                };
+            }
+        }
+
+        function attachAdminEventListeners() {
+            const exitBtn = document.getElementById('exit-admin');
+            const loadExampleBtn = document.getElementById('load-example');
+            const clearBtn = document.getElementById('clear-all');
+            const saveBtn = document.getElementById('save-game');
+            
+            if (exitBtn) exitBtn.onclick = switchToPlayer;
+            if (loadExampleBtn) loadExampleBtn.onclick = fillExample;
+            if (clearBtn) clearBtn.onclick = clearAll;
+            if (saveBtn) saveBtn.onclick = saveGame;
+            
+            // Category title inputs
+            document.querySelectorAll('input[data-field="title"]').forEach(input => {
+                input.oninput = (e) => {
+                    const idx = parseInt(e.target.dataset.category);
+                    updateCategoryTitle(idx, e.target.value);
+                };
+            });
+            
+            // Difficulty selects
+            document.querySelectorAll('select[data-field="difficulty"]').forEach(select => {
+                select.onchange = (e) => {
+                    const idx = parseInt(e.target.dataset.category);
+                    updateDifficulty(idx, e.target.value);
+                };
+            });
+            
+            // Word inputs
+            document.querySelectorAll('input[data-word]').forEach(input => {
+                input.oninput = (e) => {
+                    const catIdx = parseInt(e.target.dataset.category);
+                    const wordIdx = parseInt(e.target.dataset.word);
+                    updateWord(catIdx, wordIdx, e.target.value);
+                };
+            });
+        }
+
+        function attachPlayerEventListeners() {
+            const adminBtn = document.getElementById('admin-btn');
+            const goAdminBtn = document.getElementById('go-admin');
+            const shuffleBtn = document.getElementById('shuffle-btn');
+            const deselectBtn = document.getElementById('deselect-btn');
+            const submitBtn = document.getElementById('submit-btn');
+            const playAgainBtn = document.getElementById('play-again-btn');
+            
+            if (adminBtn) adminBtn.onclick = switchToAdmin;
+            if (goAdminBtn) goAdminBtn.onclick = switchToAdmin;
+            if (shuffleBtn) shuffleBtn.onclick = shuffleWords;
+            if (deselectBtn) deselectBtn.onclick = deselectAll;
+            if (submitBtn) submitBtn.onclick = submitGuess;
+            if (playAgainBtn) playAgainBtn.onclick = loadGame;
+            
+            document.querySelectorAll('.word-btn').forEach(btn => {
+                btn.onclick = () => toggleWord(btn.dataset.word);
+            });
+        }
+
+        // Initialize
+        loadGame();
+            
