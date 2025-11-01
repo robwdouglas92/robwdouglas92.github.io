@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Connections Game</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        #root {
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { Shuffle, Award, RotateCcw, Save, Eye, Trash2, Settings, X } = lucide;
+
+        const ConnectionsComplete = () => {
+            const [mode, setMode] = useState('player');
+            const [gameData, setGameData] = useState(null);
+            const [selectedWords, setSelectedWords] = useState([]);
+            const [foundCategories, setFoundCategories] = useState([]);
+            const [remainingWords, setRemainingWords] = useState([]);
+            const [mistakes, setMistakes] = useState(0);
+            const [gameOver, setGameOver] = useState(false);
+            const [message, setMessage] = useState('');
+            const [loading, setLoading] = useState(true);
+            const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
+            const [passwordInput, setPasswordInput] = useState('');
+            
+            const [categories, setCategories] = useState([
+                { title: '', words: ['', '', '', ''], difficulty: 'easy' },
+                { title: '', words: ['', '', '', ''], difficulty: 'medium' },
+                { title: '', words: ['', '', '', ''], difficulty: 'hard' },
+                { title: '', words: ['', '', '', ''], difficulty: 'tricky' }
+            ]);
+
+            const MAX_MISTAKES = 4;
+
+            useEffect(() => {
+                loadGame();
+            }, []);
+
+            const loadGame = () => {
+                setLoading(true);
+                try {
+                    const saved = localStorage.getItem('connections-game');
+                    if (saved) {
+                        const data = JSON.parse(saved);
+                        setGameData(data);
+                        setCategories(data.categories);
+                        const allWords = data.categories.flatMap(cat => cat.words);
+                        setRemainingWords(shuffleArray([...allWords]));
+                        setFoundCategories([]);
+                        setSelectedWords([]);
+                        setMistakes(0);
+                        setGameOver(false);
+                        setMessage('');
+                    } else {
+                        setMessage('No game available yet. Use Admin Mode to create one!');
+                    }
+                } catch (error) {
+                    setMessage('No game available yet. Use Admin Mode to create one!');
+                }
+                setLoading(false);
+            };
+
+            const shuffleArray = (array) => {
+                const newArray = [...array];
+                for (let i = newArray.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+                }
+                return newArray;
+            };
+
+            const toggleWord = (word) => {
+                if (selectedWords.includes(word)) {
+                    setSelectedWords(selectedWords.filter(w => w !== word));
+                } else if (selectedWords.length < 4) {
+                    setSelectedWords([...selectedWords, word]);
+                }
+            };
+
+            const shuffleWords = () => {
+                setRemainingWords(shuffleArray([...remainingWords]));
+                setMessage('Words shuffled!');
+                setTimeout(() => setMessage(''), 2000);
+            };
+
+            const deselectAll = () => {
+                setSelectedWords([]);
+            };
+
+            const submitGuess = () => {
+                if (selectedWords.length !== 4) return;
+
+                const matchedCategory = gameData.categories.find(cat => {
+                    const categoryWords = cat.words.sort();
+                    const selectedSorted = [...selectedWords].sort();
+                    return JSON.stringify(categoryWords) === JSON.stringify(selectedSorted);
+                });
+
+                if (matchedCategory) {
+                    setFoundCategories([...foundCategories, matchedCategory]);
+                    setRemainingWords(remainingWords.filter(w => !selectedWords.includes(w)));
+                    setSelectedWords([]);
+                    setMessage('Correct! 🎉');
+                    
+                    if (foundCategories.length + 1 === gameData.categories.length) {
+                        setGameOver(true);
+                        setMessage('Congratulations! You won! 🎊');
+                    }
+                } else {
+                    const newMistakes = mistakes + 1;
+                    setMistakes(newMistakes);
+                    setSelectedWords([]);
+                    
+                    if (newMistakes >= MAX_MISTAKES) {
+                        setGameOver(true);
+                        setMessage('Game Over! Better luck next time!');
+                        
+                        const unsolvedCategories = gameData.categories.filter(
+                            cat => !foundCategories.some(fc => fc.title === cat.title)
+                        );
+                        setFoundCategories([...foundCategories, ...unsolvedCategories]);
+                    } else {
+                        setMessage(`Not quite! ${MAX_MISTAKES - newMistakes} mistakes remaining.`);
+                    }
+                }
+
+                setTimeout(() => {
+                    if (mistakes + 1 < MAX_MISTAKES && foundCategories.length + 1 < gameData.categories.length) {
+                        setMessage('');
+                    }
+                }, 2000);
+            };
+
+            const updateCategoryTitle = (index, value) => {
+                const newCategories = [...categories];
+                newCategories[index].title = value;
+                setCategories(newCategories);
+            };
+
+            const updateWord = (categoryIndex, wordIndex, value) => {
+                const newCategories = [...categories];
+                newCategories[categoryIndex].words[wordIndex] = value;
+                setCategories(newCategories);
+            };
+
+            const updateDifficulty = (index, value) => {
+                const newCategories = [...categories];
+                newCategories[index].difficulty = value;
+                setCategories(newCategories);
+            };
+
+            const validateGame = () => {
+                for (let i = 0; i < categories.length; i++) {
+                    const cat = categories[i];
+                    if (!cat.title.trim()) {
+                        return `Category ${i + 1} needs a title`;
+                    }
+                    for (let j = 0; j < cat.words.length; j++) {
+                        if (!cat.words[j].trim()) {
+                            return `Category ${i + 1} is missing word ${j + 1}`;
+                        }
+                    }
+                }
+                
+                const allWords = categories.flatMap(cat => cat.words.map(w => w.trim().toLowerCase()));
+                const uniqueWords = new Set(allWords);
+                if (uniqueWords.size !== allWords.length) {
+                    return 'All words must be unique (no duplicates)';
+                }
+                
+                return null;
+            };
+
+            const saveGame = () => {
+                const error = validateGame();
+                if (error) {
+                    setMessage(`Error: ${error}`);
+                    setTimeout(() => setMessage(''), 4000);
+                    return;
+                }
+
+                const gameDataToSave = {
+                    categories: categories.map(cat => ({
+                        ...cat,
+                        title: cat.title.trim(),
+                        words: cat.words.map(w => w.trim())
+                    })),
+                    createdAt: new Date().toISOString()
+                };
+
+                try {
+                    localStorage.setItem('connections-game', JSON.stringify(gameDataToSave));
+                    setMessage('✅ Game saved! Switch to Player Mode to test it!');
+                    setTimeout(() => setMessage(''), 3000);
+                } catch (error) {
+                    setMessage('❌ Error saving game. Please try again.');
+                    setTimeout(() => setMessage(''), 3000);
+                }
+            };
+
+            const clearAll = () => {
+                if (confirm('Are you sure you want to clear all categories?')) {
+                    setCategories([
+                        { title: '', words: ['', '', '', ''], difficulty: 'easy' },
+                        { title: '', words: ['', '', '', ''], difficulty: 'medium' },
+                        { title: '', words: ['', '', '', ''], difficulty: 'hard' },
+                        { title: '', words: ['', '', '', ''], difficulty: 'tricky' }
+                    ]);
+                    setMessage('All fields cleared');
+                    setTimeout(() => setMessage(''), 2000);
+                }
+            };
+
+            const fillExample = () => {
+                setCategories([
+                    {
+                        title: 'Christmas Movies',
+                        words: ['Elf', 'Home Alone', 'The Grinch', 'Miracle'],
+                        difficulty: 'easy'
+                    },
+                    {
+                        title: 'Winter Activities',
+                        words: ['Skiing', 'Sledding', 'Ice Skating', 'Snowboarding'],
+                        difficulty: 'medium'
+                    },
+                    {
+                        title: 'Holiday Foods',
+                        words: ['Turkey', 'Ham', 'Stuffing', 'Cranberry'],
+                        difficulty: 'hard'
+                    },
+                    {
+                        title: 'Words with "Snow"',
+                        words: ['Snowman', 'Snowflake', 'Snowball', 'Snowstorm'],
+                        difficulty: 'tricky'
+                    }
+                ]);
+                setMessage('Example loaded! Edit and save when ready.');
+                setTimeout(() => setMessage(''), 3000);
+            };
+
+            const switchToAdmin = () => {
+                setShowPasswordPrompt(true);
+            };
+
+            const handlePasswordSubmit = () => {
+                if (passwordInput === 'admin123') {
+                    setMode('admin');
+                    setShowPasswordPrompt(false);
+                    setPasswordInput('');
+                    loadGame();
+                } else {
+                    setMessage('❌ Incorrect password!');
+                    setTimeout(() => setMessage(''), 2000);
+                    setPasswordInput('');
+                }
+            };
+
+            const handlePasswordCancel = () => {
+                setShowPasswordPrompt(false);
+                setPasswordInput('');
+            };
+
+            const switchToPlayer = () => {
+                setMode('player');
+                loadGame();
+            };
+
+            const getDifficultyColor = (difficulty) => {
+                const colors = {
+                    easy: 'bg-yellow-400',
+                    medium: 'bg-green-500',
+                    hard: 'bg-blue-500',
+                    tricky: 'bg-purple-600'
+                };
+                return colors[difficulty] || 'bg-gray-400';
+            };
+
+            const getDifficultyBorderColor = (difficulty) => {
+                const colors = {
+                    easy: 'border-yellow-400 bg-yellow-50',
+                    medium: 'border-green-500 bg-green-50',
+                    hard: 'border-blue-500 bg-blue-50',
+                    tricky: 'border-purple-600 bg-purple-50'
+                };
+                return colors[difficulty] || 'border-gray-400 bg-gray-50';
+            };
+
+            if (loading) {
+                return (
+                    <div style={{minHeight: '100vh', background: 'linear-gradient(to bottom right, #fef2f2, #f0fdf4, #eff6ff)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'}}>
+                        <div style={{fontSize: '1.25rem', color: '#4b5563'}}>Loading game...</div>
+                    </div>
+                );
+            }
+
+            if (showPasswordPrompt) {
+                return (
+                    <div style={{minHeight: '100vh', background: 'linear-gradient(to bottom right, #fef2f2, #f0fdf4, #eff6ff)', padding: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                        <div style={{background: 'white', borderRadius: '0.5rem', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '2rem', maxWidth: '28rem', width: '100%'}}>
+                            <h2 style={{fontSize: '1.5rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '1rem'}}>Admin Access</h2>
+                            <p style={{color: '#4b5563', marginBottom: '1rem'}}>Enter the admin password:</p>
+                            <input
+                                type="password"
+                                value={passwordInput}
+                                onChange={(e) => setPasswordInput(e.target.value)}
+                                onKeyPress={(e) => e.key === 'Enter' && handlePasswordSubmit()}
+                                placeholder="Password"
+                                style={{width: '100%', padding: '0.5rem 1rem', border: '1px solid #d1d5db', borderRadius: '0.5rem', marginBottom: '1rem'}}
+                                autoFocus
+                            />
+                            <div style={{display: 'flex', gap: '0.5rem'}}>
+                                <button
+                                    onClick={handlePasswordSubmit}
+                                    style={{flex: 1, padding: '0.5rem 1rem', background: '#9333ea', color: 'white', borderRadius: '0.5rem', fontWeight: '600', border: 'none', cursor: 'pointer'}}
+                                >
+                                    Submit
+                                </button>
+                                <button
+                                    onClick={handlePasswordCancel}
+                                    style={{flex: 1, padding: '0.5rem 1rem', background: '#d1d5db', color: '#374151', borderRadius: '0.5rem', fontWeight: '600', border: 'none', cursor: 'pointer'}}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (mode === 'admin') {
+                return (
+                    <div style={{minHeight: '100vh', background: 'linear-gradient(to bottom right, #0f172a, #581c87, #0f172a)', padding: '1rem'}}>
+                        <div style={{maxWidth: '56rem', margin: '0 auto'}}>
+                            <div style={{textAlign: 'center', marginBottom: '2rem'}}>
+                                <h1 style={{fontSize: '2.25rem', fontWeight: 'bold', color: 'white', marginBottom: '0.5rem'}}>🎮 Admin Mode</h1>
+                                <p style={{color: '#d1d5db'}}>Create and manage your family's game</p>
+                                <button
+                                    onClick={switchToPlayer}
+                                    style={{marginTop: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.2)', color: 'white', borderRadius: '0.5rem', border: 'none', cursor: 'pointer'}}
+                                >
+                                    <X size={18} />
+                                    Exit Admin Mode
+                                </button>
+                            </div>
+
+                            {message && (
+                                <div style={{marginBottom: '1.5rem', padding: '1rem', borderRadius: '0.5rem', textAlign: 'center', fontWeight: '600', background: message.includes('Error') || message.includes('❌') ? '#ef4444' : '#10b981', color: 'white'}}>
+                                    {message}
+                                </div>
+                            )}
+
+                            <div style={{background: 'white', borderRadius: '0.5rem', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '1.5rem', marginBottom: '1.5rem'}}>
+                                <div style={{display: 'flex', gap: '0.5rem', marginBottom: '1.5rem'}}>
+                                    <button
+                                        onClick={fillExample}
+                                        style={{display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: '#3b82f6', color: 'white', borderRadius: '0.5rem', border: 'none', cursor: 'pointer'}}
+                                    >
+                                        <Eye size={18} />
+                                        Load Example
+                                    </button>
+                                    <button
+                                        onClick={clearAll}
+                                        style={{display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: '#ef4444', color: 'white', borderRadius: '0.5rem', border: 'none', cursor: 'pointer'}}
+                                    >
+                                        <Trash2 size={18} />
+                                        Clear All
+                                    </button>
+                                </div>
+
+                                <div style={{display: 'flex', flexDirection: 'column', gap: '1.5rem'}}>
+                                    {categories.map((category, catIndex) => (
+                                        <div
+                                            key={catIndex}
+                                            style={{borderLeft: `4px solid`, padding: '1rem', borderRadius: '0 0.5rem 0.5rem 0'}}
+                                            className={getDifficultyBorderColor(category.difficulty)}
+                                        >
+                                            <div style={{marginBottom: '0.75rem'}}>
+                                                <label style={{display: 'block', fontSize: '0.875rem', fontWeight: '600', color: '#374151', marginBottom: '0.25rem'}}>
+                                                    Category {catIndex + 1} Title
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={category.title}
+                                                    onChange={(e) => updateCategoryTitle(catIndex, e.target.value)}
+                                                    placeholder="e.g., Types of Fruit"
+                                                    style={{width: '100%', padding: '0.5rem 0.75rem', border: '1px solid #d1d5db', borderRadius: '0.5rem'}}
+                                                />
+                                            </div>
+
+                                            <div style={{marginBottom: '0.75rem'}}>
+                                                <label style={{display: 'block', fontSize: '0.875rem', fontWeight: '600', color: '#374151', marginBottom: '0.25rem'}}>
+                                                    Difficulty
+                                                </label>
+                                                <select
+                                                    value={category.difficulty}
+                                                    onChange={(e) => updateDifficulty(catIndex, e.target.value)}
+                                                    style={{width: '100%', padding: '0.5rem 0.75rem', border: '1px solid #d1d5db', borderRadius: '0.5rem'}}
+                                                >
+                                                    <option value="easy">Easy (Yellow)</option>
+                                                    <option value="medium">Medium (Green)</option>
+                                                    <option value="hard">Hard (Blue)</option>
+                                                    <option value="tricky">Tricky (Purple)</option>
+                                                </select>
+                                            </div>
+
+                                            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem'}}>
+                                                {category.words.map((word, wordIndex) => (
+                                                    <input
+                                                        key={wordIndex}
+                                                        type="text"
+                                                        value={word}
+                                                        onChange={(e) => updateWord(catIndex, wordIndex, e.target.value)}
+                                                        placeholder={`Word ${wordIndex + 1}`}
+                                                        style={{padding: '0.5rem 0.75rem', border: '1px solid #d1d5db', borderRadius: '0.5rem'}}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div style={{display: 'flex', gap: '1rem', justifyContent: 'center'}}>
+                                <button
+                                    onClick={saveGame}
+                                    style={{display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '1rem 2rem', background: 'linear-gradient(to right, #10b981, #059669)', color: 'white', borderRadius: '0.5rem', fontWeight: 'bold', fontSize: '1.125rem', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', border: 'none', cursor: 'pointer'}}
+                                >
+                                    <Save size={24} />
+                                    Save Game
+                                </button>
+                            </div>
+
+                            <div style={{marginTop: '2rem', background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)', borderRadius: '0.5rem', padding: '1.5rem', color: 'white'}}>
+                                <h3 style={{fontWeight: 'bold', fontSize: '1.125rem', marginBottom: '0.5rem'}}>💡 Tips:</h3>
+                                <ul style={{fontSize: '0.875rem', color: '#e5e7eb'}}>
+                                    <li>• Each category needs a title and 4 unique words</li>
+                                    <li>• Easy (yellow) should be the most obvious category</li>
+                                    <li>• Tricky (purple) should be the hardest to figure out</li>
+                                    <li>• All 16 words must be unique across all categories</li>
+                                    <li>• After saving, exit admin mode to test your game!</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div style={{minHeight: '100vh', background: 'linear-gradient(to bottom right, #fef2f2, #f0fdf4, #eff6ff)', padding: '1rem'}}>
+                    <div style={{maxWidth: '48rem', margin: '0 auto'}}>
+                        <div style={{textAlign: 'center', marginBottom: '2rem'}}>
+                            <h1 style={{fontSize: '2.25rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '0.5rem'}}>Family Connections</h1>
+                            <p style={{color: '#4b5563'}}>Find groups of four items that share something in common</p>
+                            <button
+                                onClick={switchToAdmin}
+                                style={{marginTop: '0.5rem', fontSize: '0.75rem', color: '#6b7280', background: 'none', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.25rem'}}
+                            >
+                                <Settings size={14} />
+                                Admin
+                            </button>
+                        </div>
+
+                        {!gameData ? (
+                            <div style={{textAlign: 'center'}}>
+                                <p style={{fontSize: '1.125rem', color: '#4b5563', marginBottom: '1rem'}}>{message}</p>
+                                <button
+                                    onClick={switchToAdmin}
+                                    style={{padding: '0.75rem 1.5rem', background: '#9333ea', color: 'white', borderRadius: '0.5rem', fontWeight: '600', border: 'none', cursor: 'pointer'}}
+                                >
+                                    Go to Admin Mode
+                                </button>
+                            </div>
+                        ) : (
+                            <>
+                                {foundCategories.map((category, idx) => (
+                                    <div
+                                        key={idx}
+                                        style={{color: 'white', padding: '1rem', borderRadius: '0.5rem', marginBottom: '0.75rem', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}}
+                                        className={getDifficultyColor(category.difficulty)}
+                                    >
+                                        <div style={{fontWeight: 'bold', fontSize: '1.125rem', marginBottom: '0.25rem'}}>{category.title.toUpperCase()}</div>
+                                        <div style={{fontSize: '0.875rem', opacity: 0.9}}>{category.words.join(', ')}</div>
+                                    </div>
+                                ))}
+
+                                {!gameOver && remainingWords.length > 0 && (
+                                    <>
+                                        <div style={{display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem', marginBottom: '1.5rem'}}>
+                                            {remainingWords.map((word, idx) => (
+                                                <button
+                                                    key={idx}
+                                                    onClick={() => toggleWord(word)}
+                                                    style={{
+                                                        padding: '1rem',
+                                                        borderRadius: '0.5rem',
+                                                        fontWeight: '600',
+                                                        fontSize: '0.875rem',
+                                                        transition: 'all 0.2s',
+                                                        background: selectedWords.includes(word) ? '#374151' : 'white',
+                                                        color: selectedWords.includes(word) ? 'white' : '#1f2937',
+                                                        boxShadow: selectedWords.includes(word) ? 'none' : '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                                                        border: 'none',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                >
+                                                    {word}
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginBottom: '1rem'}}>
+                                            <div style={{fontSize: '0.875rem', color: '#4b5563'}}>
+                                                Mistakes remaining: {MAX_MISTAKES - mistakes}
+                                            </div>
+                                            {[...Array(MAX_MISTAKES)].map((_, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    style={{width: '0.75rem', height: '0.75rem', borderRadius: '50%', background: idx < mistakes ? '#ef4444' : '#d1d5db'}}
+                                                />
+                                            ))}
+                                        </div>
+
+                                        {message && (
+                                            <div style={{
+                                                textAlign: 'center',
+                                                marginBottom: '1rem',
+                                                padding: '0.75rem',
+                                                borderRadius: '0.5rem',
+                                                background: message.includes('Correct') ? '#dcfce7' : message.includes('Not quite') ? '#fee2e2' : '#dbeafe',
+                                                color: message.includes('Correct') ? '#166534' : message.includes('Not quite') ? '#991b1b' : '#1e40af'
+                                            }}>
+                                                {message}
+                                            </div>
+                                        )}
+
+                                        <div style={{display: 'flex', gap: '0.5rem', justifyContent: 'center'}}>
+                                            <button
+                                                onClick={shuffleWords}
+                                                style={{display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.5rem', background: 'white', border: '2px solid #d1d5db', borderRadius: '9999px', fontWeight: '600', cursor: 'pointer'}}
+                                            >
+                                                <Shuffle size={20} />
+                                                Shuffle
+                                            </button>
+                                            <button
+                                                onClick={deselectAll}
+                                                style={{padding: '0.75rem 1.5rem', background: 'white', border: '2px solid #d1d5db', borderRadius: '9999px', fontWeight: '600', cursor: 'pointer'}}
+                                            >
+                                                Deselect All
+                                            </button>
+                                            <button
+                                                onClick={submitGuess}
+                                                disabled={selectedWords.length !== 4}
+                                                style={{
+                                                    padding: '0.75rem 1.5rem',
+                                                    borderRadius: '9999px',
+                                                    fontWeight: '600',
+                                                    transition: 'all 0.2s',
+                                                    background: selectedWords.length === 4 ? '#1f2937' : '#d1d5db',
+                                                    color: selectedWords.length === 4 ? 'white' : '#6b7280',
+                                                    border: 'none',
+                                                    cursor: selectedWords.length === 4 ? 'pointer' : 'not-allowed'
+                                                }}
+                                            >
+                                                Submit
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
+
+                                {gameOver && (
+                                    <div style={{textAlign: 'center', marginTop: '2rem'}}>
+                                        <div style={{marginBottom: '1.5rem', fontSize: '4rem'}}>
+                                            {mistakes < MAX_MISTAKES ? '🏆' : '😅'}
+                                        </div>
+                                        <button
+                                            onClick={loadGame}
+                                            style={{display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '1rem 2rem', background: '#1f2937', color: 'white', borderRadius: '9999px', fontWeight: '600', border: 'none', cursor: 'pointer'}}
+                                        >
+                                            <RotateCcw size={20} />
+                                            Play Again
+                                        </button>
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<ConnectionsComplete />, document.getElementById('root'));
+    </script>
+</body>
+</html>
