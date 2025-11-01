@@ -130,6 +130,7 @@
             padding: 0.75rem;
             border-radius: 0.5rem;
             font-weight: 600;
+            white-space: pre-wrap;
         }
         
         .msg-success {
@@ -401,49 +402,28 @@
                 font-size: 1.75rem;
             }
         }
-        
-        .hidden {
-            display: none;
-        }
     </style>
 </head>
 <body>
-    <div id="app"></div>
+    <div id="app">Loading...</div>
 
-<!-- Firebase SDKs -->
-<script type="module">
-  // Import the needed Firebase modules
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-  // Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyBjiragFxVWw-oHPpf23E7CujI5yZrP5U8",
-  authDomain: "family-connections-de1a6.firebaseapp.com",
-  projectId: "family-connections-de1a6",
-  storageBucket: "family-connections-de1a6.appspot.com",
-  messagingSenderId: "255614664421",
-  appId: "1:255614664421:web:1a48b3b5cc119ea8a35e0c"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyBjiragFxVWw-oHPpf23E7CujI5yZrP5U8",
+            authDomain: "family-connections-de1a6.firebaseapp.com",
+            projectId: "family-connections-de1a6",
+            storageBucket: "family-connections-de1a6.appspot.com",
+            messagingSenderId: "255614664421",
+            appId: "1:255614664421:web:1a48b3b5cc119ea8a35e0c"
+        };
 
-  // Initialize Firebase and Firestore
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        console.log('Firebase initialized');
 
-  // Make these global so your other script can access them
-  window.db = db;
-  window.firebaseApp = app;
-  window.doc = doc;
-  window.setDoc = setDoc;
-  window.getDoc = getDoc;  
-</script>
-
-  
-    <script>
-        // Test that JavaScript is working
-        console.log('Connections game loading...');
-
-        // Game state
         const state = {
             mode: 'player',
             gameData: null,
@@ -466,7 +446,6 @@ const firebaseConfig = {
 
         const MAX_MISTAKES = 4;
 
-        // Utility functions
         function shuffleArray(array) {
             const newArray = [...array];
             for (let i = newArray.length - 1; i > 0; i--) {
@@ -476,47 +455,47 @@ const firebaseConfig = {
             return newArray;
         }
 
-       // LOAD GAME FROM FIREBASE
-async function loadGame() {
-  const params = new URLSearchParams(window.location.search);
-  const gameId = params.get("id");
+        async function loadGame() {
+            console.log('Loading game...');
+            const params = new URLSearchParams(window.location.search);
+            const gameId = params.get("id");
 
-  if (!gameId) {
-    state.message = "No game ID provided. Use Admin Mode to create one!";
-    state.messageType = "info";
-    render();
-    return;
-  }
+            if (!gameId) {
+                state.message = "No game ID provided. Use Admin Mode to create one!";
+                state.messageType = "info";
+                render();
+                return;
+            }
 
-  try {
-    const gameRef = doc(window.db, "games", gameId);
-    const snap = await getDoc(gameRef);
+            try {
+                const gameRef = doc(db, "games", gameId);
+                const snap = await getDoc(gameRef);
 
-    if (snap.exists()) {
-      const data = snap.data();
-      state.gameData = data;
-      state.categories = JSON.parse(JSON.stringify(data.categories));
-      const allWords = data.categories.flatMap(cat => cat.words);
-      state.remainingWords = shuffleArray([...allWords]);
-      state.foundCategories = [];
-      state.selectedWords = [];
-      state.mistakes = 0;
-      state.gameOver = false;
-      state.message = "";
-      render();
-    } else {
-      state.message = "Game not found!";
-      state.messageType = "error";
-      render();
-    }
-  } catch (error) {
-    console.error("Error loading from Firestore:", error);
-    state.message = "Error loading game.";
-    state.messageType = "error";
-    render();
-  }
-}
-
+                if (snap.exists()) {
+                    const data = snap.data();
+                    state.gameData = data;
+                    state.categories = JSON.parse(JSON.stringify(data.categories));
+                    const allWords = data.categories.flatMap(cat => cat.words);
+                    state.remainingWords = shuffleArray([...allWords]);
+                    state.foundCategories = [];
+                    state.selectedWords = [];
+                    state.mistakes = 0;
+                    state.gameOver = false;
+                    state.message = "";
+                    console.log('Game loaded');
+                    render();
+                } else {
+                    state.message = "Game not found!";
+                    state.messageType = "error";
+                    render();
+                }
+            } catch (error) {
+                console.error("Error loading:", error);
+                state.message = "Error loading game.";
+                state.messageType = "error";
+                render();
+            }
+        }
 
         function toggleWord(word) {
             const idx = state.selectedWords.indexOf(word);
@@ -602,7 +581,8 @@ async function loadGame() {
                 state.mode = 'admin';
                 state.showPasswordPrompt = false;
                 state.passwordInput = '';
-                loadGame();
+                state.message = '';
+                render();
             } else {
                 state.message = '❌ Incorrect password!';
                 state.messageType = 'error';
@@ -648,43 +628,49 @@ async function loadGame() {
             return null;
         }
 
-        // SAVE GAME TO FIREBASE
-async function saveGame() {
-  const error = validateGame();
-  if (error) {
-    state.message = `Error: ${error}`;
-    state.messageType = 'error';
-    render();
-    return;
-  }
+        async function saveGame() {
+            const error = validateGame();
+            if (error) {
+                state.message = `Error: ${error}`;
+                state.messageType = 'error';
+                render();
+                setTimeout(() => {
+                    state.message = '';
+                    render();
+                }, 4000);
+                return;
+            }
 
-  const gameDataToSave = {
-    categories: state.categories.map(cat => ({
-      ...cat,
-      title: cat.title.trim(),
-      words: cat.words.map(w => w.trim())
-    })),
-    createdAt: new Date().toISOString()
-  };
+            const gameDataToSave = {
+                categories: state.categories.map(cat => ({
+                    ...cat,
+                    title: cat.title.trim(),
+                    words: cat.words.map(w => w.trim())
+                })),
+                createdAt: new Date().toISOString()
+            };
 
-  try {
-    const id = Math.random().toString(36).substring(2, 8);
-    const gameRef = doc(window.db, "games", id);
-    await setDoc(gameRef, gameDataToSave);
+            try {
+                const id = Math.random().toString(36).substring(2, 8);
+                const gameRef = doc(db, "games", id);
+                await setDoc(gameRef, gameDataToSave);
 
-    const shareUrl = `${window.location.origin}${window.location.pathname}?id=${id}`;
-    state.message = `✅ Game saved! Share this link:\n${shareUrl}`;
-    state.messageType = 'success';
-    render();
-    alert(`Game saved! Share this link:\n${shareUrl}`);
-  } catch (err) {
-    console.error("Error saving to Firestore:", err);
-    state.message = "❌ Error saving to Firestore.";
-    state.messageType = "error";
-    render();
-  }
-}
-
+                const shareUrl = `${window.location.origin}${window.location.pathname}?id=${id}`;
+                state.message = `✅ Game saved! Share this link:\n${shareUrl}`;
+                state.messageType = 'success';
+                console.log('Saved with ID:', id);
+                render();
+                
+                setTimeout(() => {
+                    alert(`Game saved! Share this link:\n\n${shareUrl}`);
+                }, 100);
+            } catch (err) {
+                console.error("Error saving:", err);
+                state.message = `❌ Error: ${err.message}`;
+                state.messageType = "error";
+                render();
+            }
+        }
 
         function clearAll() {
             if (confirm('Are you sure you want to clear all categories?')) {
@@ -736,111 +722,88 @@ async function saveGame() {
             }, 3000);
         }
 
-        // Render functions
         function render() {
             const app = document.getElementById('app');
-            
-            if (!app) {
-                console.error('App element not found!');
-                return;
-            }
+            if (!app) return;
             
             if (state.showPasswordPrompt) {
-                app.innerHTML = renderPasswordPrompt();
+                app.innerHTML = `
+                    <div class="modal">
+                        <div class="modal-content">
+                            <h2 class="modal-title">Admin Access</h2>
+                            <p style="color: #4b5563; margin-bottom: 1rem;">Enter the admin password:</p>
+                            <input type="password" id="password-input" class="input" placeholder="Password">
+                            <div class="modal-buttons">
+                                <button class="modal-btn btn-purple" id="submit-password">Submit</button>
+                                <button class="modal-btn btn-gray" id="cancel-password">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
                 attachPasswordListeners();
                 return;
             }
             
             if (state.mode === 'admin') {
-                app.innerHTML = renderAdmin();
+                app.innerHTML = `
+                    <div class="admin-container">
+                        <div class="admin-content">
+                            <div class="admin-header">
+                                <h1 class="admin-title">🎮 Admin Mode</h1>
+                                <p style="color: #d1d5db;">Create and manage your family's game</p>
+                                <button class="exit-admin" id="exit-admin">✕ Exit Admin Mode</button>
+                            </div>
+                            ${state.message ? `<div class="message msg-${state.messageType}">${state.message}</div>` : ''}
+                            <div class="admin-panel">
+                                <div class="admin-controls">
+                                    <button class="admin-btn btn-blue" id="load-example">👁 Load Example</button>
+                                    <button class="admin-btn btn-red" id="clear-all">🗑 Clear All</button>
+                                </div>
+                                ${state.categories.map((cat, idx) => `
+                                    <div class="category-editor border-${cat.difficulty}">
+                                        <div class="form-group">
+                                            <label class="label">Category ${idx + 1} Title</label>
+                                            <input type="text" class="input cat-title" data-idx="${idx}" value="${cat.title}" placeholder="e.g., Types of Fruit">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="label">Difficulty</label>
+                                            <select class="cat-difficulty" data-idx="${idx}">
+                                                <option value="easy" ${cat.difficulty === 'easy' ? 'selected' : ''}>Easy (Yellow)</option>
+                                                <option value="medium" ${cat.difficulty === 'medium' ? 'selected' : ''}>Medium (Green)</option>
+                                                <option value="hard" ${cat.difficulty === 'hard' ? 'selected' : ''}>Hard (Blue)</option>
+                                                <option value="tricky" ${cat.difficulty === 'tricky' ? 'selected' : ''}>Tricky (Purple)</option>
+                                            </select>
+                                        </div>
+                                        <div class="words-input-grid">
+                                            ${cat.words.map((word, wordIdx) => `
+                                                <input type="text" class="input cat-word" data-idx="${idx}" data-word="${wordIdx}" value="${word}" placeholder="Word ${wordIdx + 1}">
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div style="display: flex; justify-content: center; margin-bottom: 2rem;">
+                                <button class="admin-btn btn-green" id="save-game">💾 Save Game</button>
+                            </div>
+                            <div class="tips">
+                                <h3>💡 Tips:</h3>
+                                <ul>
+                                    <li>• Each category needs a title and 4 unique words</li>
+                                    <li>• Easy (yellow) should be the most obvious category</li>
+                                    <li>• Tricky (purple) should be the hardest to figure out</li>
+                                    <li>• All 16 words must be unique across all categories</li>
+                                    <li>• After saving, you'll get a link to share with players!</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `;
                 attachAdminListeners();
                 return;
             }
             
-            app.innerHTML = renderPlayer();
-            attachPlayerListeners();
-        }
-
-        function renderPasswordPrompt() {
-            return `
-                <div class="modal">
-                    <div class="modal-content">
-                        <h2 class="modal-title">Admin Access</h2>
-                        <p style="color: #4b5563; margin-bottom: 1rem;">Enter the admin password:</p>
-                        <input type="password" id="password-input" class="input" placeholder="Password" value="">
-                        <div class="modal-buttons">
-                            <button class="modal-btn btn-purple" id="submit-password">Submit</button>
-                            <button class="modal-btn btn-gray" id="cancel-password">Cancel</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderAdmin() {
-            return `
-                <div class="admin-container">
-                    <div class="admin-content">
-                        <div class="admin-header">
-                            <h1 class="admin-title">🎮 Admin Mode</h1>
-                            <p style="color: #d1d5db;">Create and manage your family's game</p>
-                            <button class="exit-admin" id="exit-admin">✕ Exit Admin Mode</button>
-                        </div>
-
-                        ${state.message ? `<div class="message msg-${state.messageType}">${state.message}</div>` : ''}
-
-                        <div class="admin-panel">
-                            <div class="admin-controls">
-                                <button class="admin-btn btn-blue" id="load-example">👁 Load Example</button>
-                                <button class="admin-btn btn-red" id="clear-all">🗑 Clear All</button>
-                            </div>
-
-                            ${state.categories.map((cat, idx) => `
-                                <div class="category-editor border-${cat.difficulty}">
-                                    <div class="form-group">
-                                        <label class="label">Category ${idx + 1} Title</label>
-                                        <input type="text" class="input cat-title" data-idx="${idx}" value="${cat.title}" placeholder="e.g., Types of Fruit">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="label">Difficulty</label>
-                                        <select class="cat-difficulty" data-idx="${idx}">
-                                            <option value="easy" ${cat.difficulty === 'easy' ? 'selected' : ''}>Easy (Yellow)</option>
-                                            <option value="medium" ${cat.difficulty === 'medium' ? 'selected' : ''}>Medium (Green)</option>
-                                            <option value="hard" ${cat.difficulty === 'hard' ? 'selected' : ''}>Hard (Blue)</option>
-                                            <option value="tricky" ${cat.difficulty === 'tricky' ? 'selected' : ''}>Tricky (Purple)</option>
-                                        </select>
-                                    </div>
-                                    <div class="words-input-grid">
-                                        ${cat.words.map((word, wordIdx) => `
-                                            <input type="text" class="input cat-word" data-idx="${idx}" data-word="${wordIdx}" value="${word}" placeholder="Word ${wordIdx + 1}">
-                                        `).join('')}
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-
-                        <div style="display: flex; justify-content: center; margin-bottom: 2rem;">
-                            <button class="admin-btn btn-green" id="save-game">💾 Save Game</button>
-                        </div>
-
-                        <div class="tips">
-                            <h3>💡 Tips:</h3>
-                            <ul>
-                                <li>• Each category needs a title and 4 unique words</li>
-                                <li>• Easy (yellow) should be the most obvious category</li>
-                                <li>• Tricky (purple) should be the hardest to figure out</li>
-                                <li>• All 16 words must be unique across all categories</li>
-                                <li>• After saving, exit admin mode to test your game!</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderPlayer() {
             if (!state.gameData) {
-                return `
+                app.innerHTML = `
                     <div class="container">
                         <header>
                             <h1>Family Connections</h1>
@@ -853,48 +816,42 @@ async function saveGame() {
                         </div>
                     </div>
                 `;
+                attachPlayerListeners();
+                return;
             }
 
-            return `
+            app.innerHTML = `
                 <div class="container">
                     <header>
                         <h1>Family Connections</h1>
                         <p class="subtitle">Find groups of four items that share something in common</p>
                         <button class="admin-link" id="admin-btn">⚙ Admin</button>
                     </header>
-
                     ${state.foundCategories.map(cat => `
                         <div class="category-found diff-${cat.difficulty}">
                             <div class="category-title">${cat.title.toUpperCase()}</div>
                             <div class="category-words">${cat.words.join(', ')}</div>
                         </div>
                     `).join('')}
-
                     ${!state.gameOver && state.remainingWords.length > 0 ? `
                         <div class="words-grid">
                             ${state.remainingWords.map(word => `
-                                <button class="word-btn ${state.selectedWords.includes(word) ? 'selected' : ''}" data-word="${word}">
-                                    ${word}
-                                </button>
+                                <button class="word-btn ${state.selectedWords.includes(word) ? 'selected' : ''}" data-word="${word}">${word}</button>
                             `).join('')}
                         </div>
-
                         <div class="mistakes">
                             <span>Mistakes remaining: ${MAX_MISTAKES - state.mistakes}</span>
                             ${[...Array(MAX_MISTAKES)].map((_, idx) => `
                                 <div class="dot ${idx < state.mistakes ? 'used' : ''}"></div>
                             `).join('')}
                         </div>
-
                         ${state.message ? `<div class="message msg-${state.messageType}">${state.message}</div>` : ''}
-
                         <div class="controls">
                             <button class="btn btn-secondary" id="shuffle-btn">🔀 Shuffle</button>
                             <button class="btn btn-secondary" id="deselect-btn">Deselect All</button>
                             <button class="btn btn-primary" id="submit-btn" ${state.selectedWords.length !== 4 ? 'disabled' : ''}>Submit</button>
                         </div>
                     ` : ''}
-
                     ${state.gameOver ? `
                         <div class="game-over">
                             <div class="game-over-icon">${state.mistakes < MAX_MISTAKES ? '🏆' : '😅'}</div>
@@ -903,6 +860,7 @@ async function saveGame() {
                     ` : ''}
                 </div>
             `;
+            attachPlayerListeners();
         }
 
         function attachPasswordListeners() {
@@ -910,21 +868,13 @@ async function saveGame() {
             const cancelBtn = document.getElementById('cancel-password');
             const input = document.getElementById('password-input');
             
-            if (submitBtn) {
-                submitBtn.onclick = handlePasswordSubmit;
-            }
-            if (cancelBtn) {
-                cancelBtn.onclick = handlePasswordCancel;
-            }
+            if (submitBtn) submitBtn.onclick = handlePasswordSubmit;
+            if (cancelBtn) cancelBtn.onclick = handlePasswordCancel;
             if (input) {
                 input.focus();
-                input.oninput = (e) => {
-                    state.passwordInput = e.target.value;
-                };
+                input.oninput = (e) => state.passwordInput = e.target.value;
                 input.onkeypress = (e) => {
-                    if (e.key === 'Enter') {
-                        handlePasswordSubmit();
-                    }
+                    if (e.key === 'Enter') handlePasswordSubmit();
                 };
             }
         }
@@ -940,7 +890,6 @@ async function saveGame() {
             if (clearBtn) clearBtn.onclick = clearAll;
             if (saveBtn) saveBtn.onclick = saveGame;
             
-            // Category title inputs
             document.querySelectorAll('.cat-title').forEach(input => {
                 input.oninput = (e) => {
                     const idx = parseInt(e.target.dataset.idx);
@@ -948,7 +897,6 @@ async function saveGame() {
                 };
             });
             
-            // Difficulty selects
             document.querySelectorAll('.cat-difficulty').forEach(select => {
                 select.onchange = (e) => {
                     const idx = parseInt(e.target.dataset.idx);
@@ -957,7 +905,6 @@ async function saveGame() {
                 };
             });
             
-            // Word inputs
             document.querySelectorAll('.cat-word').forEach(input => {
                 input.oninput = (e) => {
                     const idx = parseInt(e.target.dataset.idx);
@@ -987,9 +934,9 @@ async function saveGame() {
             });
         }
 
-        // Initialize the app
-        console.log('Initializing app...');
+        console.log('Initializing...');
         loadGame();
     </script>
 </body>
 </html>
+            
