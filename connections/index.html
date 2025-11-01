@@ -12,7 +12,7 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(to bottom right, #fef2f2, #f0fdf4, #eff6ff);
             min-height: 100vh;
             padding: 1rem;
@@ -39,7 +39,7 @@
             color: #4b5563;
         }
         
-        .admin-btn {
+        .admin-link {
             margin-top: 0.5rem;
             font-size: 0.75rem;
             color: #6b7280;
@@ -47,10 +47,6 @@
             border: none;
             cursor: pointer;
             text-decoration: underline;
-        }
-        
-        .admin-btn:hover {
-            color: #374151;
         }
         
         .category-found {
@@ -72,10 +68,10 @@
             opacity: 0.9;
         }
         
-        .easy { background: #facc15; }
-        .medium { background: #22c55e; }
-        .hard { background: #3b82f6; }
-        .tricky { background: #9333ea; }
+        .diff-easy { background: #facc15; }
+        .diff-medium { background: #22c55e; }
+        .diff-hard { background: #3b82f6; }
+        .diff-tricky { background: #9333ea; }
         
         .words-grid {
             display: grid;
@@ -89,27 +85,25 @@
             border-radius: 0.5rem;
             font-weight: 600;
             font-size: 0.875rem;
-            transition: all 0.2s;
             background: white;
             color: #1f2937;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             border: none;
             cursor: pointer;
+            transition: all 0.2s;
         }
         
         .word-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.15);
         }
         
         .word-btn.selected {
             background: #374151;
             color: white;
             transform: scale(0.95);
-            box-shadow: none;
         }
         
-        .mistakes-display {
+        .mistakes {
             display: flex;
             align-items: center;
             justify-content: center;
@@ -119,14 +113,14 @@
             color: #4b5563;
         }
         
-        .mistake-dot {
+        .dot {
             width: 0.75rem;
             height: 0.75rem;
             border-radius: 50%;
             background: #d1d5db;
         }
         
-        .mistake-dot.used {
+        .dot.used {
             background: #ef4444;
         }
         
@@ -138,17 +132,17 @@
             font-weight: 600;
         }
         
-        .message.success {
+        .msg-success {
             background: #dcfce7;
             color: #166534;
         }
         
-        .message.error {
+        .msg-error {
             background: #fee2e2;
             color: #991b1b;
         }
         
-        .message.info {
+        .msg-info {
             background: #dbeafe;
             color: #1e40af;
         }
@@ -166,7 +160,6 @@
             font-weight: 600;
             cursor: pointer;
             border: none;
-            transition: all 0.2s;
         }
         
         .btn-secondary {
@@ -175,17 +168,9 @@
             color: #1f2937;
         }
         
-        .btn-secondary:hover {
-            background: #f3f4f6;
-        }
-        
         .btn-primary {
             background: #1f2937;
             color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #111827;
         }
         
         .btn-primary:disabled {
@@ -204,7 +189,6 @@
             margin-bottom: 1.5rem;
         }
         
-        /* Admin Styles */
         .modal {
             position: fixed;
             top: 0;
@@ -216,12 +200,12 @@
             align-items: center;
             justify-content: center;
             padding: 1rem;
+            z-index: 1000;
         }
         
         .modal-content {
             background: white;
             border-radius: 0.5rem;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
             padding: 2rem;
             max-width: 28rem;
             width: 100%;
@@ -230,12 +214,6 @@
         .modal-title {
             font-size: 1.5rem;
             font-weight: bold;
-            color: #1f2937;
-            margin-bottom: 1rem;
-        }
-        
-        .modal-text {
-            color: #4b5563;
             margin-bottom: 1rem;
         }
         
@@ -262,12 +240,12 @@
             cursor: pointer;
         }
         
-        .modal-btn-primary {
+        .btn-purple {
             background: #9333ea;
             color: white;
         }
         
-        .modal-btn-secondary {
+        .btn-gray {
             background: #d1d5db;
             color: #374151;
         }
@@ -276,6 +254,11 @@
             min-height: 100vh;
             background: linear-gradient(to bottom right, #0f172a, #581c87, #0f172a);
             padding: 1rem;
+        }
+        
+        .admin-content {
+            max-width: 56rem;
+            margin: 0 auto;
         }
         
         .admin-header {
@@ -290,15 +273,21 @@
             margin-bottom: 0.5rem;
         }
         
+        .exit-admin {
+            margin-top: 0.75rem;
+            color: white;
+            padding: 0.5rem 1rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+        }
+        
         .admin-panel {
             background: white;
             border-radius: 0.5rem;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
             padding: 1.5rem;
             margin-bottom: 1.5rem;
-            max-width: 56rem;
-            margin-left: auto;
-            margin-right: auto;
         }
         
         .admin-controls {
@@ -308,10 +297,7 @@
             flex-wrap: wrap;
         }
         
-        .admin-btn-action {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+        .admin-btn {
             padding: 0.5rem 1rem;
             border-radius: 0.5rem;
             border: none;
@@ -330,11 +316,10 @@
         }
         
         .btn-green {
-            background: linear-gradient(to right, #10b981, #059669);
+            background: #10b981;
             color: white;
             padding: 1rem 2rem;
             font-size: 1.125rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
         
         .category-editor {
@@ -344,22 +329,22 @@
             margin-bottom: 1.5rem;
         }
         
-        .category-editor.easy-border {
+        .border-easy {
             border-color: #facc15;
             background: #fefce8;
         }
         
-        .category-editor.medium-border {
+        .border-medium {
             border-color: #22c55e;
             background: #f0fdf4;
         }
         
-        .category-editor.hard-border {
+        .border-hard {
             border-color: #3b82f6;
             background: #eff6ff;
         }
         
-        .category-editor.tricky-border {
+        .border-tricky {
             border-color: #9333ea;
             background: #faf5ff;
         }
@@ -389,11 +374,29 @@
             border-radius: 0.5rem;
         }
         
+        .tips {
+            background: rgba(255,255,255,0.1);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            color: white;
+        }
+        
+        .tips h3 {
+            font-weight: bold;
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tips ul {
+            font-size: 0.875rem;
+            color: #e5e7eb;
+            list-style-position: inside;
+        }
+        
         @media (max-width: 640px) {
             .words-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
-            
             h1 {
                 font-size: 1.75rem;
             }
@@ -408,8 +411,11 @@
     <div id="app"></div>
 
     <script>
-        // Game State
-        let state = {
+        // Test that JavaScript is working
+        console.log('Connections game loading...');
+
+        // Game state
+        const state = {
             mode: 'player',
             gameData: null,
             selectedWords: [],
@@ -431,7 +437,7 @@
 
         const MAX_MISTAKES = 4;
 
-        // Utility Functions
+        // Utility functions
         function shuffleArray(array) {
             const newArray = [...array];
             for (let i = newArray.length - 1; i > 0; i--) {
@@ -442,12 +448,13 @@
         }
 
         function loadGame() {
+            console.log('Loading game...');
             try {
                 const saved = localStorage.getItem('connections-game');
                 if (saved) {
                     const data = JSON.parse(saved);
                     state.gameData = data;
-                    state.categories = data.categories;
+                    state.categories = JSON.parse(JSON.stringify(data.categories));
                     const allWords = data.categories.flatMap(cat => cat.words);
                     state.remainingWords = shuffleArray([...allWords]);
                     state.foundCategories = [];
@@ -455,11 +462,14 @@
                     state.mistakes = 0;
                     state.gameOver = false;
                     state.message = '';
+                    console.log('Game loaded successfully');
                 } else {
                     state.message = 'No game available yet. Use Admin Mode to create one!';
                     state.messageType = 'info';
+                    console.log('No saved game found');
                 }
             } catch (error) {
+                console.error('Error loading game:', error);
                 state.message = 'No game available yet. Use Admin Mode to create one!';
                 state.messageType = 'info';
             }
@@ -467,8 +477,9 @@
         }
 
         function toggleWord(word) {
-            if (state.selectedWords.includes(word)) {
-                state.selectedWords = state.selectedWords.filter(w => w !== word);
+            const idx = state.selectedWords.indexOf(word);
+            if (idx > -1) {
+                state.selectedWords.splice(idx, 1);
             } else if (state.selectedWords.length < 4) {
                 state.selectedWords.push(word);
             }
@@ -573,21 +584,6 @@
             loadGame();
         }
 
-        function updateCategoryTitle(index, value) {
-            state.categories[index].title = value;
-            render();
-        }
-
-        function updateWord(categoryIndex, wordIndex, value) {
-            state.categories[categoryIndex].words[wordIndex] = value;
-            render();
-        }
-
-        function updateDifficulty(index, value) {
-            state.categories[index].difficulty = value;
-            render();
-        }
-
         function validateGame() {
             for (let i = 0; i < state.categories.length; i++) {
                 const cat = state.categories[i];
@@ -636,12 +632,14 @@
                 localStorage.setItem('connections-game', JSON.stringify(gameDataToSave));
                 state.message = '✅ Game saved! Switch to Player Mode to test it!';
                 state.messageType = 'success';
+                console.log('Game saved successfully');
                 render();
                 setTimeout(() => {
                     state.message = '';
                     render();
                 }, 3000);
             } catch (error) {
+                console.error('Error saving game:', error);
                 state.message = '❌ Error saving game. Please try again.';
                 state.messageType = 'error';
                 render();
@@ -688,7 +686,7 @@
                     difficulty: 'hard'
                 },
                 {
-                    title: 'Words with "Snow"',
+                    title: 'Words with Snow',
                     words: ['Snowman', 'Snowflake', 'Snowball', 'Snowstorm'],
                     difficulty: 'tricky'
                 }
@@ -702,24 +700,29 @@
             }, 3000);
         }
 
-        // Render Functions
+        // Render functions
         function render() {
             const app = document.getElementById('app');
             
+            if (!app) {
+                console.error('App element not found!');
+                return;
+            }
+            
             if (state.showPasswordPrompt) {
                 app.innerHTML = renderPasswordPrompt();
-                attachPasswordEventListeners();
+                attachPasswordListeners();
                 return;
             }
             
             if (state.mode === 'admin') {
                 app.innerHTML = renderAdmin();
-                attachAdminEventListeners();
+                attachAdminListeners();
                 return;
             }
             
             app.innerHTML = renderPlayer();
-            attachPlayerEventListeners();
+            attachPlayerListeners();
         }
 
         function renderPasswordPrompt() {
@@ -727,11 +730,11 @@
                 <div class="modal">
                     <div class="modal-content">
                         <h2 class="modal-title">Admin Access</h2>
-                        <p class="modal-text">Enter the admin password:</p>
-                        <input type="password" id="password-input" class="input" placeholder="Password" value="${state.passwordInput}">
+                        <p style="color: #4b5563; margin-bottom: 1rem;">Enter the admin password:</p>
+                        <input type="password" id="password-input" class="input" placeholder="Password" value="">
                         <div class="modal-buttons">
-                            <button class="modal-btn modal-btn-primary" id="submit-password">Submit</button>
-                            <button class="modal-btn modal-btn-secondary" id="cancel-password">Cancel</button>
+                            <button class="modal-btn btn-purple" id="submit-password">Submit</button>
+                            <button class="modal-btn btn-gray" id="cancel-password">Cancel</button>
                         </div>
                     </div>
                 </div>
@@ -741,32 +744,30 @@
         function renderAdmin() {
             return `
                 <div class="admin-container">
-                    <div style="max-width: 56rem; margin: 0 auto;">
+                    <div class="admin-content">
                         <div class="admin-header">
                             <h1 class="admin-title">🎮 Admin Mode</h1>
                             <p style="color: #d1d5db;">Create and manage your family's game</p>
-                            <button class="admin-btn" id="exit-admin" style="margin-top: 0.75rem; color: white; padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border-radius: 0.5rem;">
-                                ✕ Exit Admin Mode
-                            </button>
+                            <button class="exit-admin" id="exit-admin">✕ Exit Admin Mode</button>
                         </div>
 
-                        ${state.message ? `<div class="message ${state.messageType}" style="max-width: 56rem; margin: 0 auto 1.5rem;">${state.message}</div>` : ''}
+                        ${state.message ? `<div class="message msg-${state.messageType}">${state.message}</div>` : ''}
 
                         <div class="admin-panel">
                             <div class="admin-controls">
-                                <button class="admin-btn-action btn-blue" id="load-example">👁 Load Example</button>
-                                <button class="admin-btn-action btn-red" id="clear-all">🗑 Clear All</button>
+                                <button class="admin-btn btn-blue" id="load-example">👁 Load Example</button>
+                                <button class="admin-btn btn-red" id="clear-all">🗑 Clear All</button>
                             </div>
 
                             ${state.categories.map((cat, idx) => `
-                                <div class="category-editor ${cat.difficulty}-border">
+                                <div class="category-editor border-${cat.difficulty}">
                                     <div class="form-group">
                                         <label class="label">Category ${idx + 1} Title</label>
-                                        <input type="text" class="input" data-category="${idx}" data-field="title" value="${cat.title}" placeholder="e.g., Types of Fruit">
+                                        <input type="text" class="input cat-title" data-idx="${idx}" value="${cat.title}" placeholder="e.g., Types of Fruit">
                                     </div>
                                     <div class="form-group">
                                         <label class="label">Difficulty</label>
-                                        <select class="input" data-category="${idx}" data-field="difficulty">
+                                        <select class="cat-difficulty" data-idx="${idx}">
                                             <option value="easy" ${cat.difficulty === 'easy' ? 'selected' : ''}>Easy (Yellow)</option>
                                             <option value="medium" ${cat.difficulty === 'medium' ? 'selected' : ''}>Medium (Green)</option>
                                             <option value="hard" ${cat.difficulty === 'hard' ? 'selected' : ''}>Hard (Blue)</option>
@@ -775,7 +776,7 @@
                                     </div>
                                     <div class="words-input-grid">
                                         ${cat.words.map((word, wordIdx) => `
-                                            <input type="text" class="input" data-category="${idx}" data-word="${wordIdx}" value="${word}" placeholder="Word ${wordIdx + 1}">
+                                            <input type="text" class="input cat-word" data-idx="${idx}" data-word="${wordIdx}" value="${word}" placeholder="Word ${wordIdx + 1}">
                                         `).join('')}
                                     </div>
                                 </div>
@@ -783,12 +784,12 @@
                         </div>
 
                         <div style="display: flex; justify-content: center; margin-bottom: 2rem;">
-                            <button class="admin-btn-action btn-green" id="save-game">💾 Save Game</button>
+                            <button class="admin-btn btn-green" id="save-game">💾 Save Game</button>
                         </div>
 
-                        <div style="max-width: 56rem; margin: 0 auto; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 0.5rem; padding: 1.5rem; color: white;">
-                            <h3 style="font-weight: bold; font-size: 1.125rem; margin-bottom: 0.5rem;">💡 Tips:</h3>
-                            <ul style="font-size: 0.875rem; color: #e5e7eb; list-style-position: inside;">
+                        <div class="tips">
+                            <h3>💡 Tips:</h3>
+                            <ul>
                                 <li>• Each category needs a title and 4 unique words</li>
                                 <li>• Easy (yellow) should be the most obvious category</li>
                                 <li>• Tricky (purple) should be the hardest to figure out</li>
@@ -808,7 +809,7 @@
                         <header>
                             <h1>Family Connections</h1>
                             <p class="subtitle">Find groups of four items that share something in common</p>
-                            <button class="admin-btn" id="admin-btn">⚙ Admin</button>
+                            <button class="admin-link" id="admin-btn">⚙ Admin</button>
                         </header>
                         <div style="text-align: center;">
                             <p style="font-size: 1.125rem; color: #4b5563; margin-bottom: 1rem;">${state.message}</p>
@@ -823,11 +824,11 @@
                     <header>
                         <h1>Family Connections</h1>
                         <p class="subtitle">Find groups of four items that share something in common</p>
-                        <button class="admin-btn" id="admin-btn">⚙ Admin</button>
+                        <button class="admin-link" id="admin-btn">⚙ Admin</button>
                     </header>
 
                     ${state.foundCategories.map(cat => `
-                        <div class="category-found ${cat.difficulty}">
+                        <div class="category-found diff-${cat.difficulty}">
                             <div class="category-title">${cat.title.toUpperCase()}</div>
                             <div class="category-words">${cat.words.join(', ')}</div>
                         </div>
@@ -842,14 +843,14 @@
                             `).join('')}
                         </div>
 
-                        <div class="mistakes-display">
+                        <div class="mistakes">
                             <span>Mistakes remaining: ${MAX_MISTAKES - state.mistakes}</span>
                             ${[...Array(MAX_MISTAKES)].map((_, idx) => `
-                                <div class="mistake-dot ${idx < state.mistakes ? 'used' : ''}"></div>
+                                <div class="dot ${idx < state.mistakes ? 'used' : ''}"></div>
                             `).join('')}
                         </div>
 
-                        ${state.message ? `<div class="message ${state.messageType}">${state.message}</div>` : ''}
+                        ${state.message ? `<div class="message msg-${state.messageType}">${state.message}</div>` : ''}
 
                         <div class="controls">
                             <button class="btn btn-secondary" id="shuffle-btn">🔀 Shuffle</button>
@@ -868,25 +869,31 @@
             `;
         }
 
-        function attachPasswordEventListeners() {
+        function attachPasswordListeners() {
             const submitBtn = document.getElementById('submit-password');
             const cancelBtn = document.getElementById('cancel-password');
             const input = document.getElementById('password-input');
             
-            if (submitBtn) submitBtn.onclick = handlePasswordSubmit;
-            if (cancelBtn) cancelBtn.onclick = handlePasswordCancel;
+            if (submitBtn) {
+                submitBtn.onclick = handlePasswordSubmit;
+            }
+            if (cancelBtn) {
+                cancelBtn.onclick = handlePasswordCancel;
+            }
             if (input) {
                 input.focus();
                 input.oninput = (e) => {
                     state.passwordInput = e.target.value;
                 };
                 input.onkeypress = (e) => {
-                    if (e.key === 'Enter') handlePasswordSubmit();
+                    if (e.key === 'Enter') {
+                        handlePasswordSubmit();
+                    }
                 };
             }
         }
 
-        function attachAdminEventListeners() {
+        function attachAdminListeners() {
             const exitBtn = document.getElementById('exit-admin');
             const loadExampleBtn = document.getElementById('load-example');
             const clearBtn = document.getElementById('clear-all');
@@ -898,32 +905,33 @@
             if (saveBtn) saveBtn.onclick = saveGame;
             
             // Category title inputs
-            document.querySelectorAll('input[data-field="title"]').forEach(input => {
+            document.querySelectorAll('.cat-title').forEach(input => {
                 input.oninput = (e) => {
-                    const idx = parseInt(e.target.dataset.category);
-                    updateCategoryTitle(idx, e.target.value);
+                    const idx = parseInt(e.target.dataset.idx);
+                    state.categories[idx].title = e.target.value;
                 };
             });
             
             // Difficulty selects
-            document.querySelectorAll('select[data-field="difficulty"]').forEach(select => {
+            document.querySelectorAll('.cat-difficulty').forEach(select => {
                 select.onchange = (e) => {
-                    const idx = parseInt(e.target.dataset.category);
-                    updateDifficulty(idx, e.target.value);
+                    const idx = parseInt(e.target.dataset.idx);
+                    state.categories[idx].difficulty = e.target.value;
+                    render();
                 };
             });
             
             // Word inputs
-            document.querySelectorAll('input[data-word]').forEach(input => {
+            document.querySelectorAll('.cat-word').forEach(input => {
                 input.oninput = (e) => {
-                    const catIdx = parseInt(e.target.dataset.category);
+                    const idx = parseInt(e.target.dataset.idx);
                     const wordIdx = parseInt(e.target.dataset.word);
-                    updateWord(catIdx, wordIdx, e.target.value);
+                    state.categories[idx].words[wordIdx] = e.target.value;
                 };
             });
         }
 
-        function attachPlayerEventListeners() {
+        function attachPlayerListeners() {
             const adminBtn = document.getElementById('admin-btn');
             const goAdminBtn = document.getElementById('go-admin');
             const shuffleBtn = document.getElementById('shuffle-btn');
@@ -943,6 +951,9 @@
             });
         }
 
-        // Initialize
+        // Initialize the app
+        console.log('Initializing app...');
         loadGame();
-            
+    </script>
+</body>
+</html>
