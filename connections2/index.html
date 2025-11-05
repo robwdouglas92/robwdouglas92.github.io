@@ -410,6 +410,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBjiragFxVWw-oHPpf23E7CujI5yZrP5U8",
@@ -422,6 +423,7 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
         console.log('Firebase initialized');
 
         const state = {
@@ -576,24 +578,28 @@
             render();
         }
 
-        function handlePasswordSubmit() {
-            if (state.passwordInput === 'admin123') {
-                state.mode = 'admin';
-                state.showPasswordPrompt = false;
-                state.passwordInput = '';
-                state.message = '';
-                render();
-            } else {
-                state.message = '❌ Incorrect password!';
-                state.messageType = 'error';
-                state.passwordInput = '';
-                render();
-                setTimeout(() => {
-                    state.message = '';
-                    render();
-                }, 2000);
-            }
-        }
+        async function handlePasswordSubmit() {
+    try {
+        // Sign in to Firebase
+        await signInWithEmailAndPassword(auth, 'admin@robwdouglas92.com', state.passwordInput);
+        
+        // Success!
+        state.mode = 'admin';
+        state.showPasswordPrompt = false;
+        state.passwordInput = '';
+        state.message = '';
+        render();
+    } catch (error) {
+        state.message = '❌ Incorrect password!';
+        state.messageType = 'error';
+        state.passwordInput = '';
+        render();
+        setTimeout(() => {
+            state.message = '';
+            render();
+        }, 2000);
+    }
+}
 
         function handlePasswordCancel() {
             state.showPasswordPrompt = false;
