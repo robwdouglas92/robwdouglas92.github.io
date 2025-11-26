@@ -970,9 +970,9 @@
                     return;
                 }
                 
-                let leaderboardText = '🏆 Top 10 Fastest Times\n\n';
+               let leaderboardText = '🏆 Top 10 Fastest Times\n\n';
 top10.forEach((result, idx) => {
-leaderboardText += ${idx + 1}. ${result.userName} - ${formatTime(result.timeSeconds)}\n;
+    leaderboardText += `${idx + 1}. ${result.userName} - ${formatTime(result.timeSeconds)}\n`;
 });
 alert(leaderboardText);
         } catch (error) {
