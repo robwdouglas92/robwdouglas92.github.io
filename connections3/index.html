@@ -409,7 +409,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
         const firebaseConfig = {
@@ -444,12 +444,15 @@
                 { title: '', words: ['', '', '', ''], difficulty: 'hard' },
                 { title: '', words: ['', '', '', ''], difficulty: 'tricky' }
             ],
-          playerName: localStorage.getItem('playerName') || '',
-          showNamePrompt: false,
-          timerStarted: false,
-          startTime: null,
-          endTime: null,
-          elapsedTime: 0
+            userId: localStorage.getItem('userId') || null,
+            userName: localStorage.getItem('userName') || '',
+            showNamePrompt: false,
+            availableUsers: [],
+            isNewUser: false,
+            timerStarted: false,
+            startTime: null,
+            endTime: null,
+            elapsedTime: 0
         };
 
         const MAX_MISTAKES = 4;
@@ -461,6 +464,53 @@
                 [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
             }
             return newArray;
+        }
+
+        async function loadUsers() {
+            try {
+                const usersRef = collection(db, "users");
+                const snapshot = await getDocs(usersRef);
+                state.availableUsers = [];
+                snapshot.forEach(doc => {
+                    state.availableUsers.push({
+                        id: doc.id,
+                        name: doc.data().name
+                    });
+                });
+                console.log('Loaded users:', state.availableUsers.length);
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        async function createNewUser(name) {
+            try {
+                const userId = 'user_' + Math.random().toString(36).substring(2, 9);
+                const userRef = doc(db, "users", userId);
+                await setDoc(userRef, {
+                    name: name,
+                    createdAt: new Date().toISOString()
+                });
+                
+                state.userId = userId;
+                state.userName = name;
+                localStorage.setItem('userId', userId);
+                localStorage.setItem('userName', name);
+                
+                console.log('Created user:', userId, name);
+                return true;
+            } catch (error) {
+                console.error('Error creating user:', error);
+                return false;
+            }
+        }
+
+        async function selectExistingUser(userId, userName) {
+            state.userId = userId;
+            state.userName = userName;
+            localStorage.setItem('userId', userId);
+            localStorage.setItem('userName', userName);
+            console.log('Selected user:', userId, userName);
         }
 
         async function loadGame() {
@@ -490,14 +540,18 @@
                     state.mistakes = 0;
                     state.gameOver = false;
                     state.message = "";
-                   state.timerStarted = false;
-                  state.startTime = null;
-                  state.endTime = null;
-                  state.elapsedTime = 0;
+                    state.timerStarted = false;
+                    state.startTime = null;
+                    state.endTime = null;
+                    state.elapsedTime = 0;
+                    
                     console.log('Game loaded');
-                    if (!state.playerName) {
-                    state.showNamePrompt = true;
-                }
+                    
+                    if (!state.userId) {
+                        await loadUsers();
+                        state.showNamePrompt = true;
+                    }
+                    
                     render();
                 } else {
                     state.message = "Game not found!";
@@ -512,35 +566,35 @@
             }
         }
 
-function startTimer() {
-    if (!state.timerStarted) {
-        state.timerStarted = true;
-        state.startTime = Date.now();
-    }
-}
+        function startTimer() {
+            if (!state.timerStarted) {
+                state.timerStarted = true;
+                state.startTime = Date.now();
+            }
+        }
 
-function stopTimer() {
-    if (state.timerStarted && !state.endTime) {
-        state.endTime = Date.now();
-        state.elapsedTime = Math.floor((state.endTime - state.startTime) / 1000); // in seconds
-    }
-}
+        function stopTimer() {
+            if (state.timerStarted && !state.endTime) {
+                state.endTime = Date.now();
+                state.elapsedTime = Math.floor((state.endTime - state.startTime) / 1000);
+            }
+        }
 
-function formatTime(seconds) {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-}
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
 
-function getCurrentTime() {
-    if (!state.timerStarted) return '0:00';
-    const now = state.endTime || Date.now();
-    const elapsed = Math.floor((now - state.startTime) / 1000);
-    return formatTime(elapsed);
-}
-      
+        function getCurrentTime() {
+            if (!state.timerStarted) return '0:00';
+            const now = state.endTime || Date.now();
+            const elapsed = Math.floor((now - state.startTime) / 1000);
+            return formatTime(elapsed);
+        }
+
         function toggleWord(word) {
-          startTimer();
+            startTimer();
             const idx = state.selectedWords.indexOf(word);
             if (idx > -1) {
                 state.selectedWords.splice(idx, 1);
@@ -566,50 +620,87 @@ function getCurrentTime() {
             render();
         }
 
-function saveGameStats() {
-    if (!state.playerName) return;
-    
-    const stats = JSON.parse(localStorage.getItem('playerStats') || '{}');
-    
-    if (!stats[state.playerName]) {
-        stats[state.playerName] = {
-            gamesPlayed: 0,
-            gamesWon: 0,
-            totalTime: 0,
-            bestTime: null,
-            averageTime: 0
-        };
-    }
-    
-    const playerStats = stats[state.playerName];
-    playerStats.gamesPlayed++;
-    
-    if (state.mistakes < MAX_MISTAKES) {
-        playerStats.gamesWon++;
-        playerStats.totalTime += state.elapsedTime;
-        playerStats.averageTime = Math.floor(playerStats.totalTime / playerStats.gamesWon);
-        
-        if (!playerStats.bestTime || state.elapsedTime < playerStats.bestTime) {
-            playerStats.bestTime = state.elapsedTime;
+        async function saveGameStats() {
+            if (!state.userId || !state.gameData) return;
+            
+            const params = new URLSearchParams(window.location.search);
+            const gameId = params.get("id");
+            
+            const result = {
+                gameId: gameId,
+                userId: state.userId,
+                userName: state.userName,
+                completedAt: new Date().toISOString(),
+                timeSeconds: state.elapsedTime,
+                mistakes: state.mistakes,
+                won: state.mistakes < MAX_MISTAKES,
+                categoriesFound: state.foundCategories.length
+            };
+            
+            try {
+                const resultsRef = collection(db, "gameResults");
+                await addDoc(resultsRef, result);
+                console.log('Game result saved');
+            } catch (error) {
+                console.error('Error saving result:', error);
+            }
         }
-    }
-    
-    localStorage.setItem('playerStats', JSON.stringify(stats));
-}
 
-function handleNameSubmit() {
-    const name = state.playerName.trim();
-    if (name) {
-        localStorage.setItem('playerName', name);
-        state.showNamePrompt = false;
-        render();
-    } else {
-        state.message = 'Please enter your name';
-        state.messageType = 'error';
-        render();
-    }
-}
-      
+        function handleNameSubmit() {
+            if (state.isNewUser) {
+                const name = state.userName.trim();
+                if (!name) {
+                    state.message = 'Please enter your name';
+                    state.messageType = 'error';
+                    render();
+                    return;
+                }
+                
+                createNewUser(name).then(success => {
+                    if (success) {
+                        state.showNamePrompt = false;
+                        state.message = '';
+                        render();
+                    } else {
+                        state.message = 'Error creating profile';
+                        state.messageType = 'error';
+                        render();
+                    }
+                });
+            } else {
+                const select = document.getElementById('user-select');
+                if (select && select.value) {
+                    const selectedUser = state.availableUsers.find(u => u.id === select.value);
+                    if (selectedUser) {
+                        selectExistingUser(selectedUser.id, selectedUser.name);
+                        state.showNamePrompt = false;
+                        state.message = '';
+                        render();
+                    }
+                } else {
+                    state.message = 'Please select a player';
+                    state.messageType = 'error';
+                    render();
+                }
+            }
+        }
+
+        function toggleNewUser() {
+            state.isNewUser = !state.isNewUser;
+            render();
+        }
+
+        async function changePlayer() {
+            state.userId = null;
+            state.userName = '';
+            localStorage.removeItem('userId');
+            localStorage.removeItem('userName');
+            await loadUsers();
+            state.showNamePrompt = true;
+            state.isNewUser = false;
+            render();
+        }
+
         function submitGuess() {
             if (state.selectedWords.length !== 4) return;
 
@@ -628,9 +719,9 @@ function handleNameSubmit() {
                 
                 if (state.foundCategories.length === state.gameData.categories.length) {
                     state.gameOver = true;
-                   stopTimer();
+                    stopTimer();
                     state.message = 'Congratulations! You won! 🎊';
-                   saveGameStats();
+                    saveGameStats();
                 }
             } else {
                 state.mistakes++;
@@ -638,7 +729,7 @@ function handleNameSubmit() {
                 
                 if (state.mistakes >= MAX_MISTAKES) {
                     state.gameOver = true;
-                  stopTimer();
+                    stopTimer();
                     state.message = 'Game Over! Better luck next time!';
                     state.messageType = 'error';
                     
@@ -667,27 +758,25 @@ function handleNameSubmit() {
         }
 
         async function handlePasswordSubmit() {
-    try {
-        // Sign in to Firebase
-        await signInWithEmailAndPassword(auth, 'admin@robwdouglas92.com', state.passwordInput);
-        
-        // Success!
-        state.mode = 'admin';
-        state.showPasswordPrompt = false;
-        state.passwordInput = '';
-        state.message = '';
-        render();
-    } catch (error) {
-        state.message = '❌ Incorrect password!';
-        state.messageType = 'error';
-        state.passwordInput = '';
-        render();
-        setTimeout(() => {
-            state.message = '';
-            render();
-        }, 2000);
-    }
-}
+            try {
+                await signInWithEmailAndPassword(auth, 'admin@robwdouglas92.com', state.passwordInput);
+                
+                state.mode = 'admin';
+                state.showPasswordPrompt = false;
+                state.passwordInput = '';
+                state.message = '';
+                render();
+            } catch (error) {
+                state.message = '❌ Incorrect password!';
+                state.messageType = 'error';
+                state.passwordInput = '';
+                render();
+                setTimeout(() => {
+                    state.message = '';
+                    render();
+                }, 2000);
+            }
+        }
 
         function handlePasswordCancel() {
             state.showPasswordPrompt = false;
@@ -816,105 +905,205 @@ function handleNameSubmit() {
             }, 3000);
         }
 
-        function render() {
-            const app = document.getElementById('app');
-            if (!app) return;
-            
-            if (state.showPasswordPrompt) {
-                app.innerHTML = `
-                    <div class="modal">
-                        <div class="modal-content">
-                            <h2 class="modal-title">Admin Access</h2>
-                            <p style="color: #4b5563; margin-bottom: 1rem;">Enter the admin password:</p>
-                            <input type="password" id="password-input" class="input" placeholder="Password">
-                            <div class="modal-buttons">
-                                <button class="modal-btn btn-purple" id="submit-password">Submit</button>
-                                <button class="modal-btn btn-gray" id="cancel-password">Cancel</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                attachPasswordListeners();
+        async function showStats() {
+            if (!state.userId) {
+                alert('No player selected');
                 return;
             }
             
-            if (state.mode === 'admin') {
-                app.innerHTML = `
-                    <div class="admin-container">
-                        <div class="admin-content">
-                            <div class="admin-header">
-                                <h1 class="admin-title">🎮 Admin Mode</h1>
-                                <p style="color: #d1d5db;">Create and manage your family's game</p>
-                                <button class="exit-admin" id="exit-admin">✕ Exit Admin Mode</button>
-                            </div>
-                            ${state.message ? `<div class="message msg-${state.messageType}">${state.message}</div>` : ''}
-                            <div class="admin-panel">
-                                <div class="admin-controls">
-                                    <button class="admin-btn btn-blue" id="load-example">👁 Load Example</button>
-                                    <button class="admin-btn btn-red" id="clear-all">🗑 Clear All</button>
-                                </div>
-                                ${state.categories.map((cat, idx) => `
-                                    <div class="category-editor border-${cat.difficulty}">
-                                        <div class="form-group">
-                                            <label class="label">Category ${idx + 1} Title</label>
-                                            <input type="text" class="input cat-title" data-idx="${idx}" value="${cat.title}" placeholder="e.g., Types of Fruit">
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="label">Difficulty</label>
-                                            <select class="cat-difficulty" data-idx="${idx}">
-                                                <option value="easy" ${cat.difficulty === 'easy' ? 'selected' : ''}>Easy (Yellow)</option>
-                                                <option value="medium" ${cat.difficulty === 'medium' ? 'selected' : ''}>Medium (Green)</option>
-                                                <option value="hard" ${cat.difficulty === 'hard' ? 'selected' : ''}>Hard (Blue)</option>
-                                                <option value="tricky" ${cat.difficulty === 'tricky' ? 'selected' : ''}>Tricky (Purple)</option>
-                                            </select>
-                                        </div>
-                                        <div class="words-input-grid">
-                                            ${cat.words.map((word, wordIdx) => `
-                                                <input type="text" class="input cat-word" data-idx="${idx}" data-word="${wordIdx}" value="${word}" placeholder="Word ${wordIdx + 1}">
-                                            `).join('')}
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                            <div style="display: flex; justify-content: center; margin-bottom: 2rem;">
-                                <button class="admin-btn btn-green" id="save-game">💾 Save Game</button>
-                            </div>
-                            <div class="tips">
-                                <h3>💡 Tips:</h3>
-                                <ul>
-                                    <li>• Each category needs a title and 4 unique words</li>
-                                    <li>• Easy (yellow) should be the most obvious category</li>
-                                    <li>• Tricky (purple) should be the hardest to figure out</li>
-                                    <li>• All 16 words must be unique across all categories</li>
-                                    <li>• After saving, you'll get a link to share with players!</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                attachAdminListeners();
-                return;
+            try {
+                const resultsRef = collection(db, "gameResults");
+                const snapshot = await getDocs(resultsRef);
+                
+                let userResults = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.userId === state.userId) {
+                        userResults.push(data);
+                    }
+                });
+                
+                if (userResults.length === 0) {
+                    alert('No stats yet! Play some games first.');
+                    return;
+                }
+                
+                const gamesPlayed = userResults.length;
+                const gamesWon = userResults.filter(r => r.won).length;
+                const winRate = Math.floor((gamesWon / gamesPlayed) * 100);
+                
+                const wonGames = userResults.filter(r => r.won);
+                const bestTime = wonGames.length > 0 ? Math.min(...wonGames.map(r => r.timeSeconds)) : null;
+                const avgTime = wonGames.length > 0 ? Math.floor(wonGames.reduce((sum, r) => sum + r.timeSeconds, 0) / wonGames.length) : null;
+                
+                alert(`📊 Stats for ${state.userName}\n\n` +
+                      `Games Played: ${gamesPlayed}\n` +
+                      `Games Won: ${gamesWon}\n` +
+                      `Win Rate: ${winRate}%\n` +
+                      `Best Time: ${bestTime ? formatTime(bestTime) : 'N/A'}\n` +
+                      `Average Time: ${avgTime ? formatTime(avgTime) : 'N/A'}`);
+            } catch (error) {
+                console.error('Error loading stats:', error);
+                alert('Error loading stats');
             }
-            
-            if (!state.gameData) {
-                app.innerHTML = `
-                    <div class="container">
-                        <header>
-                            <h1>Family Connections</h1>
-                            <p class="subtitle">Find groups of four items that share something in common</p>
-                            ${state.timerStarted ? `<p style="font-size: 1.5rem; font-weight: bold; color: #1f2937; margin-top: 0.5rem;">${getCurrentTime()}</p>` : ''}
-                            <button class="admin-link" id="admin-btn">⚙ Admin</button>
-                        </header>
-                        <div style="text-align: center;">
-                            <p style="font-size: 1.125rem; color: #4b5563; margin-bottom: 1rem;">${state.message}</p>
-                            <button class="btn btn-primary" id="go-admin">Go to Admin Mode</button>
-                        </div>
-                    </div>
-                `;
-                attachPlayerListeners();
-                return;
-            }
+        }
 
+        async function showLeaderboard() {
+            try {
+                const resultsRef = collection(db, "gameResults");
+                const snapshot = await getDocs(resultsRef);
+                
+                let allResults = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.won) {
+                        allResults.push(data);
+                    }
+                });
+                
+                allResults.sort((a, b) => a.timeSeconds - b.timeSeconds);
+                
+                const top10 = allResults.slice(0, 10);
+                
+                if (top10.length === 0) {
+                    alert('No completed games yet!');
+                    return;
+                }
+                
+                let leaderboardText = '🏆 Top 10 Fastest Times\n\n';
+top10.forEach((result, idx) => {
+leaderboardText += ${idx + 1}. ${result.userName} - ${formatTime(result.timeSeconds)}\n;
+});
+alert(leaderboardText);
+        } catch (error) {
+            console.error('Error loading leaderboard:', error);
+            alert('Error loading leaderboard');
+        }
+    }
+
+    function render() {
+        const app = document.getElementById('app');
+        if (!app) return;
+        
+        if (state.showPasswordPrompt) {
+            app.innerHTML = `
+                <div class="modal">
+                    <div class="modal-content">
+                        <h2 class="modal-title">Admin Access</h2>
+                        <p style="color: #4b5563; margin-bottom: 1rem;">Enter the admin password:</p>
+                        <input type="password" id="password-input" class="input" placeholder="Password">
+                        <div class="modal-buttons">
+                            <button class="modal-btn btn-purple" id="submit-password">Submit</button>
+                            <button class="modal-btn btn-gray" id="cancel-password">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            attachPasswordListeners();
+            return;
+        }
+
+        if (state.showNamePrompt) {
+            app.innerHTML = `
+                <div class="modal">
+                    <div class="modal-content">
+                        <h2 class="modal-title">Who's Playing?</h2>
+                        
+                        ${!state.isNewUser ? `
+                            <p style="color: #4b5563; margin-bottom: 1rem;">Select your name:</p>
+                            <select id="user-select" class="input">
+                                <option value="">Choose your name...</option>
+                                ${state.availableUsers.map(user => `
+                                    <option value="${user.id}">${user.name}</option>
+                                `).join('')}
+                            </select>
+                            <button class="btn btn-primary" id="submit-name" style="width: 100%; margin-bottom: 0.5rem;">Start Playing</button>
+                            <button class="btn btn-secondary" id="toggle-new-user" style="width: 100%;">New Player?</button>
+                        ` : `
+                            <p style="color: #4b5563; margin-bottom: 1rem;">Enter your name to create a profile:</p>
+                            <input type="text" id="name-input" class="input" placeholder="Your name" value="${state.userName}">
+                            <button class="btn btn-primary" id="submit-name" style="width: 100%; margin-bottom: 0.5rem;">Create Profile</button>
+                            <button class="btn btn-secondary" id="toggle-new-user" style="width: 100%;">Back to Selection</button>
+                        `}
+                    </div>
+                </div>
+            `;
+            
+            const submitBtn = document.getElementById('submit-name');
+            const toggleBtn = document.getElementById('toggle-new-user');
+            const input = document.getElementById('name-input');
+            
+            if (submitBtn) submitBtn.onclick = handleNameSubmit;
+            if (toggleBtn) toggleBtn.onclick = toggleNewUser;
+            if (input) {
+                input.focus();
+                input.oninput = (e) => state.userName = e.target.value;
+                input.onkeypress = (e) => {
+                    if (e.key === 'Enter') handleNameSubmit();
+                };
+            }
+            return;
+        }
+        
+        if (state.mode === 'admin') {
+            app.innerHTML = `
+                <div class="admin-container">
+                    <div class="admin-content">
+                        <div class="admin-header">
+                            <h1 class="admin-title">🎮 Admin Mode</h1>
+                            <p style="color: #d1d5db;">Create and manage your family's game</p>
+                            <button class="exit-admin" id="exit-admin">✕ Exit Admin Mode</button>
+                        </div>
+                        ${state.message ? `<div class="message msg-${state.messageType}">${state.message}</div>` : ''}
+                        <div class="admin-panel">
+                            <div class="admin-controls">
+                                <button class="admin-btn btn-blue" id="load-example">👁 Load Example</button>
+                                <button class="admin-btn btn-red" id="clear-all">🗑 Clear All</button>
+                            </div>
+                            ${state.categories.map((cat, idx) => `
+                                <div class="category-editor border-${cat.difficulty}">
+                                    <div class="form-group">
+                                        <label class="label">Category ${idx + 1} Title</label>
+                                        <input type="text" class="input cat-title" data-idx="${idx}" value="${cat.title}" placeholder="e.g., Types of Fruit">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="label">Difficulty</label>
+                                        <select class="cat-difficulty" data-idx="${idx}">
+                                            <option value="easy" ${cat.difficulty === 'easy' ? 'selected' : ''}>Easy (Yellow)</option>
+                                            <option value="medium" ${cat.difficulty === 'medium' ? 'selected' : ''}>Medium (Green)</option>
+                                            <option value="hard" ${cat.difficulty === 'hard' ? 'selected' : ''}>Hard (Blue)</option>
+                                            <option value="tricky" ${cat.difficulty === 'tricky' ? 'selected' : ''}>Tricky (Purple)</option>
+                                        </select>
+                                    </div>
+                                    <div class="words-input-grid">
+                                        ${cat.words.map((word, wordIdx) => `
+                                            <input type="text" class="input cat-word" data-idx="${idx}" data-word="${wordIdx}" value="${word}" placeholder="Word ${wordIdx + 1}">
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div style="display: flex; justify-content: center; margin-bottom: 2rem;">
+                            <button class="admin-btn btn-green" id="save-game">💾 Save Game</button>
+                        </div>
+                        <div class="tips">
+                            <h3>💡 Tips:</h3>
+                            <ul>
+                                <li>• Each category needs a title and 4 unique words</li>
+                                <li>• Easy (yellow) should be the most obvious category</li>
+                                <li>• Tricky (purple) should be the hardest to figure out</li>
+                                <li>• All 16 words must be unique across all categories</li>
+                                <li>• After saving, you'll get a link to share with players!</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+            attachAdminListeners();
+            return;
+        }
+        
+        if (!state.gameData) {
             app.innerHTML = `
                 <div class="container">
                     <header>
@@ -922,126 +1111,155 @@ function handleNameSubmit() {
                         <p class="subtitle">Find groups of four items that share something in common</p>
                         <button class="admin-link" id="admin-btn">⚙ Admin</button>
                     </header>
-                    ${state.foundCategories.map(cat => `
-                        <div class="category-found diff-${cat.difficulty}">
-                            <div class="category-title">${cat.title.toUpperCase()}</div>
-                            <div class="category-words">${cat.words.join(', ')}</div>
-                        </div>
-                    `).join('')}
-                    ${!state.gameOver && state.remainingWords.length > 0 ? `
-                        <div class="words-grid">
-                            ${state.remainingWords.map(word => `
-                                <button class="word-btn ${state.selectedWords.includes(word) ? 'selected' : ''}" data-word="${word}">${word}</button>
-                            `).join('')}
-                        </div>
-                        <div class="mistakes">
-                            <span>Mistakes remaining: ${MAX_MISTAKES - state.mistakes}</span>
-                            ${[...Array(MAX_MISTAKES)].map((_, idx) => `
-                                <div class="dot ${idx < state.mistakes ? 'used' : ''}"></div>
-                            `).join('')}
-                        </div>
-                        ${state.message ? `<div class="message msg-${state.messageType}">${state.message}</div>` : ''}
-                        <div class="controls">
-                            <button class="btn btn-secondary" id="shuffle-btn">🔀 Shuffle</button>
-                            <button class="btn btn-secondary" id="deselect-btn">Deselect All</button>
-                            <button class="btn btn-primary" id="submit-btn" ${state.selectedWords.length !== 4 ? 'disabled' : ''}>Submit</button>
-                        </div>
-                    ` : ''}
-   ${state.gameOver ? `
-    <div class="game-over">
-        <div class="game-over-icon">${state.mistakes < MAX_MISTAKES ? '🏆' : '😅'}</div>
-        ${state.mistakes < MAX_MISTAKES ? `
-            <p style="font-size: 1.25rem; margin-bottom: 1rem;">
-                Time: <strong>${formatTime(state.elapsedTime)}</strong><br>
-                Mistakes: <strong>${state.mistakes}</strong>
-            </p>
-        ` : ''}
-        ${state.playerName ? `<p style="margin-bottom: 1rem;">Playing as: <strong>${state.playerName}</strong></p>` : ''}
-        <button class="btn btn-primary" id="play-again-btn">🔄 Play Again</button>
-        ${state.playerName ? `<button class="btn btn-secondary" id="view-stats-btn" style="margin-top: 0.5rem;">📊 View My Stats</button>` : ''}
-    </div>
-` : ''}
+                    <div style="text-align: center;">
+                        <p style="font-size: 1.125rem; color: #4b5563; margin-bottom: 1rem;">${state.message}</p>
+                        <button class="btn btn-primary" id="go-admin">Go to Admin Mode</button>
+                    </div>
                 </div>
             `;
             attachPlayerListeners();
+            return;
         }
 
-        function attachPasswordListeners() {
-            const submitBtn = document.getElementById('submit-password');
-            const cancelBtn = document.getElementById('cancel-password');
-            const input = document.getElementById('password-input');
-            
-            if (submitBtn) submitBtn.onclick = handlePasswordSubmit;
-            if (cancelBtn) cancelBtn.onclick = handlePasswordCancel;
-            if (input) {
-                input.focus();
-                input.oninput = (e) => state.passwordInput = e.target.value;
-                input.onkeypress = (e) => {
-                    if (e.key === 'Enter') handlePasswordSubmit();
-                };
-            }
-        }
+        app.innerHTML = `
+            <div class="container">
+                <header>
+                    <h1>Family Connections</h1>
+                    <p class="subtitle">Find groups of four items that share something in common</p>
+                    ${state.timerStarted ? `<p style="font-size: 1.5rem; font-weight: bold; color: #1f2937; margin-top: 0.5rem;">${getCurrentTime()}</p>` : ''}
+                    ${state.userName ? `<p style="font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem;">Playing as: ${state.userName} <button id="change-player-btn" style="background: none; border: none; color: #3b82f6; cursor: pointer; text-decoration: underline; font-size: 0.875rem;">Change</button></p>` : ''}
+                    <button class="admin-link" id="admin-btn">⚙ Admin</button>
+                </header>
+                ${state.foundCategories.map(cat => `
+                    <div class="category-found diff-${cat.difficulty}">
+                        <div class="category-title">${cat.title.toUpperCase()}</div>
+                        <div class="category-words">${cat.words.join(', ')}</div>
+                    </div>
+                `).join('')}
+                ${!state.gameOver && state.remainingWords.length > 0 ? `
+                    <div class="words-grid">
+                        ${state.remainingWords.map(word => `
+                            <button class="word-btn ${state.selectedWords.includes(word) ? 'selected' : ''}" data-word="${word}">${word}</button>
+                        `).join('')}
+                    </div>
+                    <div class="mistakes">
+                        <span>Mistakes remaining: ${MAX_MISTAKES - state.mistakes}</span>
+                        ${[...Array(MAX_MISTAKES)].map((_, idx) => `
+                            <div class="dot ${idx < state.mistakes ? 'used' : ''}"></div>
+                        `).join('')}
+                    </div>
+                    ${state.message ? `<div class="message msg-${state.messageType}">${state.message}</div>` : ''}
+                    <div class="controls">
+                        <button class="btn btn-secondary" id="shuffle-btn">🔀 Shuffle</button>
+                        <button class="btn btn-secondary" id="deselect-btn">Deselect All</button>
+                        <button class="btn btn-primary" id="submit-btn" ${state.selectedWords.length !== 4 ? 'disabled' : ''}>Submit</button>
+                    </div>
+                ` : ''}
+                ${state.gameOver ? `
+                    <div class="game-over">
+                        <div class="game-over-icon">${state.mistakes < MAX_MISTAKES ? '🏆' : '😅'}</div>
+                        ${state.mistakes < MAX_MISTAKES ? `
+                            <p style="font-size: 1.25rem; margin-bottom: 1rem;">
+                                Time: <strong>${formatTime(state.elapsedTime)}</strong><br>
+                                Mistakes: <strong>${state.mistakes}</strong>
+                            </p>
+                        ` : ''}
+                        ${state.userName ? `<p style="margin-bottom: 1rem;">Playing as: <strong>${state.userName}</strong></p>` : ''}
+                        <button class="btn btn-primary" id="play-again-btn">🔄 Play Again</button>
+                        <div style="display: flex; gap: 0.5rem; justify-content: center; margin-top: 0.5rem; flex-wrap: wrap;">
+                            ${state.userName ? `<button class="btn btn-secondary" id="view-stats-btn">📊 My Stats</button>` : ''}
+                            <button class="btn btn-secondary" id="view-leaderboard-btn">🏆 Leaderboard</button>
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+        attachPlayerListeners();
+    }
 
-        function attachAdminListeners() {
-            const exitBtn = document.getElementById('exit-admin');
-            const loadExampleBtn = document.getElementById('load-example');
-            const clearBtn = document.getElementById('clear-all');
-            const saveBtn = document.getElementById('save-game');
-            
-            if (exitBtn) exitBtn.onclick = switchToPlayer;
-            if (loadExampleBtn) loadExampleBtn.onclick = fillExample;
-            if (clearBtn) clearBtn.onclick = clearAll;
-            if (saveBtn) saveBtn.onclick = saveGame;
-            
-            document.querySelectorAll('.cat-title').forEach(input => {
-                input.oninput = (e) => {
-                    const idx = parseInt(e.target.dataset.idx);
-                    state.categories[idx].title = e.target.value;
-                };
-            });
-            
-            document.querySelectorAll('.cat-difficulty').forEach(select => {
-                select.onchange = (e) => {
-                    const idx = parseInt(e.target.dataset.idx);
-                    state.categories[idx].difficulty = e.target.value;
-                    render();
-                };
-            });
-            
-            document.querySelectorAll('.cat-word').forEach(input => {
-                input.oninput = (e) => {
-                    const idx = parseInt(e.target.dataset.idx);
-                    const wordIdx = parseInt(e.target.dataset.word);
-                    state.categories[idx].words[wordIdx] = e.target.value;
-                };
-            });
+    function attachPasswordListeners() {
+        const submitBtn = document.getElementById('submit-password');
+        const cancelBtn = document.getElementById('cancel-password');
+        const input = document.getElementById('password-input');
+        
+        if (submitBtn) submitBtn.onclick = handlePasswordSubmit;
+        if (cancelBtn) cancelBtn.onclick = handlePasswordCancel;
+        if (input) {
+            input.focus();
+            input.oninput = (e) => state.passwordInput = e.target.value;
+            input.onkeypress = (e) => {
+                if (e.key === 'Enter') handlePasswordSubmit();
+            };
         }
+    }
 
-        function attachPlayerListeners() {
-            const adminBtn = document.getElementById('admin-btn');
-            const goAdminBtn = document.getElementById('go-admin');
-            const shuffleBtn = document.getElementById('shuffle-btn');
-            const deselectBtn = document.getElementById('deselect-btn');
-            const submitBtn = document.getElementById('submit-btn');
-            const playAgainBtn = document.getElementById('play-again-btn');
-            
-            if (adminBtn) adminBtn.onclick = switchToAdmin;
-            if (goAdminBtn) goAdminBtn.onclick = switchToAdmin;
-            if (shuffleBtn) shuffleBtn.onclick = shuffleWords;
-            if (deselectBtn) deselectBtn.onclick = deselectAll;
-            if (submitBtn) submitBtn.onclick = submitGuess;
-            if (playAgainBtn) playAgainBtn.onclick = loadGame;
-            
-            document.querySelectorAll('.word-btn').forEach(btn => {
-                btn.onclick = () => toggleWord(btn.dataset.word);
-            });
-          const viewStatsBtn = document.getElementById('view-stats-btn');
-          if (viewStatsBtn) viewStatsBtn.onclick = showStats;
+    function attachAdminListeners() {
+        const exitBtn = document.getElementById('exit-admin');
+        const loadExampleBtn = document.getElementById('load-example');
+        const clearBtn = document.getElementById('clear-all');
+        const saveBtn = document.getElementById('save-game');
+        
+        if (exitBtn) exitBtn.onclick = switchToPlayer;
+        if (loadExampleBtn) loadExampleBtn.onclick = fillExample;
+        if (clearBtn) clearBtn.onclick = clearAll;
+        if (saveBtn) saveBtn.onclick = saveGame;
+        
+        document.querySelectorAll('.cat-title').forEach(input => {
+            input.oninput = (e) => {
+                const idx = parseInt(e.target.dataset.idx);
+                state.categories[idx].title = e.target.value;
+            };
+        });
+        
+        document.querySelectorAll('.cat-difficulty').forEach(select => {
+            select.onchange = (e) => {
+                const idx = parseInt(e.target.dataset.idx);
+                state.categories[idx].difficulty = e.target.value;
+                render();
+            };
+        });
+        
+        document.querySelectorAll('.cat-word').forEach(input => {
+            input.oninput = (e) => {
+                const idx = parseInt(e.target.dataset.idx);
+                const wordIdx = parseInt(e.target.dataset.word);
+                state.categories[idx].words[wordIdx] = e.target.value;
+            };
+        });
+    }
+
+    function attachPlayerListeners() {
+        const adminBtn = document.getElementById('admin-btn');
+        const goAdminBtn = document.getElementById('go-admin');
+        const shuffleBtn = document.getElementById('shuffle-btn');
+        const deselectBtn = document.getElementById('deselect-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const playAgainBtn = document.getElementById('play-again-btn');
+        const viewStatsBtn = document.getElementById('view-stats-btn');
+        const viewLeaderboardBtn = document.getElementById('view-leaderboard-btn');
+        const changePlayerBtn = document.getElementById('change-player-btn');
+        
+        if (adminBtn) adminBtn.onclick = switchToAdmin;
+        if (goAdminBtn) goAdminBtn.onclick = switchToAdmin;
+        if (shuffleBtn) shuffleBtn.onclick = shuffleWords;
+        if (deselectBtn) deselectBtn.onclick = deselectAll;
+        if (submitBtn) submitBtn.onclick = submitGuess;
+        if (playAgainBtn) playAgainBtn.onclick = loadGame;
+        if (viewStatsBtn) viewStatsBtn.onclick = showStats;
+        if (viewLeaderboardBtn) viewLeaderboardBtn.onclick = showLeaderboard;
+        if (changePlayerBtn) changePlayerBtn.onclick = changePlayer;
+        
+        document.querySelectorAll('.word-btn').forEach(btn => {
+            btn.onclick = () => toggleWord(btn.dataset.word);
+        });
+    }
+
+    setInterval(() => {
+        if (state.timerStarted && !state.gameOver) {
+            render();
         }
+    }, 1000);
 
-        console.log('Initializing...');
-        loadGame();
-    </script>
-</body>
-</html>
-            
+    console.log('Initializing...');
+    loadGame();
+</script>
