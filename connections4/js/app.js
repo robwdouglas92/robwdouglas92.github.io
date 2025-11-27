@@ -2,6 +2,7 @@ import { router } from './router.js';
 import { db, auth } from './firebase.js';
 import { gameComponent } from './components/game.js';
 import { userSelectComponent } from './components/userSelect.js';
+import { statsComponent } from './components/stats.js';
 import { getCurrentUserId } from './utils/helpers.js';
 
 // Register routes
@@ -28,7 +29,6 @@ router.register('game', async (params) => {
     }
 
     if (!userId) {
-        // Show name selection
         await userSelectComponent.render();
         return;
     }
@@ -49,26 +49,28 @@ router.register('game', async (params) => {
     }
 });
 
-// Placeholder routes
-router.register('stats', (params) => {
+// Stats route - NOW USING THE COMPONENT
+router.register('stats', async (params) => {
     const gameId = params.get('id');
-    document.getElementById('app').innerHTML = `
-        <div class="container">
-            <header>
-                <h1>📊 My Stats</h1>
-                <p class="subtitle">Coming soon...</p>
-                <button class="nav-link" id="back-btn">← Back to Game</button>
-            </header>
-        </div>
-    `;
+    const userId = getCurrentUserId();
     
-    document.getElementById('back-btn').onclick = () => {
-        if (gameId) {
-            router.navigate('game', { id: gameId });
-        } else {
-            history.back();
-        }
-    };
+    if (!userId) {
+        document.getElementById('app').innerHTML = `
+            <div class="container">
+                <header>
+                    <h1>📊 My Stats</h1>
+                    <p class="subtitle" style="color: #ef4444;">Please select a player first</p>
+                    <button class="nav-link" id="back-btn" style="margin-top: 1rem;">← Go Back</button>
+                </header>
+            </div>
+        `;
+        
+        document.getElementById('back-btn').onclick = () => history.back();
+        return;
+    }
+    
+    await statsComponent.load();
+    statsComponent.render(gameId);
 });
 
 router.register('leaderboard', (params) => {
@@ -77,7 +79,7 @@ router.register('leaderboard', (params) => {
         <div class="container">
             <header>
                 <h1>🏆 Leaderboard</h1>
-                <p class="subtitle">Coming soon...</p>
+                <p class="subtitle">Coming next...</p>
                 <button class="nav-link" id="back-btn">← Back to Game</button>
             </header>
         </div>
