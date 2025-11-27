@@ -1,6 +1,7 @@
 import { router } from './router.js';
 import { db, auth } from './firebase.js';
 import { gameComponent } from './components/game.js';
+import { userSelectComponent } from './components/userSelect.js';
 import { getCurrentUserId } from './utils/helpers.js';
 
 // Register routes
@@ -14,24 +15,21 @@ router.register('game', async (params) => {
                 <header>
                     <h1>Family Connections</h1>
                     <p class="subtitle">No game ID provided</p>
-                    <p style="margin-top: 1rem; color: #6b7280;">Please use a valid game link or create a game in admin mode.</p>
+                    <p style="margin-top: 1rem; color: #6b7280;">Please use a valid game link.</p>
+                    <button class="nav-link" id="go-admin" style="margin-top: 1rem;">Go to Admin Mode</button>
                 </header>
             </div>
         `;
+        
+        document.getElementById('go-admin').onclick = () => {
+            router.navigate('admin');
+        };
         return;
     }
 
     if (!userId) {
-        // TODO: Show name selection modal
-        document.getElementById('app').innerHTML = `
-            <div class="container">
-                <header>
-                    <h1>Family Connections</h1>
-                    <p class="subtitle">Please select your player profile</p>
-                    <p style="margin-top: 1rem; color: #6b7280;">Name selection coming in next step...</p>
-                </header>
-            </div>
-        `;
+        // Show name selection
+        await userSelectComponent.render();
         return;
     }
 
@@ -44,6 +42,7 @@ router.register('game', async (params) => {
                 <header>
                     <h1>Family Connections</h1>
                     <p class="subtitle" style="color: #ef4444;">Game not found</p>
+                    <button class="nav-link" onclick="history.back()" style="margin-top: 1rem;">← Go Back</button>
                 </header>
             </div>
         `;
@@ -52,24 +51,54 @@ router.register('game', async (params) => {
 
 // Placeholder routes
 router.register('stats', (params) => {
+    const gameId = params.get('id');
     document.getElementById('app').innerHTML = `
         <div class="container">
             <header>
                 <h1>📊 My Stats</h1>
                 <p class="subtitle">Coming soon...</p>
-                <button class="nav-link" onclick="history.back()">← Back to Game</button>
+                <button class="nav-link" id="back-btn">← Back to Game</button>
             </header>
         </div>
     `;
+    
+    document.getElementById('back-btn').onclick = () => {
+        if (gameId) {
+            router.navigate('game', { id: gameId });
+        } else {
+            history.back();
+        }
+    };
 });
 
 router.register('leaderboard', (params) => {
+    const gameId = params.get('id');
     document.getElementById('app').innerHTML = `
         <div class="container">
             <header>
                 <h1>🏆 Leaderboard</h1>
                 <p class="subtitle">Coming soon...</p>
-                <button class="nav-link" onclick="history.back()">← Back to Game</button>
+                <button class="nav-link" id="back-btn">← Back to Game</button>
+            </header>
+        </div>
+    `;
+    
+    document.getElementById('back-btn').onclick = () => {
+        if (gameId) {
+            router.navigate('game', { id: gameId });
+        } else {
+            history.back();
+        }
+    };
+});
+
+router.register('admin', (params) => {
+    document.getElementById('app').innerHTML = `
+        <div class="container">
+            <header>
+                <h1>🎮 Admin Mode</h1>
+                <p class="subtitle">Coming soon...</p>
+                <p style="margin-top: 1rem; color: #6b7280;">Admin panel will be built in the next step!</p>
             </header>
         </div>
     `;
