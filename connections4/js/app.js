@@ -3,6 +3,7 @@ import { db, auth } from './firebase.js';
 import { gameComponent } from './components/game.js';
 import { userSelectComponent } from './components/userSelect.js';
 import { statsComponent } from './components/stats.js';
+import { leaderboardComponent } from './components/leaderboard.js';
 import { getCurrentUserId } from './utils/helpers.js';
 
 // Register routes
@@ -49,7 +50,6 @@ router.register('game', async (params) => {
     }
 });
 
-// Stats route - NOW USING THE COMPONENT
 router.register('stats', async (params) => {
     const gameId = params.get('id');
     const userId = getCurrentUserId();
@@ -73,25 +73,12 @@ router.register('stats', async (params) => {
     statsComponent.render(gameId);
 });
 
-router.register('leaderboard', (params) => {
+// Leaderboard route - NOW USING THE COMPONENT
+router.register('leaderboard', async (params) => {
     const gameId = params.get('id');
-    document.getElementById('app').innerHTML = `
-        <div class="container">
-            <header>
-                <h1>🏆 Leaderboard</h1>
-                <p class="subtitle">Coming next...</p>
-                <button class="nav-link" id="back-btn">← Back to Game</button>
-            </header>
-        </div>
-    `;
     
-    document.getElementById('back-btn').onclick = () => {
-        if (gameId) {
-            router.navigate('game', { id: gameId });
-        } else {
-            history.back();
-        }
-    };
+    await leaderboardComponent.load();
+    leaderboardComponent.render(gameId);
 });
 
 router.register('admin', (params) => {
