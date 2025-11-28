@@ -4,6 +4,7 @@ import { gameComponent } from './components/game.js';
 import { userSelectComponent } from './components/userSelect.js';
 import { statsComponent } from './components/stats.js';
 import { leaderboardComponent } from './components/leaderboard.js';
+import { adminComponent } from './components/admin.js';
 import { getCurrentUserId } from './utils/helpers.js';
 
 // Register routes
@@ -73,7 +74,6 @@ router.register('stats', async (params) => {
     statsComponent.render(gameId);
 });
 
-// Leaderboard route - NOW USING THE COMPONENT
 router.register('leaderboard', async (params) => {
     const gameId = params.get('id');
     
@@ -81,16 +81,10 @@ router.register('leaderboard', async (params) => {
     leaderboardComponent.render(gameId);
 });
 
-router.register('admin', (params) => {
-    document.getElementById('app').innerHTML = `
-        <div class="container">
-            <header>
-                <h1>🎮 Admin Mode</h1>
-                <p class="subtitle">Coming soon...</p>
-                <p style="margin-top: 1rem; color: #6b7280;">Admin panel will be built in the next step!</p>
-            </header>
-        </div>
-    `;
+// Admin route - NOW USING THE COMPONENT
+router.register('admin', async (params) => {
+    await adminComponent.checkAuth();
+    adminComponent.render();
 });
 
 // Start the app
