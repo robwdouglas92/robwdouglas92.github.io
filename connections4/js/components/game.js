@@ -77,7 +77,7 @@ class GameComponent {
         this.render();
     }
 
-     submitGuess() {
+  submitGuess() {
         if (this.selectedWords.length !== 4) return;
 
         const matchedCategory = this.gameData.categories.find(cat => {
