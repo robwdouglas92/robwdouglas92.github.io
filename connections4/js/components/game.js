@@ -77,6 +77,7 @@ class GameComponent {
         this.render();
     }
 
+
     submitGuess() {
         if (this.selectedWords.length !== 4) return;
 
@@ -100,6 +101,19 @@ class GameComponent {
                 this.saveResult();
             }
         } else {
+            // Check if "one away" from any category
+            const isOneAway = this.gameData.categories.some(cat => {
+                // Skip categories already found
+                if (this.foundCategories.some(fc => fc.title === cat.title)) return false;
+                
+                // Count how many selected words are in this category
+                const matchCount = this.selectedWords.filter(word => 
+                    cat.words.includes(word)
+                ).length;
+                
+                return matchCount === 3;
+            });
+
             this.mistakes++;
             this.selectedWords = [];
             
@@ -114,7 +128,11 @@ class GameComponent {
                 );
                 this.foundCategories.push(...unsolvedCategories);
             } else {
-                this.message = `Not quite! ${this.MAX_MISTAKES - this.mistakes} mistakes remaining.`;
+                if (isOneAway) {
+                    this.message = `One away! 🤏 ${this.MAX_MISTAKES - this.mistakes} mistakes remaining.`;
+                } else {
+                    this.message = `Not quite! ${this.MAX_MISTAKES - this.mistakes} mistakes remaining.`;
+                }
                 this.messageType = 'error';
             }
         }
