@@ -77,7 +77,7 @@ class GameComponent {
         this.render();
     }
 
-  submitGuess() {
+    submitGuess() {
         if (this.selectedWords.length !== 4) return;
 
         const matchedCategory = this.gameData.categories.find(cat => {
@@ -135,6 +135,7 @@ class GameComponent {
                 this.messageType = 'error';
             }
         }
+    }
 
     async saveResult() {
         const userId = getCurrentUserId();
@@ -195,7 +196,7 @@ class GameComponent {
     renderFoundCategories() {
         return this.foundCategories.map(cat => `
             <div style="color: white; padding: 1rem; border-radius: 0.5rem; margin-bottom: 0.75rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); background: ${this.getCategoryColor(cat.difficulty)};">
-                <div style="font-weight: bold; font-size: 1.125rem; margin-bottom: 0.25rem;">${cat.title.toUpperCase()}</div>
+                <div style="font-weight: bold; font-size: 1.125rem; margin-bottom: 0.25rem;">${cat.title ? cat.title.toUpperCase() : ''}</div>
                 <div style="font-size: 0.875rem; opacity: 0.9;">${cat.words.join(', ')}</div>
             </div>
         `).join('');
@@ -226,7 +227,7 @@ class GameComponent {
         return `
             <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-bottom: 1.5rem;">
                 ${this.remainingWords.map(word => `
-                    <button class="word-btn ${this.selectedWords.includes(word) ? 'selected' : ''}" data-word="${word}" style="padding: 1rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.875rem; background: ${this.selectedWords.includes(word) ? '#374151' : 'white'}; color: ${this.selectedWords.includes(word) ? 'white' : '#1f2937'}; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: none; cursor: pointer; transition: all 0.2s;">
+                    <button class="word-btn ${this.selectedWords.includes(word) ? 'selected' : ''}" data-word="${word}" style="padding: 1rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.875rem; border: 1px solid #e5e7eb; background: white; cursor: pointer;">
                         ${word}
                     </button>
                 `).join('')}
