@@ -129,9 +129,9 @@ class GameComponent {
                 this.foundCategories.push(...unsolvedCategories);
             } else {
                 if (isOneAway) {
-                    this.message = `One away! 🤏 ${this.MAX_MISTAKES - this.mistakes} mistakes remaining.`;
+                    this.message = `So close! One away! 🤏 ${this.MAX_MISTAKES - this.mistakes} mistakes remaining.`;
                 } else {
-                    this.message = `Not quite! ${this.MAX_MISTAKES - this.mistakes} mistakes remaining.`;
+                    this.message = `Nope! ${this.MAX_MISTAKES - this.mistakes} mistakes remaining.`;
                 }
                 this.messageType = 'error';
             }
