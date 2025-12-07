@@ -15,6 +15,7 @@ class GameComponent {
         this.message = '';
         this.messageType = '';
         this.MAX_MISTAKES = 4;
+        this.solvePath = []
     }
 
     async load(gameId) {
@@ -33,6 +34,7 @@ class GameComponent {
                 this.mistakes = 0;
                 this.gameOver = false;
                 this.message = '';
+                this.solvePath = [];
                 timer.reset();
                 
                 console.log('Game loaded successfully');
@@ -88,6 +90,14 @@ class GameComponent {
         });
 
         if (matchedCategory) {
+              this.solvePath.push({
+                type: 'correct',
+                words: [...this.selectedWords],
+                category: matchedCategory.title,
+                difficulty: matchedCategory.difficulty,
+                timestamp: Date.now()
+            });
+            
             this.foundCategories.push(matchedCategory);
             this.remainingWords = this.remainingWords.filter(w => !this.selectedWords.includes(w));
             this.selectedWords = [];
@@ -114,6 +124,13 @@ class GameComponent {
                 return matchCount === 3;
             });
 
+                this.solvePath.push({
+                type: 'mistake',
+                words: [...this.selectedWords],
+                oneAway: isOneAway,
+                timestamp: Date.now()
+            });
+            
             this.mistakes++;
             this.selectedWords = [];
             
@@ -164,13 +181,14 @@ class GameComponent {
             mistakes: this.mistakes,
             won: this.mistakes < this.MAX_MISTAKES,
             categoriesFound: this.foundCategories.length
+            solvePath: this.solvePath
         };
         
         try {
             const { collection, addDoc } = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js");
             const resultsRef = collection(db, "gameResults");
             await addDoc(resultsRef, result);
-            console.log('Game result saved');
+            console.log('Game result saved with solve path');
         } catch (error) {
             console.error('Error saving result:', error);
         }
