@@ -230,7 +230,7 @@ class GameComponent {
     }
 
     renderGameBoard() {
-        if (this.gameOver) {
+      if (this.gameOver) {
             return `
                 <div style="text-align: center; margin-top: 2rem;">
                     <div style="font-size: 4rem; margin-bottom: 1.5rem;">${this.mistakes < this.MAX_MISTAKES ? '🏆' : '😅'}</div>
@@ -246,6 +246,7 @@ class GameComponent {
                         <button class="nav-link" id="view-leaderboard-btn-end">🏆 Leaderboard</button>
                     </div>
                 </div>
+                ${this.renderSolvePath()}
             `;
         }
 
@@ -287,6 +288,44 @@ class GameComponent {
         return colors[difficulty] || '#6b7280';
     }
 
+    renderSolvePath() {
+        if (!this.solvePath || this.solvePath.length === 0) return '';
+        
+        return `
+            <div style="background: white; border-radius: 0.5rem; padding: 1.5rem; margin-top: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <h3 style="font-size: 1.125rem; font-weight: bold; margin-bottom: 1rem; color: #1f2937;">Your Solve Path</h3>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    ${this.solvePath.map((guess, idx) => `
+                        <div class="solve-path-row" data-guess-idx="${idx}" style="display: flex; gap: 0.25rem; align-items: center; cursor: pointer; padding: 0.5rem; border-radius: 0.25rem; transition: background 0.2s;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">
+                            <span style="min-width: 1.5rem; font-size: 0.875rem; color: #6b7280; font-weight: 600;">${idx + 1}.</span>
+                            <div style="display: flex; gap: 0.25rem; flex: 1;">
+                                ${guess.words.map(word => {
+                                    const difficulty = this.getWordDifficulty(word);
+                                    const color = this.getCategoryColor(difficulty);
+                                    return `<div style="flex: 1; height: 2rem; background: ${color}; border-radius: 0.25rem;" title="${word}"></div>`;
+                                }).join('')}
+                            </div>
+                            ${guess.type === 'correct' ? 
+                                `<span style="font-size: 0.875rem; color: #10b981; font-weight: 600;">✓</span>` : 
+                                `<span style="font-size: 0.875rem; color: #ef4444; font-weight: 600;">${guess.oneAway ? '🤏' : '✗'}</span>`
+                            }
+                        </div>
+                    `).join('')}
+                </div>
+                <div id="guess-detail" style="margin-top: 1rem; padding: 0.75rem; background: #f9fafb; border-radius: 0.5rem; font-size: 0.875rem; color: #4b5563; display: none;">
+                    <!-- Guess details will appear here on hover -->
+                </div>
+            </div>
+        `;
+    }
+    
+getWordDifficulty(word) {
+        const category = this.gameData.categories.find(cat => 
+            cat.words.includes(word)
+        );
+        return category ? category.difficulty : null;
+    }
+    
     attachListeners() {
         const params = new URLSearchParams(window.location.search);
         const gameId = params.get("id");
@@ -321,6 +360,23 @@ class GameComponent {
             btn.onclick = () => router.navigate('leaderboard');
         });
     }
+       // Solve path hover listeners
+        document.querySelectorAll('.solve-path-row').forEach(row => {
+            row.addEventListener('mouseenter', (e) => {
+                const idx = parseInt(e.currentTarget.dataset.guessIdx);
+                const guess = this.solvePath[idx];
+                const detailDiv = document.getElementById('guess-detail');
+                
+                if (detailDiv && guess) {
+                    detailDiv.style.display = 'block';
+                    detailDiv.innerHTML = `
+                        <strong>Guess ${idx + 1}:</strong> ${guess.words.join(', ')}
+                        ${guess.type === 'correct' ? `<br><span style="color: #10b981;">✓ Found: ${guess.category}</span>` : ''}
+                        ${guess.oneAway ? '<br><span style="color: #f59e0b;">One word away!</span>' : ''}
+                    `;
+                }
+            });
+        });
 }
 
 export const gameComponent = new GameComponent();
