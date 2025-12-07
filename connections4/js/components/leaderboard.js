@@ -9,7 +9,33 @@ class LeaderboardComponent {
         this.loading = true;
         this.filter = 'fastest'; // 'fastest', 'mostWins', 'bestWinRate'
     }
+getCategoryColor(difficulty) {
+        const colors = {
+            easy: '#facc15',
+            medium: '#22c55e',
+            hard: '#3b82f6',
+            tricky: '#9333ea'
+        };
+        return colors[difficulty] || '#6b7280';
+    }
 
+    renderMiniSolvePath(solvePath) {
+        if (!solvePath || solvePath.length === 0) return '<span style="color: #9ca3af; font-size: 0.75rem;">—</span>';
+        
+        return `
+            <div style="display: flex; gap: 0.125rem; flex-wrap: wrap; justify-content: center;">
+                ${solvePath.map((guess, idx) => `
+                    <div style="display: flex; gap: 1px; background: #e5e7eb; padding: 1px; border-radius: 2px;" title="Guess ${idx + 1}${guess.type === 'correct' ? ' ✓' : guess.oneAway ? ' (one away)' : ' ✗'}">
+                        ${guess.words.map(word => {
+                            const color = guess.difficulty ? this.getCategoryColor(guess.difficulty) : '#9ca3af';
+                            return `<div style="width: 0.5rem; height: 0.5rem; background: ${color};"></div>`;
+                        }).join('')}
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+    
     async load() {
         this.loading = true;
         
@@ -156,7 +182,7 @@ class LeaderboardComponent {
 
         if (this.filter === 'fastest') {
             data = this.getTopFastest();
-            columns = ['Rank', 'Player', 'Time', 'Date'];
+            columns = ['Rank', 'Player', 'Time', 'Date', 'Path'];
             
             if (data.length === 0) {
                 return `<p style="text-align: center; color: #6b7280;">No completed games yet!</p>`;
@@ -170,7 +196,7 @@ class LeaderboardComponent {
                         </tr>
                     </thead>
                     <tbody>
-                        ${data.map((result, idx) => `
+                       ${data.map((result, idx) => `
                             <tr style="border-bottom: 1px solid #e5e7eb;">
                                 <td style="padding: 0.75rem; text-align: center;">
                                     <span style="font-size: 1.25rem; font-weight: bold;">${this.getRankEmoji(idx + 1)}</span>
@@ -183,6 +209,9 @@ class LeaderboardComponent {
                                 </td>
                                 <td style="padding: 0.75rem; text-align: center; font-size: 0.875rem; color: #6b7280;">
                                     ${new Date(result.completedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                                </td>
+                                <td style="padding: 0.75rem; text-align: center;">
+                                    ${this.renderMiniSolvePath(result.solvePath)}
                                 </td>
                             </tr>
                         `).join('')}
