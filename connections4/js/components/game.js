@@ -15,7 +15,7 @@ class GameComponent {
         this.message = '';
         this.messageType = '';
         this.MAX_MISTAKES = 4;
-        this.solvePath = []
+        this.solvePath = [];
     }
 
     async load(gameId) {
