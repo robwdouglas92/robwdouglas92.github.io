@@ -356,11 +356,11 @@ getWordDifficulty(word) {
             btn.onclick = () => router.navigate('stats', { id: gameId });
         });
 
-        viewLeaderboardButtons.forEach(btn => {
+       viewLeaderboardButtons.forEach(btn => {
             btn.onclick = () => router.navigate('leaderboard');
         });
-    }
-       // Solve path hover listeners
+
+        // Solve path hover listeners
         document.querySelectorAll('.solve-path-row').forEach(row => {
             row.addEventListener('mouseenter', (e) => {
                 const idx = parseInt(e.currentTarget.dataset.guessIdx);
@@ -377,6 +377,6 @@ getWordDifficulty(word) {
                 }
             });
         });
+    }
 }
-
 export const gameComponent = new GameComponent();
