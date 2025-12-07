@@ -254,7 +254,7 @@ class GameComponent {
         return `
             <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-bottom: 1.5rem;">
                 ${this.remainingWords.map(word => `
-                    <button class="word-btn ${this.selectedWords.includes(word) ? 'selected' : ''}" data-word="${word}" style="padding: 1rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.875rem;">
+                    <button class="word-btn ${this.selectedWords.includes(word) ? 'selected' : ''}" data-word="${word}" style="padding: 1rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.875rem; background: ${this.selectedWords.includes(word) ? '#374151' : 'white'}; color: ${this.selectedWords.includes(word) ? 'white' : '#1f2937'}; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: none; cursor: pointer; transition: all 0.2s;">
                         ${word}
                     </button>
                 `).join('')}
