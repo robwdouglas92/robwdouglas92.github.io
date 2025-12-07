@@ -10,6 +10,34 @@ class StatsComponent {
         this.loading = true;
     }
 
+    getCategoryColor(difficulty) {
+        const colors = {
+            easy: '#facc15',
+            medium: '#22c55e',
+            hard: '#3b82f6',
+            tricky: '#9333ea'
+        };
+        return colors[difficulty] || '#6b7280';
+    }
+
+    renderMiniSolvePath(solvePath) {
+        if (!solvePath || solvePath.length === 0) return '<span style="color: #9ca3af; font-size: 0.75rem;">No path data</span>';
+        
+        return `
+            <div style="display: flex; gap: 0.125rem; flex-wrap: wrap;">
+                ${solvePath.map((guess, idx) => `
+                    <div style="display: flex; gap: 1px; background: #e5e7eb; padding: 1px; border-radius: 2px;" title="Guess ${idx + 1}: ${guess.words.join(', ')}">
+                        ${guess.words.map(word => {
+                            // For mini view, we'll just use a simple color if we have difficulty data
+                            const color = guess.difficulty ? this.getCategoryColor(guess.difficulty) : '#9ca3af';
+                            return `<div style="width: 0.5rem; height: 0.5rem; background: ${color};"></div>`;
+                        }).join('')}
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+    
     async load() {
         const userId = getCurrentUserId();
         const userName = getCurrentUserName();
@@ -162,12 +190,13 @@ class StatsComponent {
         return `
             <div style="overflow-x: auto;">
                 <table style="width: 100%; border-collapse: collapse;">
-                    <thead>
+                   <thead>
                         <tr style="border-bottom: 2px solid #e5e7eb;">
                             <th style="padding: 0.75rem; text-align: left; font-size: 0.875rem; color: #6b7280;">Date</th>
                             <th style="padding: 0.75rem; text-align: center; font-size: 0.875rem; color: #6b7280;">Result</th>
                             <th style="padding: 0.75rem; text-align: center; font-size: 0.875rem; color: #6b7280;">Time</th>
                             <th style="padding: 0.75rem; text-align: center; font-size: 0.875rem; color: #6b7280;">Mistakes</th>
+                            <th style="padding: 0.75rem; text-align: center; font-size: 0.875rem; color: #6b7280;">Solve Path</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -200,10 +229,12 @@ class StatsComponent {
                 <td style="padding: 0.75rem; text-align: center; font-size: 0.875rem; font-weight: 600;">
                     ${game.mistakes}/4
                 </td>
+                <td style="padding: 0.75rem; text-align: center;">
+                    ${this.renderMiniSolvePath(game.solvePath)}
+                </td>
             </tr>
         `;
     }
-
     attachListeners(gameId) {
         const backBtn = document.getElementById('back-btn');
         const leaderboardBtn = document.getElementById('view-leaderboard-btn');
