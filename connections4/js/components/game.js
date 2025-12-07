@@ -79,7 +79,6 @@ class GameComponent {
         this.render();
     }
 
-
     submitGuess() {
         if (this.selectedWords.length !== 4) return;
 
@@ -90,7 +89,7 @@ class GameComponent {
         });
 
         if (matchedCategory) {
-              this.solvePath.push({
+            this.solvePath.push({
                 type: 'correct',
                 words: [...this.selectedWords],
                 category: matchedCategory.title,
@@ -111,20 +110,15 @@ class GameComponent {
                 this.saveResult();
             }
         } else {
-            // Check if "one away" from any category
             const isOneAway = this.gameData.categories.some(cat => {
-                // Skip categories already found
                 if (this.foundCategories.some(fc => fc.title === cat.title)) return false;
-                
-                // Count how many selected words are in this category
                 const matchCount = this.selectedWords.filter(word => 
                     cat.words.includes(word)
                 ).length;
-                
                 return matchCount === 3;
             });
 
-                this.solvePath.push({
+            this.solvePath.push({
                 type: 'mistake',
                 words: [...this.selectedWords],
                 oneAway: isOneAway,
@@ -230,7 +224,7 @@ class GameComponent {
     }
 
     renderGameBoard() {
-      if (this.gameOver) {
+        if (this.gameOver) {
             return `
                 <div style="text-align: center; margin-top: 2rem;">
                     <div style="font-size: 4rem; margin-bottom: 1.5rem;">${this.mistakes < this.MAX_MISTAKES ? '🏆' : '😅'}</div>
@@ -312,20 +306,18 @@ class GameComponent {
                         </div>
                     `).join('')}
                 </div>
-                <div id="guess-detail" style="margin-top: 1rem; padding: 0.75rem; background: #f9fafb; border-radius: 0.5rem; font-size: 0.875rem; color: #4b5563; display: none;">
-                    <!-- Guess details will appear here on hover -->
-                </div>
+                <div id="guess-detail" style="margin-top: 1rem; padding: 0.75rem; background: #f9fafb; border-radius: 0.5rem; font-size: 0.875rem; color: #4b5563; display: none;"></div>
             </div>
         `;
     }
-    
-getWordDifficulty(word) {
+
+    getWordDifficulty(word) {
         const category = this.gameData.categories.find(cat => 
             cat.words.includes(word)
         );
         return category ? category.difficulty : null;
     }
-    
+
     attachListeners() {
         const params = new URLSearchParams(window.location.search);
         const gameId = params.get("id");
@@ -356,7 +348,7 @@ getWordDifficulty(word) {
             btn.onclick = () => router.navigate('stats', { id: gameId });
         });
 
-       viewLeaderboardButtons.forEach(btn => {
+        viewLeaderboardButtons.forEach(btn => {
             btn.onclick = () => router.navigate('leaderboard');
         });
 
@@ -379,4 +371,5 @@ getWordDifficulty(word) {
         });
     }
 }
+
 export const gameComponent = new GameComponent();
