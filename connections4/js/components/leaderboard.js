@@ -24,14 +24,18 @@ getCategoryColor(difficulty) {
         
         return `
             <div style="display: flex; gap: 0.125rem; flex-wrap: wrap; justify-content: center;">
-                ${solvePath.map((guess, idx) => `
-                    <div style="display: flex; gap: 1px; background: #e5e7eb; padding: 1px; border-radius: 2px;" title="Guess ${idx + 1}${guess.type === 'correct' ? ' ✓' : guess.oneAway ? ' (one away)' : ' ✗'}">
-                        ${guess.words.map(word => {
-                            const color = guess.difficulty ? this.getCategoryColor(guess.difficulty) : '#9ca3af';
-                            return `<div style="width: 0.5rem; height: 0.5rem; background: ${color};"></div>`;
-                        }).join('')}
-                    </div>
-                `).join('')}
+                ${solvePath.map((guess, idx) => {
+                    const statusText = guess.type === 'correct' ? '✓' : (guess.oneAway ? '(one away)' : '✗');
+                    const categoryText = guess.type === 'correct' && guess.category ? ` - ${guess.category}` : '';
+                    return `
+                        <div style="display: flex; gap: 1px; background: #e5e7eb; padding: 1px; border-radius: 2px;" title="Guess ${idx + 1}: ${guess.words.join(', ')} ${statusText}${categoryText}">
+                            ${guess.words.map(word => {
+                                const color = guess.difficulty ? this.getCategoryColor(guess.difficulty) : '#9ca3af';
+                                return `<div style="width: 0.5rem; height: 0.5rem; background: ${color};"></div>`;
+                            }).join('')}
+                        </div>
+                    `;
+                }).join('')}
             </div>
         `;
     }
