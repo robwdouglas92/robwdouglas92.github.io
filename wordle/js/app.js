@@ -2,6 +2,7 @@ import { router } from './router.js';
 import { db, auth } from './firebase.js';
 import { gameComponent } from './components/game.js';
 import { userSelectComponent } from './components/userSelect.js';
+import { adminComponent } from './components/admin.js';
 import { getCurrentUserId } from './utils/helpers.js';
 
 // Register routes
@@ -110,19 +111,10 @@ router.register('leaderboard', async (params) => {
     };
 });
 
+// Admin route - NOW USING THE COMPONENT
 router.register('admin', async (params) => {
-    // Placeholder for admin component (Phase 2)
-    document.getElementById('app').innerHTML = `
-        <div class="container">
-            <header>
-                <h1>🎮 Admin Mode</h1>
-                <p class="subtitle">Admin console coming in Phase 2!</p>
-                <button class="nav-link" id="back-btn" style="margin-top: 1rem;">← Back</button>
-            </header>
-        </div>
-    `;
-    
-    document.getElementById('back-btn').onclick = () => history.back();
+    await adminComponent.checkAuth();
+    adminComponent.render();
 });
 
 // Start the app
