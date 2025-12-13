@@ -14,6 +14,7 @@ class AdminComponent {
         this.targetWord = '';
         this.isValidating = false;
         this.wordIsValid = null;
+        this.lastGeneratedLink = '';
     }
 
     async checkAuth() {
@@ -149,18 +150,19 @@ class AdminComponent {
             await setDoc(gameRef, gameDataToSave);
 
             const shareUrl = `${window.location.origin}${window.location.pathname}?id=${id}`;
-            this.message = `✅ Game saved! Share this link:\n${shareUrl}`;
+            this.lastGeneratedLink = shareUrl;
+            this.message = `✅ Game saved! Link: ${shareUrl}`;
             this.messageType = 'success';
             console.log('Wordle game saved with ID:', id);
+            
+            // Reset form
+            this.targetWord = '';
+            this.wordIsValid = null;
+            
             this.render();
             
             setTimeout(() => {
                 alert(`Game saved! Share this link:\n\n${shareUrl}`);
-                // Reset form
-                this.targetWord = '';
-                this.wordIsValid = null;
-                this.message = '';
-                this.render();
             }, 100);
         } catch (err) {
             console.error("Error saving:", err);
@@ -170,11 +172,26 @@ class AdminComponent {
         }
     }
 
+    copyLink() {
+        if (this.lastGeneratedLink) {
+            navigator.clipboard.writeText(this.lastGeneratedLink).then(() => {
+                this.message = '✅ Link copied to clipboard!';
+                this.messageType = 'success';
+                this.render();
+                setTimeout(() => {
+                    this.message = `✅ Game saved! Link: ${this.lastGeneratedLink}`;
+                    this.render();
+                }, 1500);
+            });
+        }
+    }
+
     clearForm() {
         if (confirm('Clear the form?')) {
             this.targetWord = '';
             this.wordIsValid = null;
             this.message = '';
+            this.lastGeneratedLink = '';
             this.render();
         }
     }
@@ -201,7 +218,7 @@ class AdminComponent {
                         <h2 class="modal-title">Admin Access</h2>
                         <p style="color: #4b5563; margin-bottom: 1rem;">Enter the admin password:</p>
                         ${this.message ? `<div class="message msg-${this.messageType}">${this.message}</div>` : ''}
-                        <input type="password" id="password-input" class="input" placeholder="Password">
+                        <input type="password" id="password-input" class="input" placeholder="Password" autocomplete="current-password">
                         <div style="display: flex; gap: 0.5rem;">
                             <button class="btn btn-primary" id="submit-password" style="flex: 1;">Submit</button>
                             <button class="btn btn-secondary" id="cancel-password" style="flex: 1;">Cancel</button>
@@ -225,6 +242,24 @@ class AdminComponent {
 
                     ${this.message ? `<div class="message msg-${this.messageType}" style="margin-bottom: 1.5rem;">${this.message}</div>` : ''}
 
+                    ${this.lastGeneratedLink ? `
+                        <div style="background: #10b981; color: white; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                            <p style="font-weight: bold; margin-bottom: 0.5rem;">🎉 Last Generated Link:</p>
+                            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                <input 
+                                    type="text" 
+                                    readonly 
+                                    value="${this.lastGeneratedLink}"
+                                    style="flex: 1; padding: 0.5rem; border: none; border-radius: 0.25rem; font-size: 0.875rem;"
+                                    id="generated-link-input"
+                                >
+                                <button class="btn btn-secondary" id="copy-link-btn" style="background: white; color: #10b981; border: none; padding: 0.5rem 1rem;">
+                                    📋 Copy
+                                </button>
+                            </div>
+                        </div>
+                    ` : ''}
+
                     <div style="background: white; border-radius: 0.5rem; padding: 2rem; margin-bottom: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                         <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem;">Create New Game</h2>
 
@@ -239,6 +274,7 @@ class AdminComponent {
                                 value="${this.targetWord}" 
                                 placeholder="Enter a 5-letter word"
                                 maxlength="5"
+                                autocomplete="off"
                                 style="text-transform: uppercase; font-size: 1.25rem; font-weight: bold; letter-spacing: 0.1em; ${this.wordIsValid === true ? 'border-color: #22c55e;' : this.wordIsValid === false ? 'border-color: #ef4444;' : ''}"
                             >
                             ${this.wordIsValid === true ? `
@@ -337,6 +373,7 @@ class AdminComponent {
         const loadExampleBtn = document.getElementById('load-example');
         const clearBtn = document.getElementById('clear-btn');
         const saveBtn = document.getElementById('save-game');
+        const copyLinkBtn = document.getElementById('copy-link-btn');
         const input = document.getElementById('target-word-input');
         
         if (exitBtn) exitBtn.onclick = () => router.navigate('game', {});
@@ -344,12 +381,28 @@ class AdminComponent {
         if (loadExampleBtn) loadExampleBtn.onclick = () => this.fillExample();
         if (clearBtn) clearBtn.onclick = () => this.clearForm();
         if (saveBtn) saveBtn.onclick = () => this.saveGame();
+        if (copyLinkBtn) copyLinkBtn.onclick = () => this.copyLink();
         
         if (input) {
             input.focus();
             input.oninput = (e) => {
+                // Store cursor position
+                const cursorPos = e.target.selectionStart;
+                const oldLength = this.targetWord.length;
+                
                 this.updateTargetWord(e.target.value);
                 this.render();
+                
+                // Restore cursor position after render
+                setTimeout(() => {
+                    const newInput = document.getElementById('target-word-input');
+                    if (newInput) {
+                        const newLength = this.targetWord.length;
+                        const newCursorPos = cursorPos + (newLength - oldLength);
+                        newInput.setSelectionRange(newCursorPos, newCursorPos);
+                        newInput.focus();
+                    }
+                }, 0);
             };
         }
     }
