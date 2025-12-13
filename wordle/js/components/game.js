@@ -19,6 +19,7 @@ class GameComponent {
         this.message = '';
         this.messageType = '';
         this.isValidating = false;
+        this.lastGuessIndex = -1; // Track which row just got animated
     }
 
     async load(gameId) {
@@ -111,6 +112,9 @@ class GameComponent {
             feedback: feedback
         });
 
+        // Track this guess for animation
+        this.lastGuessIndex = this.guesses.length - 1;
+
         // Update keyboard
         this.updateKeyboard(this.currentGuess, feedback);
 
@@ -138,6 +142,11 @@ class GameComponent {
 
         this.currentGuess = '';
         this.render();
+        
+        // Clear animation flag after render
+        setTimeout(() => {
+            this.lastGuessIndex = -1;
+        }, 600); // Match animation duration
     }
 
     calculateFeedback(guess, target) {
@@ -266,23 +275,24 @@ class GameComponent {
             html += '<div style="display: flex; gap: 0.375rem; justify-content: center;">';
             
             if (i < this.guesses.length) {
-                // Completed guess
+                // Completed guess - only animate if this is the row that was just submitted
                 const guess = this.guesses[i];
+                const shouldAnimate = (i === this.lastGuessIndex);
                 for (let j = 0; j < 5; j++) {
                     const letter = guess.word[j];
                     const state = guess.feedback[j];
-                    html += this.renderTile(letter, state, true);
+                    html += this.renderTile(letter, state, true, shouldAnimate);
                 }
             } else if (i === this.guesses.length && !this.gameOver) {
                 // Current guess row
                 for (let j = 0; j < 5; j++) {
                     const letter = this.currentGuess[j] || '';
-                    html += this.renderTile(letter, 'current', false);
+                    html += this.renderTile(letter, 'current', false, false);
                 }
             } else {
                 // Empty rows
                 for (let j = 0; j < 5; j++) {
-                    html += this.renderTile('', 'empty', false);
+                    html += this.renderTile('', 'empty', false, false);
                 }
             }
             
@@ -293,7 +303,7 @@ class GameComponent {
         return html;
     }
 
-    renderTile(letter, state, isComplete) {
+    renderTile(letter, state, isComplete, shouldAnimate = false) {
         const colors = {
             correct: '#6aaa64',
             present: '#c9b458',
@@ -307,7 +317,7 @@ class GameComponent {
         const textColor = state === 'empty' || state === 'current' ? '#000000' : '#ffffff';
         
         return `
-            <div style="
+            <div class="wordle-tile ${shouldAnimate ? 'flip-animation' : ''}" style="
                 width: 62px;
                 height: 62px;
                 border: 2px solid ${borderColor};
@@ -320,7 +330,6 @@ class GameComponent {
                 font-weight: bold;
                 text-transform: uppercase;
                 border-radius: 0.25rem;
-                ${isComplete ? 'animation: flip 0.6s ease;' : ''}
             ">
                 ${letter}
             </div>
