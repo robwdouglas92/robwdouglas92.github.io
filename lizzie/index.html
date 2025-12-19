@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merry Christmas Lizzie! 🎄</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #FFD93D 0%, #F6C324 50%, #4A90E2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Lemon decorations */
+        .lemon {
+            position: absolute;
+            font-size: 3rem;
+            opacity: 0.3;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+
+        .lemon:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+        .lemon:nth-child(2) { top: 20%; right: 15%; animation-delay: 1s; }
+        .lemon:nth-child(3) { bottom: 15%; left: 20%; animation-delay: 2s; }
+        .lemon:nth-child(4) { bottom: 25%; right: 10%; animation-delay: 3s; }
+        .lemon:nth-child(5) { top: 50%; left: 5%; animation-delay: 1.5s; }
+        .lemon:nth-child(6) { top: 60%; right: 8%; animation-delay: 2.5s; }
+
+        .container {
+            background: white;
+            border-radius: 1rem;
+            padding: 3rem 2rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            border: 8px solid #4A90E2;
+            position: relative;
+            z-index: 10;
+        }
+
+        .pottery-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: repeating-linear-gradient(
+                90deg,
+                #4A90E2 0px,
+                #4A90E2 10px,
+                white 10px,
+                white 20px
+            );
+            border-radius: 1rem 1rem 0 0;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #4A90E2;
+            margin-bottom: 1rem;
+            margin-top: 2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .password-form {
+            margin-top: 2rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            margin-bottom: 0.5rem;
+            color: #4A90E2;
+            font-weight: bold;
+        }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 1rem;
+            border: 3px solid #FFD93D;
+            border-radius: 0.5rem;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #4A90E2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        .hint {
+            background: #FFF9E6;
+            border-left: 4px solid #FFD93D;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: left;
+            border-radius: 0.25rem;
+        }
+
+        .hint strong {
+            color: #F6C324;
+        }
+
+        button {
+            background: #4A90E2;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        button:hover {
+            background: #357ABD;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .footer {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating lemons -->
+    <div class="lemon">🍋</div>
+    <div class="lemon">🍋</div>
+    <div class="lemon">🍋</div>
+    <div class="lemon">🍋</div>
+    <div class="lemon">🍋</div>
+    <div class="lemon">🍋</div>
+
+    <div class="container">
+        <div class="pottery-pattern"></div>
+        
+        <h1>🎄 Merry Christmas Lizzie! 🎄</h1>
+        <p class="subtitle">Your special gift awaits...</p>
+
+        <div class="hint">
+            <strong>💡 Hint:</strong> If you got a problem, yo he'll solve it
+        </div>
+
+        <form class="password-form" id="passwordForm">
+            <div class="input-group">
+                <label for="password">Enter the magic word:</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    placeholder="Type here..."
+                    autocomplete="off"
+                    autofocus
+                >
+            </div>
+
+            <button type="submit">🎁 Unwrap Your Gift</button>
+        </form>
+
+        <div class="error" id="error">
+            ❌ Oops! That's not quite right. Check the hint!
+        </div>
+
+        <div class="footer">
+            Made with 💛 and 💙
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('passwordForm');
+        const passwordInput = document.getElementById('password');
+        const errorDiv = document.getElementById('error');
+        const correctPassword = 'Herdy';
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const enteredPassword = passwordInput.value.trim();
+            
+            if (enteredPassword === correctPassword) {
+                // Store auth in sessionStorage
+                sessionStorage.setItem('lizzieAuth', 'true');
+                // Redirect to home page
+                window.location.href = './home.html';
+            } else {
+                // Show error
+                errorDiv.classList.add('show');
+                passwordInput.value = '';
+                passwordInput.focus();
+                
+                // Hide error after 3 seconds
+                setTimeout(() => {
+                    errorDiv.classList.remove('show');
+                }, 3000);
+            }
+        });
+
+        // Check if already authenticated
+        if (sessionStorage.getItem('lizzieAuth') === 'true') {
+            window.location.href = './home.html';
+        }
+    </script>
+</body>
+</html>
