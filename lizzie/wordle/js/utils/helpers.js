@@ -5,16 +5,16 @@ export function formatTime(seconds) {
 }
 
 export function getCurrentUserId() {
-    return localStorage.getItem('userId');
+    return localStorage.getItem('LizzieWordleUserId');
 }
 
 export function getCurrentUserName() {
-    return localStorage.getItem('userName');
+    return localStorage.getItem('LizzieWordleUserName');
 }
 
 export function setCurrentUser(userId, userName) {
-    localStorage.setItem('userId', userId);
-    localStorage.setItem('userName', userName);
+    localStorage.setItem('LizzieWordleUserId', userId);
+    localStorage.setItem('LizzieWordleUserName', userName);
 }
 
 export function clearCurrentUser() {
