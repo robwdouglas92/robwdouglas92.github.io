@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lizzie's Game Hub 🍋</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #FFD93D 0%, #F6C324 50%, #4A90E2 100%);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .lemon {
+            position: fixed;
+            font-size: 2rem;
+            opacity: 0.2;
+            animation: float 8s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(15deg); }
+        }
+
+        .lemon:nth-child(1) { top: 5%; left: 5%; animation-delay: 0s; }
+        .lemon:nth-child(2) { top: 15%; right: 10%; animation-delay: 1.5s; }
+        .lemon:nth-child(3) { bottom: 10%; left: 15%; animation-delay: 3s; }
+        .lemon:nth-child(4) { bottom: 20%; right: 5%; animation-delay: 4.5s; }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 6px solid #4A90E2;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: #4A90E2;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .games-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .game-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 5px solid #FFD93D;
+            text-align: center;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 10px;
+            background: repeating-linear-gradient(
+                90deg,
+                #4A90E2 0px,
+                #4A90E2 15px,
+                #FFD93D 15px,
+                #FFD93D 30px
+            );
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .game-icon {
+            font-size: 4rem;
+            margin: 1rem 0;
+        }
+
+        .game-title {
+            font-size: 2rem;
+            color: #4A90E2;
+            margin-bottom: 0.5rem;
+        }
+
+        .game-status {
+            background: #FFF9E6;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            color: #666;
+            border-left: 4px solid #FFD93D;
+        }
+
+        .game-creator {
+            font-size: 0.85rem;
+            color: #999;
+            margin-top: 0.5rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: #4A90E2;
+            color: white;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            margin: 0.5rem;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #357ABD;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+        }
+
+        .btn-secondary {
+            background: #FFD93D;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #F6C324;
+        }
+
+        .archive-section {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 5px solid #4A90E2;
+            text-align: center;
+        }
+
+        .archive-section h2 {
+            color: #4A90E2;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .game-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating lemons -->
+    <div class="lemon">🍋</div>
+    <div class="lemon">🍋</div>
+    <div class="lemon">🍋</div>
+    <div class="lemon">🍋</div>
+
+    <div class="container">
+        <header>
+            <h1>🍋 Lizzie's Game Hub 🍋</h1>
+            <p class="subtitle">Challenge yourself with today's puzzles!</p>
+        </header>
+
+        <div id="games-container" class="games-section">
+            <div class="loading">Loading games...</div>
+        </div>
+
+        <div class="archive-section">
+            <h2>📚 Game Archives</h2>
+            <p style="color: #666; margin-bottom: 1.5rem;">Explore all past games and track your progress</p>
+            <a href="./archive.html" class="btn btn-secondary">View Archive</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getFirestore, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        // Check authentication
+        if (sessionStorage.getItem('lizzieAuth') !== 'true') {
+            window.location.href = './index.html';
+        }
+
+        // Firebase config (same as your main project)
+        const firebaseConfig = {
+            apiKey: "AIzaSyBjiragFxVWw-oHPpf23E7CujI5yZrP5U8",
+            authDomain: "family-connections-de1a6.firebaseapp.com",
+            projectId: "family-connections-de1a6",
+            storageBucket: "family-connections-de1a6.appspot.com",
+            messagingSenderId: "255614664421",
+            appId: "1:255614664421:web:1a48b3b5cc119ea8a35e0c"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function loadLatestGames() {
+            const container = document.getElementById('games-container');
+            
+            try {
+                // Get latest Wordle game
+                const wordleQuery = query(
+                    collection(db, "lizzieWordleGames"),
+                    orderBy("createdAt", "desc"),
+                    limit(1)
+                );
+                const wordleSnapshot = await getDocs(wordleQuery);
+                let latestWordle = null;
+                wordleSnapshot.forEach(doc => {
+                    latestWordle = { id: doc.id, ...doc.data() };
+                });
+
+                // Get latest Connections game
+                const connectionsQuery = query(
+                    collection(db, "lizzieGames"),
+                    orderBy("createdAt", "desc"),
+                    limit(1)
+                );
+                const connectionsSnapshot = await getDocs(connectionsQuery);
+                let latestConnections = null;
+                connectionsSnapshot.forEach(doc => {
+                    latestConnections = { id: doc.id, ...doc.data() };
+                });
+
+                // Render games
+                container.innerHTML = `
+                    <div class="game-card">
+                        <div class="game-icon">🔤</div>
+                        <h2 class="game-title">Wordle</h2>
+                        ${latestWordle ? `
+                            <div class="game-status">
+                                Latest: <strong>${latestWordle.targetWord}</strong>
+                                <div class="game-creator">Created by ${latestWordle.createdBy || 'Unknown'}</div>
+                                <div class="game-creator">${new Date(latestWordle.createdAt).toLocaleDateString('en-GB')}</div>
+                            </div>
+                            <a href="./wordle/index.html?id=${latestWordle.id}" class="btn">Play Wordle</a>
+                        ` : `
+                            <div class="game-status">No games yet!</div>
+                            <button class="btn" disabled style="opacity: 0.5;">Coming Soon</button>
+                        `}
+                    </div>
+
+                    <div class="game-card">
+                        <div class="game-icon">🔗</div>
+                        <h2 class="game-title">Connections</h2>
+                        ${latestConnections ? `
+                            <div class="game-status">
+                                Latest game available!
+                                <div class="game-creator">Created by ${latestConnections.createdBy || 'Unknown'}</div>
+                                <div class="game-creator">${new Date(latestConnections.createdAt).toLocaleDateString('en-GB')}</div>
+                            </div>
+                            <a href="./connections/index.html?id=${latestConnections.id}" class="btn">Play Connections</a>
+                        ` : `
+                            <div class="game-status">No games yet!</div>
+                            <button class="btn" disabled style="opacity: 0.5;">Coming Soon</button>
+                        `}
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('Error loading games:', error);
+                container.innerHTML = `
+                    <div class="loading" style="color: #e74c3c;">
+                        Error loading games. Please try again later.
+                    </div>
+                `;
+            }
+        }
+
+        loadLatestGames();
+    </script>
+</body>
+</html>
