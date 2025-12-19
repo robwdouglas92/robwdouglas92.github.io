@@ -14,7 +14,7 @@ class UserSelectComponent {
 
     async loadUsers() {
         try {
-            const usersRef = collection(db, "users");
+            const usersRef = collection(db, "LizzieUsers");
             const snapshot = await getDocs(usersRef);
             this.availableUsers = [];
             snapshot.forEach(doc => {
