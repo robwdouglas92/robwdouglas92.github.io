@@ -14,7 +14,7 @@ class LeaderboardComponent {
         this.loading = true;
         
         try {
-            const resultsRef = collection(db, "wordleResults");
+            const resultsRef = collection(db, "LizzieWordleResults");
             const snapshot = await getDocs(resultsRef);
             
             this.allResults = [];
