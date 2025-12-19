@@ -44,7 +44,7 @@ getCategoryColor(difficulty) {
         this.loading = true;
         
         try {
-            const resultsRef = collection(db, "gameResults");
+            const resultsRef = collection(db, "LizzieConnectionResults");
             const snapshot = await getDocs(resultsRef);
             
             this.allResults = [];
