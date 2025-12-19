@@ -141,12 +141,12 @@ class AdminComponent {
         const gameDataToSave = {
             targetWord: word,
             createdAt: new Date().toISOString(),
-            createdBy: auth.currentUser.email
+            createdBy: auth.currentUser.email === 'admin@robwdouglas92.com' ? 'Rob' : 'Lizzie'
         };
 
         try {
             const id = Math.random().toString(36).substring(2, 8);
-            const gameRef = doc(db, "wordleGames", id);
+            const gameRef = doc(db, "LizzieWordleGames", id);
             await setDoc(gameRef, gameDataToSave);
 
             const shareUrl = `${window.location.origin}${window.location.pathname}?id=${id}`;
