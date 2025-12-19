@@ -27,7 +27,8 @@ class GameComponent {
         this.gameId = gameId;
         
         try {
-            const gameRef = doc(db, "wordleGames", gameId);
+            const gameRef = doc(db, "LizzieWordleGames", gameId);
+            const resultsRef = collection(db, "LizzieWordleResults");
             const snap = await getDoc(gameRef);
 
             if (snap.exists()) {
