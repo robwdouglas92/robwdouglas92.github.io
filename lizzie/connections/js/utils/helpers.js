@@ -14,16 +14,16 @@ export function formatTime(seconds) {
 }
 
 export function getCurrentUserId() {
-    return localStorage.getItem('userId');
+    return localStorage.getItem('LizzieUserId');
 }
 
 export function getCurrentUserName() {
-    return localStorage.getItem('userName');
+    return localStorage.getItem('LizzieUserName');
 }
 
 export function setCurrentUser(userId, userName) {
-    localStorage.setItem('userId', userId);
-    localStorage.setItem('userName', userName);
+    localStorage.setItem('LizzieUserId', userId);
+    localStorage.setItem('LizzieUserName', userName);
 }
 
 export function clearCurrentUser() {
