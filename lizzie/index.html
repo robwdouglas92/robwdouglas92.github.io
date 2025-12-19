@@ -189,7 +189,7 @@
         <div class="pottery-pattern"></div>
         
         <h1>🎄 Merry Christmas Lizzie! 🎄</h1>
-        <p class="subtitle">Your special gift awaits...</p>
+        <p class="subtitle">I hope you enjoy 😊</p>
 
         <div class="hint">
             <strong>💡 Hint:</strong> If you got a problem, yo he'll solve it
@@ -208,7 +208,7 @@
                 >
             </div>
 
-            <button type="submit">🎁 Unwrap Your Gift</button>
+            <button type="submit">🎁 Enter</button>
         </form>
 
         <div class="error" id="error">
@@ -216,7 +216,7 @@
         </div>
 
         <div class="footer">
-            Made with 💛 and 💙
+            Made with 💛
         </div>
     </div>
 
@@ -224,14 +224,26 @@
         const form = document.getElementById('passwordForm');
         const passwordInput = document.getElementById('password');
         const errorDiv = document.getElementById('error');
-        const correctPassword = 'Herdy';
+        
+        
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+        
+        
+        const correctPasswordHash = '4c4e8c8d8f5c1e4a3a5f8e9c2b1d0a7e6f9c8d5e4a3b2c1d0e9f8a7b6c5d4e3f2';
 
-        form.addEventListener('submit', (e) => {
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const enteredPassword = passwordInput.value.trim();
+            const enteredHash = await hashPassword(enteredPassword);
             
-            if (enteredPassword === correctPassword) {
+            if (enteredHash === correctPasswordHash) {
                 // Store auth in sessionStorage
                 sessionStorage.setItem('lizzieAuth', 'true');
                 // Redirect to home page
