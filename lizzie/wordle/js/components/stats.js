@@ -22,7 +22,7 @@ class StatsComponent {
         this.loading = true;
         
         try {
-            const resultsRef = collection(db, "wordleResults");
+            const resultsRef = collection(db, "LizzieWordleResults");
             const q = query(resultsRef, where("userId", "==", userId));
             const snapshot = await getDocs(q);
             
