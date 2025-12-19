@@ -22,7 +22,8 @@ class GameComponent {
         console.log('Loading game:', gameId);
         
         try {
-            const gameRef = doc(db, "games", gameId);
+            const gameRef = doc(db, "LizzieConnectionGames", gameId);
+            const resultsRef = collection(db, "LizzieConnectionResults");
             const snap = await getDoc(gameRef);
 
             if (snap.exists()) {
