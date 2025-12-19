@@ -254,6 +254,7 @@ class GameComponent {
                     ${userName ? `<p style="font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem;">Playing as: ${userName}</p>` : ''}
                     
                     <div style="margin-top: 1rem;">
+                        <button class="nav-link" onclick="window.location.href='../../home.html'">🏠 Back to Home</button>
                         <button class="nav-link" id="view-stats-btn">📊 My Stats</button>
                         <button class="nav-link" id="view-leaderboard-btn">🏆 Leaderboard</button>
                     </div>
