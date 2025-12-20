@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lizzie's Games 🍋</title>
+    <title>Lizzie's Game Hub 🍋</title>
     <style>
         * {
             margin: 0;
@@ -206,7 +206,8 @@
 
     <div class="container">
         <header>
-            <h1>🍋 Lizzie's Games 🍋</h1>
+            <h1>🍋 Lizzie's Game Hub 🍋</h1>
+            <p class="subtitle">Challenge yourself with today's puzzles!</p>
         </header>
 
         <div id="games-container" class="games-section">
@@ -221,7 +222,7 @@
 
         <div class="archive-section" style="margin-top: 2rem; border-color: #FFD93D;">
             <h2>🎮 Admin Panel</h2>
-            <p style="color: #666; margin-bottom: 1.5rem;">Create new games</p>
+            <p style="color: #666; margin-bottom: 1.5rem;">Create new games for players to enjoy</p>
             <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
                 <a href="./wordle/?view=admin" class="btn">Create Wordle Game</a>
                 <a href="./connections/?view=admin" class="btn">Create Connections Game</a>
@@ -257,7 +258,7 @@
             try {
                 // Get latest Wordle game
                 const wordleQuery = query(
-                    collection(db, "LizzieWordleGames"),
+                    collection(db, "lizzieWordleGames"),
                     orderBy("createdAt", "desc"),
                     limit(1)
                 );
@@ -269,7 +270,7 @@
 
                 // Get latest Connections game
                 const connectionsQuery = query(
-                    collection(db, "LizzieGames"),
+                    collection(db, "lizzieGames"),
                     orderBy("createdAt", "desc"),
                     limit(1)
                 );
@@ -286,7 +287,7 @@
                         <h2 class="game-title">Wordle</h2>
                         ${latestWordle ? `
                             <div class="game-status">
-                                Latest: <strong>${latestWordle.targetWord}</strong>
+                                Latest game available!
                                 <div class="game-creator">Created by ${latestWordle.createdBy || 'Unknown'}</div>
                                 <div class="game-creator">${new Date(latestWordle.createdAt).toLocaleDateString('en-GB')}</div>
                             </div>
