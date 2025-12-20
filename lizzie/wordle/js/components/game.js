@@ -233,7 +233,7 @@ class GameComponent {
         };
         
         try {
-            const resultsRef = collection(db, "wordleResults");
+            const resultsRef = collection(db, "LizzieWordleResults");
             await addDoc(resultsRef, result);
             console.log('Wordle result saved');
         } catch (error) {
