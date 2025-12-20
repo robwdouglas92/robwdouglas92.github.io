@@ -1,5 +1,5 @@
 import { db } from '../firebase.js';
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { doc, getDoc, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 import { router } from '../router.js';
 import { timer } from '../utils/timer.js';
 import { shuffleArray, formatTime, getCurrentUserId, getCurrentUserName } from '../utils/helpers.js';
