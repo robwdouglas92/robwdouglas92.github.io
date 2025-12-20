@@ -207,7 +207,7 @@ class AdminComponent {
                 <div class="wide-container">
                     <header style="text-align: center; margin-bottom: 2rem; color: white;">
                         <h1 style="font-size: 2.25rem; font-weight: bold; margin-bottom: 0.5rem;">🎮 Admin Mode</h1>
-                        <p style="color: #d1d5db;">Create and manage your family's game</p>
+                        <p style="color: #d1d5db;">Create and manage your games</p>
                         <button class="nav-link" id="exit-admin" style="margin-top: 0.75rem; color: white; background: rgba(255,255,255,0.2); border: none;">✕ Exit Admin Mode</button>
                     </header>
 
