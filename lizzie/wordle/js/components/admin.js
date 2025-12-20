@@ -15,6 +15,7 @@ class AdminComponent {
         this.isValidating = false;
         this.wordIsValid = null;
         this.lastGeneratedLink = '';
+        this.createdBy = 'Rob'; // Default to Rob
     }
 
     async checkAuth() {
@@ -141,12 +142,12 @@ class AdminComponent {
         const gameDataToSave = {
             targetWord: word,
             createdAt: new Date().toISOString(),
-            createdBy: auth.currentUser.email === 'admin@robwdouglas92.com' ? 'Rob' : 'Lizzie'
+            createdBy: auth.currentUser.email
         };
 
         try {
             const id = Math.random().toString(36).substring(2, 8);
-            const gameRef = doc(db, "LizzieWordleGames", id);
+            const gameRef = doc(db, "wordleGames", id);
             await setDoc(gameRef, gameDataToSave);
 
             const shareUrl = `${window.location.origin}${window.location.pathname}?id=${id}`;
@@ -265,6 +266,16 @@ class AdminComponent {
 
                         <div style="margin-bottom: 1.5rem;">
                             <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">
+                                Created By
+                            </label>
+                            <select id="creator-select" class="input" style="margin-bottom: 1.5rem;">
+                                <option value="Rob" ${this.createdBy === 'Rob' ? 'selected' : ''}>Rob</option>
+                                <option value="Lizzie" ${this.createdBy === 'Lizzie' ? 'selected' : ''}>Lizzie</option>
+                            </select>
+                        </div>
+
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">
                                 Target Word (5 letters)
                             </label>
                             <input 
@@ -375,6 +386,7 @@ class AdminComponent {
         const saveBtn = document.getElementById('save-game');
         const copyLinkBtn = document.getElementById('copy-link-btn');
         const input = document.getElementById('target-word-input');
+        const creatorSelect = document.getElementById('creator-select');
         
         if (exitBtn) exitBtn.onclick = () => router.navigate('game', {});
         if (validateBtn) validateBtn.onclick = () => this.validateWord();
@@ -382,6 +394,12 @@ class AdminComponent {
         if (clearBtn) clearBtn.onclick = () => this.clearForm();
         if (saveBtn) saveBtn.onclick = () => this.saveGame();
         if (copyLinkBtn) copyLinkBtn.onclick = () => this.copyLink();
+        
+        if (creatorSelect) {
+            creatorSelect.onchange = (e) => {
+                this.createdBy = e.target.value;
+            };
+        }
         
         if (input) {
             input.focus();
