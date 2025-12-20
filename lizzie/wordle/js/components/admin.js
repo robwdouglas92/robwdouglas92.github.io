@@ -142,19 +142,19 @@ class AdminComponent {
         const gameDataToSave = {
             targetWord: word,
             createdAt: new Date().toISOString(),
-            createdBy: auth.currentUser.email
+            createdBy: this.createdBy  // Use the dropdown selection
         };
 
         try {
             const id = Math.random().toString(36).substring(2, 8);
-            const gameRef = doc(db, "wordleGames", id);
+            const gameRef = doc(db, "LizzieWordleGames", id);  // Correct collection name
             await setDoc(gameRef, gameDataToSave);
 
             const shareUrl = `${window.location.origin}${window.location.pathname}?id=${id}`;
             this.lastGeneratedLink = shareUrl;
             this.message = `✅ Game saved! Link: ${shareUrl}`;
             this.messageType = 'success';
-            console.log('Wordle game saved with ID:', id);
+            console.log('Wordle game saved with ID:', id, 'by', this.createdBy);
             
             // Reset form
             this.targetWord = '';
