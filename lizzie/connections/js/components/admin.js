@@ -10,6 +10,7 @@ class AdminComponent {
         this.passwordInput = '';
         this.message = '';
         this.messageType = '';
+        this.createdBy = 'Rob'; // Default to Rob
         this.categories = [
             { title: '', words: ['', '', '', ''], difficulty: 'easy' },
             { title: '', words: ['', '', '', ''], difficulty: 'medium' },
@@ -104,7 +105,7 @@ class AdminComponent {
                 words: cat.words.map(w => w.trim())
             })),
             createdAt: new Date().toISOString(),
-            createdBy: auth.currentUser.email === 'admin@robwdouglas92.com' ? 'Rob' : 'Lizzie'
+            createdBy: this.createdBy  // Use the dropdown selection
         };
 
         try {
@@ -115,7 +116,7 @@ class AdminComponent {
             const shareUrl = `${window.location.origin}${window.location.pathname}?id=${id}`;
             this.message = `✅ Game saved! Share this link:\n${shareUrl}`;
             this.messageType = 'success';
-            console.log('Saved with ID:', id);
+            console.log('Saved with ID:', id, 'by', this.createdBy);
             this.render();
             
             setTimeout(() => {
@@ -206,14 +207,24 @@ class AdminComponent {
             <div style="min-height: 100vh; background: linear-gradient(to bottom right, #0f172a, #581c87, #0f172a); padding: 1rem;">
                 <div class="wide-container">
                     <header style="text-align: center; margin-bottom: 2rem; color: white;">
-                        <h1 style="font-size: 2.25rem; font-weight: bold; margin-bottom: 0.5rem;">🎮 Admin Mode</h1>
+                        <h1 style="font-size: 2.25rem; font-weight: bold; margin-bottom: 0.5rem;">🎮 Connections Admin</h1>
                         <p style="color: #d1d5db;">Create and manage your games</p>
-                        <button class="nav-link" id="exit-admin" style="margin-top: 0.75rem; color: white; background: rgba(255,255,255,0.2); border: none;">✕ Exit Admin Mode</button>
+                        <button class="nav-link" id="back-home" style="margin-top: 0.75rem; color: white; background: rgba(255,255,255,0.2); border: none;">🏠 Back to Home</button>
                     </header>
 
                     ${this.message ? `<div class="message msg-${this.messageType}" style="margin-bottom: 1.5rem;">${this.message}</div>` : ''}
 
                     <div style="background: white; border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 1.5rem;">
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">
+                                Created By
+                            </label>
+                            <select id="creator-select" class="input" style="max-width: 200px;">
+                                <option value="Rob" ${this.createdBy === 'Rob' ? 'selected' : ''}>Rob</option>
+                                <option value="Lizzie" ${this.createdBy === 'Lizzie' ? 'selected' : ''}>Lizzie</option>
+                            </select>
+                        </div>
+
                         <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
                             <button class="btn btn-primary" id="load-example" style="background: #3b82f6; border-radius: 0.5rem;">👁 Load Example</button>
                             <button class="btn btn-secondary" id="clear-all" style="background: #ef4444; color: white; border: none; border-radius: 0.5rem;">🗑 Clear All</button>
@@ -298,15 +309,22 @@ class AdminComponent {
     }
 
     attachAdminListeners() {
-        const exitBtn = document.getElementById('exit-admin');
+        const backHomeBtn = document.getElementById('back-home');
         const loadExampleBtn = document.getElementById('load-example');
         const clearBtn = document.getElementById('clear-all');
         const saveBtn = document.getElementById('save-game');
+        const creatorSelect = document.getElementById('creator-select');
         
-        if (exitBtn) exitBtn.onclick = () => router.navigate('game', {});
+        if (backHomeBtn) backHomeBtn.onclick = () => window.location.href = '../home.html';
         if (loadExampleBtn) loadExampleBtn.onclick = () => this.fillExample();
         if (clearBtn) clearBtn.onclick = () => this.clearAll();
         if (saveBtn) saveBtn.onclick = () => this.saveGame();
+        
+        if (creatorSelect) {
+            creatorSelect.onchange = (e) => {
+                this.createdBy = e.target.value;
+            };
+        }
         
         document.querySelectorAll('.cat-title').forEach(input => {
             input.oninput = (e) => {
