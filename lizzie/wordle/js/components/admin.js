@@ -238,7 +238,7 @@ class AdminComponent {
                     <header style="text-align: center; margin-bottom: 2rem; color: white;">
                         <h1 style="font-size: 2.25rem; font-weight: bold; margin-bottom: 0.5rem;">🎮 Wordle Admin</h1>
                         <p style="color: #d1d5db;">Create custom Wordle puzzles</p>
-                        <button class="nav-link" id="exit-admin" style="margin-top: 0.75rem; color: white; background: rgba(255,255,255,0.2); border: none;">✕ Exit Admin Mode</button>
+                        <button class="nav-link" id="back-home" style="margin-top: 0.75rem; color: white; background: rgba(255,255,255,0.2); border: none;">🏠 Back to Home</button>
                     </header>
 
                     ${this.message ? `<div class="message msg-${this.messageType}" style="margin-bottom: 1.5rem;">${this.message}</div>` : ''}
@@ -379,7 +379,7 @@ class AdminComponent {
     }
 
     attachAdminListeners() {
-        const exitBtn = document.getElementById('exit-admin');
+        const backHomeBtn = document.getElementById('back-home');
         const validateBtn = document.getElementById('validate-btn');
         const loadExampleBtn = document.getElementById('load-example');
         const clearBtn = document.getElementById('clear-btn');
@@ -388,7 +388,7 @@ class AdminComponent {
         const input = document.getElementById('target-word-input');
         const creatorSelect = document.getElementById('creator-select');
         
-        if (exitBtn) exitBtn.onclick = () => router.navigate('game', {});
+        if (backHomeBtn) backHomeBtn.onclick = () => window.location.href = '../home.html';
         if (validateBtn) validateBtn.onclick = () => this.validateWord();
         if (loadExampleBtn) loadExampleBtn.onclick = () => this.fillExample();
         if (clearBtn) clearBtn.onclick = () => this.clearForm();
