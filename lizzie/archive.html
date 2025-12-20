@@ -235,7 +235,7 @@
             
             try {
                 const q = query(
-                    collection(db, "lizzieWordleGames"),
+                    collection(db, "LizzieWordleGames"),
                     orderBy("createdAt", "desc")
                 );
                 const snapshot = await getDocs(q);
@@ -281,7 +281,7 @@
             
             try {
                 const q = query(
-                    collection(db, "lizzieGames"),
+                    collection(db, "LizzieConnectionGames"),
                     orderBy("createdAt", "desc")
                 );
                 const snapshot = await getDocs(q);
