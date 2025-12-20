@@ -258,7 +258,7 @@
             try {
                 // Get latest Wordle game
                 const wordleQuery = query(
-                    collection(db, "lizzieWordleGames"),
+                    collection(db, "LizzieWordleGames"),
                     orderBy("createdAt", "desc"),
                     limit(1)
                 );
@@ -270,7 +270,7 @@
 
                 // Get latest Connections game
                 const connectionsQuery = query(
-                    collection(db, "lizzieGames"),
+                    collection(db, "LizzieConnectionGames"),
                     orderBy("createdAt", "desc"),
                     limit(1)
                 );
