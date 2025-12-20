@@ -32,7 +32,7 @@ class UserSelectComponent {
     async createUser(name) {
         try {
             const userId = 'user_' + Math.random().toString(36).substring(2, 9);
-            const userRef = doc(db, "users", userId);
+            const userRef = doc(db, "LizzieUsers", userId);
             await setDoc(userRef, {
                 name: name,
                 createdAt: new Date().toISOString()
