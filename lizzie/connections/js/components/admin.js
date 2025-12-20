@@ -103,7 +103,7 @@ class AdminComponent {
                 title: cat.title.trim(),
                 words: cat.words.map(w => w.trim())
             })),
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
             createdBy: auth.currentUser.email === 'admin@robwdouglas92.com' ? 'Rob' : 'Lizzie'
         };
 
