@@ -181,7 +181,7 @@ class GameComponent {
         
         try {
             const { collection, addDoc } = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js");
-            const resultsRef = collection(db, "gameResults");
+            const resultsRef = collection(db, "LizzieConnectionResults");
             await addDoc(resultsRef, result);
             console.log('Game result saved with solve path');
         } catch (error) {
