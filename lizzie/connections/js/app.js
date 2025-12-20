@@ -16,7 +16,7 @@ router.register('game', async (params) => {
         document.getElementById('app').innerHTML = `
             <div class="container">
                 <header>
-                    <h1>Family Connections</h1>
+                    <h1>Connections</h1>
                     <p class="subtitle">No game ID provided</p>
                     <p style="margin-top: 1rem; color: #6b7280;">Please use a valid game link.</p>
                     <button class="nav-link" id="go-admin" style="margin-top: 1rem;">Go to Admin Mode</button>
@@ -42,7 +42,7 @@ router.register('game', async (params) => {
         document.getElementById('app').innerHTML = `
             <div class="container">
                 <header>
-                    <h1>Family Connections</h1>
+                    <h1>Connections</h1>
                     <p class="subtitle" style="color: #ef4444;">Game not found</p>
                     <button class="nav-link" onclick="history.back()" style="margin-top: 1rem;">← Go Back</button>
                 </header>
