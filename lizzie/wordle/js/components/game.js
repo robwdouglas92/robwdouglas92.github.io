@@ -501,4 +501,4 @@ class GameComponent {
     };
 }
 
-export const gameComponent = new GameComponent();F
+export const gameComponent = new GameComponent();
