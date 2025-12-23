@@ -248,7 +248,7 @@ class GameComponent {
         app.innerHTML = `
             <div class="container" style="padding: 1rem; max-width: 500px;">
                 <header>
-                    <h1>Family Wordle</h1>
+                    <h1>Wordle</h1>
                     <p class="subtitle">Guess the 5-letter word in 6 tries</p>
                     ${timer.timerStarted ? `<p id="game-timer" style="font-size: 1.5rem; font-weight: bold; color: #1f2937; margin-top: 0.5rem;">${timer.getCurrent()}</p>` : ''}
                     ${userName ? `<p style="font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem;">Playing as: ${userName}</p>` : ''}
