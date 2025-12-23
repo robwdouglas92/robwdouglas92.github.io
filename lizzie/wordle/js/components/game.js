@@ -19,7 +19,7 @@ class GameComponent {
         this.message = '';
         this.messageType = '';
         this.isValidating = false;
-        this.lastGuessIndex = -1; // Track which row just got animated
+        this.lastGuessIndex = -1;
     }
 
     async load(gameId) {
@@ -42,7 +42,6 @@ class GameComponent {
                 this.message = '';
                 timer.reset();
                 
-                // Set up timer update callback
                 timer.onUpdate(() => this.updateTimer());
                 
                 console.log('Wordle game loaded successfully');
@@ -64,7 +63,7 @@ class GameComponent {
         const keys = 'QWERTYUIOPASDFGHJKLZXCVBNM'.split('');
         const keyboard = {};
         keys.forEach(key => {
-            keyboard[key] = 'unused'; // unused, absent, present, correct
+            keyboard[key] = 'unused';
         });
         return keyboard;
     }
@@ -72,7 +71,6 @@ class GameComponent {
     handleKeyPress(key) {
         if (this.gameOver || this.isValidating) return;
 
-        // Start timer on first key press
         timer.start();
 
         if (key === 'ENTER') {
@@ -92,7 +90,6 @@ class GameComponent {
             return;
         }
 
-        // Validate word
         this.isValidating = true;
         this.showMessage('Validating word...', 'info');
         
@@ -104,28 +101,22 @@ class GameComponent {
             return;
         }
 
-        // Calculate feedback
         const feedback = this.calculateFeedback(this.currentGuess, this.gameData.targetWord);
         
-        // Add to guesses
         this.guesses.push({
             word: this.currentGuess,
             feedback: feedback
         });
 
-        // Track this guess for animation
         this.lastGuessIndex = this.guesses.length - 1;
 
-        // Update keyboard
         this.updateKeyboard(this.currentGuess, feedback);
 
-        // Add to solve path
         this.solvePath.push({
             word: this.currentGuess,
             feedback: feedback
         });
 
-        // Check win condition
         if (this.currentGuess === this.gameData.targetWord) {
             this.won = true;
             this.gameOver = true;
@@ -144,10 +135,9 @@ class GameComponent {
         this.currentGuess = '';
         this.render();
         
-        // Clear animation flag after render
         setTimeout(() => {
             this.lastGuessIndex = -1;
-        }, 600); // Match animation duration
+        }, 600);
     }
 
     calculateFeedback(guess, target) {
@@ -155,22 +145,20 @@ class GameComponent {
         const targetLetters = target.split('');
         const guessLetters = guess.split('');
         
-        // First pass: Mark correct positions (green)
         for (let i = 0; i < 5; i++) {
             if (guessLetters[i] === targetLetters[i]) {
                 feedback[i] = 'correct';
-                targetLetters[i] = null; // Mark as used
+                targetLetters[i] = null;
                 guessLetters[i] = null;
             }
         }
         
-        // Second pass: Mark present letters (yellow)
         for (let i = 0; i < 5; i++) {
             if (guessLetters[i] !== null) {
                 const targetIndex = targetLetters.indexOf(guessLetters[i]);
                 if (targetIndex !== -1) {
                     feedback[i] = 'present';
-                    targetLetters[targetIndex] = null; // Mark as used
+                    targetLetters[targetIndex] = null;
                 }
             }
         }
@@ -186,7 +174,6 @@ class GameComponent {
             const currentState = this.keyboard[letter];
             const newState = feedback[i];
             
-            // Only update if new state has higher priority
             if (priority[newState] > priority[currentState]) {
                 this.keyboard[letter] = newState;
             }
@@ -207,7 +194,6 @@ class GameComponent {
     }
 
     updateTimer() {
-        // Update timer display without full re-render
         const timerEl = document.getElementById('game-timer');
         if (timerEl && timer.timerStarted) {
             timerEl.textContent = timer.getCurrent();
@@ -277,7 +263,6 @@ class GameComponent {
             html += '<div style="display: flex; gap: 0.375rem; justify-content: center;">';
             
             if (i < this.guesses.length) {
-                // Completed guess - only animate if this is the row that was just submitted
                 const guess = this.guesses[i];
                 const shouldAnimate = (i === this.lastGuessIndex);
                 for (let j = 0; j < 5; j++) {
@@ -286,13 +271,11 @@ class GameComponent {
                     html += this.renderTile(letter, state, true, shouldAnimate);
                 }
             } else if (i === this.guesses.length && !this.gameOver) {
-                // Current guess row
                 for (let j = 0; j < 5; j++) {
                     const letter = this.currentGuess[j] || '';
                     html += this.renderTile(letter, 'current', false, false);
                 }
             } else {
-                // Empty rows
                 for (let j = 0; j < 5; j++) {
                     html += this.renderTile('', 'empty', false, false);
                 }
@@ -345,10 +328,10 @@ class GameComponent {
             ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'BACKSPACE']
         ];
 
-        let html = '<div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: center;">';
+        let html = '<div style="display: flex; flex-direction: column; gap: 0.375rem; align-items: center;">';
         
         rows.forEach(row => {
-            html += '<div style="display: flex; gap: 0.375rem;">';
+            html += '<div style="display: flex; gap: 0.25rem; width: 100%; justify-content: center;">';
             row.forEach(key => {
                 html += this.renderKey(key);
             });
@@ -371,8 +354,8 @@ class GameComponent {
         const bgColor = colors[state];
         const textColor = state === 'unused' ? '#000000' : '#ffffff';
         const isSpecial = key === 'ENTER' || key === 'BACKSPACE';
-        const width = isSpecial ? '65px' : '43px';
-        const fontSize = isSpecial ? '0.75rem' : '1.25rem';
+        
+        // Responsive sizing
         const displayKey = key === 'BACKSPACE' ? '⌫' : key;
         
         return `
@@ -380,17 +363,21 @@ class GameComponent {
                 class="keyboard-key" 
                 data-key="${key}"
                 style="
-                    width: ${width};
+                    flex: ${isSpecial ? '1.5' : '1'};
+                    min-width: 0;
                     height: 58px;
                     background: ${bgColor};
                     color: ${textColor};
                     border: none;
                     border-radius: 0.25rem;
-                    font-size: ${fontSize};
+                    font-size: ${isSpecial ? 'clamp(0.65rem, 2.5vw, 0.75rem)' : 'clamp(1rem, 3.5vw, 1.25rem)'};
                     font-weight: bold;
                     cursor: pointer;
                     transition: all 0.1s;
                     user-select: none;
+                    padding: 0.25rem;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
                 "
                 onmousedown="this.style.transform='scale(0.95)'"
                 onmouseup="this.style.transform='scale(1)'"
@@ -471,15 +458,12 @@ class GameComponent {
     }
 
     attachListeners() {
-        // Keyboard buttons
         document.querySelectorAll('.keyboard-key').forEach(btn => {
             btn.onclick = () => this.handleKeyPress(btn.dataset.key);
         });
 
-        // Physical keyboard
         document.addEventListener('keydown', this.keyboardHandler);
 
-        // Navigation buttons
         const viewStatsButtons = document.querySelectorAll('[id^="view-stats-btn"]');
         const viewLeaderboardButtons = document.querySelectorAll('[id^="view-leaderboard-btn"]');
         const playAgainBtn = document.getElementById('play-again-btn');
@@ -517,4 +501,4 @@ class GameComponent {
     };
 }
 
-export const gameComponent = new GameComponent();
+export const gameComponent = new GameComponent();F
