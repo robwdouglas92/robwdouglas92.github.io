@@ -93,6 +93,38 @@
             color: #F6C324;
         }
 
+        .leaderboard-link {
+            display: block;
+            text-align: center;
+            padding: 0.75rem;
+            background: #f0f9ff;
+            border: 2px solid #4A90E2;
+            border-radius: 0.5rem;
+            color: #4A90E2;
+            text-decoration: none;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .leaderboard-link:hover {
+            background: #4A90E2;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+        }
+
+        .leaderboard-link.connections {
+            background: #fffbeb;
+            border-color: #F6C324;
+            color: #F6C324;
+        }
+
+        .leaderboard-link.connections:hover {
+            background: #F6C324;
+            color: #333;
+        }
+
         .game-list {
             display: flex;
             flex-direction: column;
@@ -195,6 +227,9 @@
         <div class="archive-grid">
             <div class="archive-column wordle">
                 <h2>🔤 Wordle Archive</h2>
+                <a href="./wordle/index.html?view=leaderboard" class="leaderboard-link">
+                    🏆 View Wordle Leaderboard
+                </a>
                 <div id="wordle-list" class="game-list">
                     <div class="loading">Loading Wordle games...</div>
                 </div>
@@ -202,6 +237,9 @@
 
             <div class="archive-column connections">
                 <h2>🔗 Connections Archive</h2>
+                <a href="./connections/index.html?view=leaderboard" class="leaderboard-link connections">
+                    🏆 View Connections Leaderboard
+                </a>
                 <div id="connections-list" class="game-list">
                     <div class="loading">Loading Connections games...</div>
                 </div>
