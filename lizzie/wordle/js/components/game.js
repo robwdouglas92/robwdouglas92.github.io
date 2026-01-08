@@ -232,24 +232,30 @@ class GameComponent {
         const userName = getCurrentUserName();
         
         app.innerHTML = `
-            <div class="container" style="padding: 1rem; max-width: 500px;">
-                <header>
-                    <h1>Wordle</h1>
-                    <p class="subtitle">Guess the 5-letter word in 6 tries</p>
-                    ${timer.timerStarted ? `<p id="game-timer" style="font-size: 1.5rem; font-weight: bold; color: #1f2937; margin-top: 0.5rem;">${timer.getCurrent()}</p>` : ''}
-                    ${userName ? `<p style="font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem;">Playing as: ${userName}</p>` : ''}
-                    
-                    <div style="margin-top: 1rem;">
-                        <button class="nav-link" onclick="window.location.href='../home.html'">🏠 Back to Home</button>
-                        <button class="nav-link" id="view-stats-btn">📊 My Stats</button>
-                        <button class="nav-link" id="view-leaderboard-btn">🏆 Leaderboard</button>
+            <div style="display: flex; flex-direction: column; min-height: 100vh; max-width: 500px; margin: 0 auto; padding: 0.5rem;">
+                <header style="text-align: center; padding: 0.5rem 0; border-bottom: 1px solid #d1d5db;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <button class="nav-link" onclick="window.location.href='../home.html'" style="font-size: 1.25rem; padding: 0.25rem 0.5rem; background: none; border: none;">🏠</button>
+                        <h1 style="font-size: 1.75rem; font-weight: bold; color: #1f2937; margin: 0;">Wordle</h1>
+                        <div style="display: flex; gap: 0.25rem;">
+                            <button class="nav-link" id="view-stats-btn" style="font-size: 1.25rem; padding: 0.25rem 0.5rem; background: none; border: none;">📊</button>
+                            <button class="nav-link" id="view-leaderboard-btn" style="font-size: 1.25rem; padding: 0.25rem 0.5rem; background: none; border: none;">🏆</button>
+                        </div>
                     </div>
+                    ${timer.timerStarted || userName ? `
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem;">
+                            ${timer.timerStarted ? `<span id="game-timer">${timer.getCurrent()}</span>` : ''}
+                            ${userName ? `<span>${userName}</span>` : ''}
+                        </div>
+                    ` : ''}
                 </header>
 
-                ${this.message ? `<div class="message msg-${this.messageType}">${this.message}</div>` : ''}
+                ${this.message ? `<div class="message msg-${this.messageType}" style="margin: 0.5rem 0;">${this.message}</div>` : ''}
 
-                ${this.renderGrid()}
-                ${!this.gameOver ? this.renderKeyboard() : this.renderGameOver()}
+                <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 1rem; padding: 0.5rem 0;">
+                    ${this.renderGrid()}
+                    ${!this.gameOver ? this.renderKeyboard() : this.renderGameOver()}
+                </div>
             </div>
         `;
 
@@ -257,10 +263,10 @@ class GameComponent {
     }
 
     renderGrid() {
-        let html = '<div style="display: flex; flex-direction: column; gap: 0.375rem; margin-bottom: 1.5rem;">';
+        let html = '<div style="display: flex; flex-direction: column; gap: 0.3rem;">';
         
         for (let i = 0; i < this.MAX_GUESSES; i++) {
-            html += '<div style="display: flex; gap: 0.375rem; justify-content: center;">';
+            html += '<div style="display: flex; gap: 0.3rem; justify-content: center;">';
             
             if (i < this.guesses.length) {
                 const guess = this.guesses[i];
@@ -303,15 +309,15 @@ class GameComponent {
         
         return `
             <div class="wordle-tile ${shouldAnimate ? 'flip-animation' : ''}" style="
-                width: 62px;
-                height: 62px;
+                width: min(62px, 15vw);
+                height: min(62px, 15vw);
                 border: 2px solid ${borderColor};
                 background: ${bgColor};
                 color: ${textColor};
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 2rem;
+                font-size: clamp(1.5rem, 4vw, 2rem);
                 font-weight: bold;
                 text-transform: uppercase;
                 border-radius: 0.25rem;
@@ -328,7 +334,7 @@ class GameComponent {
             ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'BACKSPACE']
         ];
 
-        let html = '<div style="display: flex; flex-direction: column; gap: 0.375rem; align-items: center;">';
+        let html = '<div style="display: flex; flex-direction: column; gap: 0.3rem; align-items: center;">';
         
         rows.forEach(row => {
             html += '<div style="display: flex; gap: 0.25rem; width: 100%; justify-content: center;">';
@@ -355,7 +361,6 @@ class GameComponent {
         const textColor = state === 'unused' ? '#000000' : '#ffffff';
         const isSpecial = key === 'ENTER' || key === 'BACKSPACE';
         
-        // Responsive sizing
         const displayKey = key === 'BACKSPACE' ? '⌫' : key;
         
         return `
@@ -365,7 +370,7 @@ class GameComponent {
                 style="
                     flex: ${isSpecial ? '1.5' : '1'};
                     min-width: 0;
-                    height: 58px;
+                    height: min(58px, 13vw);
                     background: ${bgColor};
                     color: ${textColor};
                     border: none;
@@ -462,6 +467,8 @@ class GameComponent {
             btn.onclick = () => this.handleKeyPress(btn.dataset.key);
         });
 
+        // Remove old listener if it exists, then add new one
+        document.removeEventListener('keydown', this.keyboardHandler);
         document.addEventListener('keydown', this.keyboardHandler);
 
         const viewStatsButtons = document.querySelectorAll('[id^="view-stats-btn"]');
@@ -500,5 +507,7 @@ class GameComponent {
         }
     };
 }
+
+export const gameComponent = new GameComponent();
 
 export const gameComponent = new GameComponent();
