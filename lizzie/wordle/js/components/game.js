@@ -509,5 +509,3 @@ class GameComponent {
 }
 
 export const gameComponent = new GameComponent();
-
-export const gameComponent = new GameComponent();
