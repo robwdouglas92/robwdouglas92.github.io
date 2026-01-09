@@ -252,7 +252,7 @@ class GameComponent {
 
                 ${this.message ? `<div class="message msg-${this.messageType}" style="margin: 0.5rem 0;">${this.message}</div>` : ''}
 
-                <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 1rem; padding: 0.5rem 0;">
+                <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 0.75rem; padding: 0 0.5rem; max-height: calc(100vh - 80px);">
                     ${this.renderGrid()}
                     ${!this.gameOver ? this.renderKeyboard() : this.renderGameOver()}
                 </div>
