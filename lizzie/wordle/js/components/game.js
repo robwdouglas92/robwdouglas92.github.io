@@ -249,7 +249,7 @@ class GameComponent {
 
                 ${this.message ? `<div class="message msg-${this.messageType}" style="margin: 0.5rem;">${this.message}</div>` : ''}
 
-                <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 0.75rem; padding: 0.5rem; overflow: hidden;">
+                <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-start; gap: 1.5rem; padding: 1rem 0.5rem; overflow: hidden;">
                     ${this.renderGrid()}
                     ${!this.gameOver ? this.renderKeyboard() : this.renderGameOver()}
                 </div>
@@ -259,6 +259,12 @@ class GameComponent {
                 @media (orientation: landscape) and (max-height: 600px) {
                     .header-info {
                         display: none !important;
+                    }
+                }
+                
+                @media (min-height: 700px) {
+                    .game-container {
+                        justify-content: center !important;
                     }
                 }
             </style>
