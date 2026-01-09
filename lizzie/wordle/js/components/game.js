@@ -232,31 +232,36 @@ class GameComponent {
         const userName = getCurrentUserName();
         
         app.innerHTML = `
-            <div style="display: flex; flex-direction: column; min-height: 100vh; max-width: 500px; margin: 0 auto; padding: 0.5rem;">
-                <header style="text-align: center; padding: 0.5rem 0; border-bottom: 1px solid #d1d5db;">
+            <div style="display: flex; flex-direction: column; min-height: 100vh; max-width: 500px; margin: 0 auto;">
+                <header style="position: sticky; top: 0; background: white; z-index: 100; border-bottom: 1px solid #d1d5db; padding: 0.25rem 0.5rem;">
                     <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <button class="nav-link" onclick="window.location.href='../home.html'" style="font-size: 1.25rem; padding: 0.25rem 0.5rem; background: none; border: none;">🏠</button>
-                        <h1 style="font-size: 1.75rem; font-weight: bold; color: #1f2937; margin: 0;">Wordle</h1>
-                        <div style="display: flex; gap: 0.25rem;">
-                            <button class="nav-link" id="view-stats-btn" style="font-size: 1.25rem; padding: 0.25rem 0.5rem; background: none; border: none;">📊</button>
-                            <button class="nav-link" id="view-leaderboard-btn" style="font-size: 1.25rem; padding: 0.25rem 0.5rem; background: none; border: none;">🏆</button>
-                        </div>
-                    </div>
-                    ${timer.timerStarted || userName ? `
-                        <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem;">
+                        <button class="nav-link" onclick="window.location.href='../home.html'" style="font-size: 1.5rem; padding: 0.25rem; background: none; border: none; cursor: pointer;">🏠</button>
+                        <div class="header-info" style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.75rem; color: #6b7280;">
                             ${timer.timerStarted ? `<span id="game-timer">${timer.getCurrent()}</span>` : ''}
                             ${userName ? `<span>${userName}</span>` : ''}
                         </div>
-                    ` : ''}
+                        <div style="display: flex; gap: 0.25rem;">
+                            <button class="nav-link" id="view-stats-btn" style="font-size: 1.5rem; padding: 0.25rem; background: none; border: none; cursor: pointer;">📊</button>
+                            <button class="nav-link" id="view-leaderboard-btn" style="font-size: 1.5rem; padding: 0.25rem; background: none; border: none; cursor: pointer;">🏆</button>
+                        </div>
+                    </div>
                 </header>
 
-                ${this.message ? `<div class="message msg-${this.messageType}" style="margin: 0.5rem 0;">${this.message}</div>` : ''}
+                ${this.message ? `<div class="message msg-${this.messageType}" style="margin: 0.5rem;">${this.message}</div>` : ''}
 
-                <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 0.75rem; padding: 0 0.5rem; max-height: calc(100vh - 80px);">
+                <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 0.75rem; padding: 0.5rem; overflow: hidden;">
                     ${this.renderGrid()}
                     ${!this.gameOver ? this.renderKeyboard() : this.renderGameOver()}
                 </div>
             </div>
+
+            <style>
+                @media (orientation: landscape) and (max-height: 600px) {
+                    .header-info {
+                        display: none !important;
+                    }
+                }
+            </style>
         `;
 
         this.attachListeners();
