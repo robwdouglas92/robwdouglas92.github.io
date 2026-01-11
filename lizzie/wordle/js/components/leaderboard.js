@@ -8,6 +8,7 @@ class LeaderboardComponent {
         this.allResults = [];
         this.loading = true;
         this.filter = 'fewestGuesses'; // 'fewestGuesses', 'fastestTimes', 'bestWinRate'
+        this.showAll = false; // New property to track if showing all results
     }
 
     async load() {
@@ -35,20 +36,19 @@ class LeaderboardComponent {
 
     getTopByFewestGuesses() {
         const wonGames = this.allResults.filter(r => r.won);
-        // Sort by fewest guesses, then fastest time as tiebreaker
         wonGames.sort((a, b) => {
             if (a.guessCount !== b.guessCount) {
                 return a.guessCount - b.guessCount;
             }
             return a.timeSeconds - b.timeSeconds;
         });
-        return wonGames.slice(0, 10);
+        return this.showAll ? wonGames : wonGames.slice(0, 10);
     }
 
     getTopByFastestTimes() {
         const wonGames = this.allResults.filter(r => r.won);
         wonGames.sort((a, b) => a.timeSeconds - b.timeSeconds);
-        return wonGames.slice(0, 10);
+        return this.showAll ? wonGames : wonGames.slice(0, 10);
     }
 
     getPlayerStats() {
@@ -85,14 +85,18 @@ class LeaderboardComponent {
 
     getTopByWinRate() {
         const players = this.getPlayerStats().filter(p => p.gamesPlayed >= 3);
-        // Sort by win rate, then by number of wins as tiebreaker
         players.sort((a, b) => {
             if (b.winRate !== a.winRate) {
                 return b.winRate - a.winRate;
             }
             return b.gamesWon - a.gamesWon;
         });
-        return players.slice(0, 10);
+        return this.showAll ? players : players.slice(0, 10);
+    }
+
+    toggleShowAll() {
+        this.showAll = !this.showAll;
+        this.render();
     }
 
     render(gameId) {
@@ -150,10 +154,34 @@ class LeaderboardComponent {
                 <div style="background: white; border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow-x: auto;">
                     ${this.renderLeaderboard()}
                 </div>
+
+                ${this.renderShowAllButton()}
             </div>
         `;
 
         this.attachListeners(gameId);
+    }
+
+    renderShowAllButton() {
+        let totalCount = 0;
+        
+        if (this.filter === 'fewestGuesses' || this.filter === 'fastestTimes') {
+            totalCount = this.allResults.filter(r => r.won).length;
+        } else {
+            totalCount = this.getPlayerStats().filter(p => p.gamesPlayed >= 3).length;
+        }
+
+        if (totalCount <= 10) {
+            return ''; // Don't show button if 10 or fewer results
+        }
+
+        return `
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <button class="btn btn-secondary" id="toggle-show-all" style="padding: 0.75rem 1.5rem;">
+                    ${this.showAll ? `📊 Show Top 10 Only` : `📋 Show All ${totalCount} Results`}
+                </button>
+            </div>
+        `;
     }
 
     renderLeaderboard() {
@@ -335,6 +363,7 @@ class LeaderboardComponent {
         const guessesBtn = document.getElementById('filter-guesses');
         const fastestBtn = document.getElementById('filter-fastest');
         const winrateBtn = document.getElementById('filter-winrate');
+        const toggleBtn = document.getElementById('toggle-show-all');
 
         if (backBtn) {
             backBtn.onclick = () => {
@@ -349,6 +378,7 @@ class LeaderboardComponent {
         if (guessesBtn) {
             guessesBtn.onclick = () => {
                 this.filter = 'fewestGuesses';
+                this.showAll = false; // Reset to top 10 when changing filters
                 this.render(gameId);
             };
         }
@@ -356,6 +386,7 @@ class LeaderboardComponent {
         if (fastestBtn) {
             fastestBtn.onclick = () => {
                 this.filter = 'fastestTimes';
+                this.showAll = false; // Reset to top 10 when changing filters
                 this.render(gameId);
             };
         }
@@ -363,8 +394,13 @@ class LeaderboardComponent {
         if (winrateBtn) {
             winrateBtn.onclick = () => {
                 this.filter = 'bestWinRate';
+                this.showAll = false; // Reset to top 10 when changing filters
                 this.render(gameId);
             };
+        }
+
+        if (toggleBtn) {
+            toggleBtn.onclick = () => this.toggleShowAll();
         }
     }
 }
