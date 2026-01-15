@@ -225,6 +225,7 @@
             <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
                 <a href="./wordle/?view=admin" class="btn">Create Wordle Game</a>
                 <a href="./connections/?view=admin" class="btn">Create Connections Game</a>
+                <a href="./quordle/?view=admin" class="btn">Create Quordle Game</a>
             </div>
         </div>
     </div>
@@ -238,7 +239,6 @@
             window.location.href = './index.html';
         }
 
-        // Firebase config (same as your main project)
         const firebaseConfig = {
             apiKey: "AIzaSyBjiragFxVWw-oHPpf23E7CujI5yZrP5U8",
             authDomain: "family-connections-de1a6.firebaseapp.com",
@@ -279,6 +279,18 @@
                     latestConnections = { id: doc.id, ...doc.data() };
                 });
 
+                // Get latest Quordle game
+                const quordleQuery = query(
+                    collection(db, "LizzieQuordleGames"),
+                    orderBy("createdAt", "desc"),
+                    limit(1)
+                );
+                const quordleSnapshot = await getDocs(quordleQuery);
+                let latestQuordle = null;
+                quordleSnapshot.forEach(doc => {
+                    latestQuordle = { id: doc.id, ...doc.data() };
+                });
+
                 // Render games
                 container.innerHTML = `
                     <div class="game-card">
@@ -307,6 +319,22 @@
                                 <div class="game-creator">${new Date(latestConnections.createdAt).toLocaleDateString('en-GB')}</div>
                             </div>
                             <a href="./connections/index.html?id=${latestConnections.id}" class="btn">Play Connections</a>
+                        ` : `
+                            <div class="game-status">No games yet!</div>
+                            <button class="btn" disabled style="opacity: 0.5;">Coming Soon</button>
+                        `}
+                    </div>
+
+                    <div class="game-card">
+                        <div class="game-icon">🎯</div>
+                        <h2 class="game-title">Quordle</h2>
+                        ${latestQuordle ? `
+                            <div class="game-status">
+                                Latest game!
+                                <div class="game-creator">Created by ${latestQuordle.createdBy || 'Unknown'}</div>
+                                <div class="game-creator">${new Date(latestQuordle.createdAt).toLocaleDateString('en-GB')}</div>
+                            </div>
+                            <a href="./quordle/index.html?id=${latestQuordle.id}" class="btn">Play Quordle</a>
                         ` : `
                             <div class="game-status">No games yet!</div>
                             <button class="btn" disabled style="opacity: 0.5;">Coming Soon</button>
