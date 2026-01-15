@@ -58,7 +58,7 @@
 
         .archive-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 2rem;
             margin-bottom: 2rem;
         }
@@ -79,6 +79,10 @@
             border-color: #FFD93D;
         }
 
+        .archive-column.quordle {
+            border-color: #9333ea;
+        }
+
         .archive-column h2 {
             margin-bottom: 1.5rem;
             font-size: 1.8rem;
@@ -91,6 +95,10 @@
 
         .archive-column.connections h2 {
             color: #F6C324;
+        }
+
+        .archive-column.quordle h2 {
+            color: #9333ea;
         }
 
         .leaderboard-link {
@@ -123,6 +131,17 @@
         .leaderboard-link.connections:hover {
             background: #F6C324;
             color: #333;
+        }
+
+        .leaderboard-link.quordle {
+            background: #faf5ff;
+            border-color: #9333ea;
+            color: #9333ea;
+        }
+
+        .leaderboard-link.quordle:hover {
+            background: #9333ea;
+            color: white;
         }
 
         .game-list {
@@ -165,12 +184,6 @@
             border-radius: 1rem;
         }
 
-        .game-detail {
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 0.75rem;
-        }
-
         .game-link {
             display: inline-block;
             padding: 0.5rem 1rem;
@@ -185,6 +198,25 @@
 
         .game-link:hover {
             background: #357ABD;
+        }
+
+        .show-more-btn {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            background: #f3f4f6;
+            border: 2px solid #d1d5db;
+            border-radius: 0.5rem;
+            color: #4b5563;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+
+        .show-more-btn:hover {
+            background: #e5e7eb;
+            border-color: #9ca3af;
         }
 
         .loading {
@@ -244,6 +276,16 @@
                     <div class="loading">Loading Connections games...</div>
                 </div>
             </div>
+
+            <div class="archive-column quordle">
+                <h2>🎯 Quordle Archive</h2>
+                <a href="./quordle/index.html?view=leaderboard" class="leaderboard-link quordle">
+                    🏆 View Quordle Leaderboard
+                </a>
+                <div id="quordle-list" class="game-list">
+                    <div class="loading">Loading Quordle games...</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -268,6 +310,10 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        let wordleShowAll = false;
+        let connectionsShowAll = false;
+        let quordleShowAll = false;
+
         async function loadWordleArchive() {
             const container = document.getElementById('wordle-list');
             
@@ -283,27 +329,12 @@
                     return;
                 }
 
-                let html = '';
+                const games = [];
                 snapshot.forEach(doc => {
-                    const game = doc.data();
-                    const date = new Date(game.createdAt);
-                    
-                    html += `
-                        <div class="game-item">
-                            <div class="game-item-header">
-                                <span class="game-date">${date.toLocaleDateString('en-GB', { 
-                                    day: 'numeric', 
-                                    month: 'short', 
-                                    year: 'numeric' 
-                                })}</span>
-                                <span class="game-creator">By ${game.createdBy || 'Unknown'}</span>
-                            </div>
-                            <a href="./wordle/index.html?id=${doc.id}" class="game-link">Play This Game →</a>
-                        </div>
-                    `;
+                    games.push({ id: doc.id, ...doc.data() });
                 });
-                
-                container.innerHTML = html;
+
+                renderGames(container, games, wordleShowAll, 'wordle');
                 
             } catch (error) {
                 console.error('Error loading Wordle archive:', error);
@@ -326,27 +357,12 @@
                     return;
                 }
 
-                let html = '';
+                const games = [];
                 snapshot.forEach(doc => {
-                    const game = doc.data();
-                    const date = new Date(game.createdAt);
-                    
-                    html += `
-                        <div class="game-item">
-                            <div class="game-item-header">
-                                <span class="game-date">${date.toLocaleDateString('en-GB', { 
-                                    day: 'numeric', 
-                                    month: 'short', 
-                                    year: 'numeric' 
-                                })}</span>
-                                <span class="game-creator">By ${game.createdBy || 'Unknown'}</span>
-                            </div>
-                            <a href="./connections/index.html?id=${doc.id}" class="game-link">Play This Game →</a>
-                        </div>
-                    `;
+                    games.push({ id: doc.id, ...doc.data() });
                 });
-                
-                container.innerHTML = html;
+
+                renderGames(container, games, connectionsShowAll, 'connections');
                 
             } catch (error) {
                 console.error('Error loading Connections archive:', error);
@@ -354,8 +370,88 @@
             }
         }
 
+        async function loadQuordleArchive() {
+            const container = document.getElementById('quordle-list');
+            
+            try {
+                const q = query(
+                    collection(db, "LizzieQuordleGames"),
+                    orderBy("createdAt", "desc")
+                );
+                const snapshot = await getDocs(q);
+                
+                if (snapshot.empty) {
+                    container.innerHTML = '<div class="empty-state">No Quordle games yet! 🎮</div>';
+                    return;
+                }
+
+                const games = [];
+                snapshot.forEach(doc => {
+                    games.push({ id: doc.id, ...doc.data() });
+                });
+
+                renderGames(container, games, quordleShowAll, 'quordle');
+                
+            } catch (error) {
+                console.error('Error loading Quordle archive:', error);
+                container.innerHTML = '<div class="empty-state" style="color: #e74c3c;">Error loading games</div>';
+            }
+        }
+
+        function renderGames(container, games, showAll, gameType) {
+            const displayGames = showAll ? games : games.slice(0, 5);
+            
+            let html = '';
+            displayGames.forEach(game => {
+                const date = new Date(game.createdAt);
+                
+                html += `
+                    <div class="game-item">
+                        <div class="game-item-header">
+                            <span class="game-date">${date.toLocaleDateString('en-GB', { 
+                                day: 'numeric', 
+                                month: 'short', 
+                                year: 'numeric' 
+                            })}</span>
+                            <span class="game-creator">By ${game.createdBy || 'Unknown'}</span>
+                        </div>
+                        <a href="./${gameType}/index.html?id=${game.id}" class="game-link">Play This Game →</a>
+                    </div>
+                `;
+            });
+
+            // Add show more button if needed
+            if (games.length > 5) {
+                html += `
+                    <button class="show-more-btn" id="${gameType}-show-more">
+                        ${showAll ? '📊 Show Recent 5 Only' : `📋 Show All ${games.length} Games`}
+                    </button>
+                `;
+            }
+            
+            container.innerHTML = html;
+
+            // Attach listener to show more button
+            const showMoreBtn = document.getElementById(`${gameType}-show-more`);
+            if (showMoreBtn) {
+                showMoreBtn.onclick = () => {
+                    if (gameType === 'wordle') {
+                        wordleShowAll = !wordleShowAll;
+                        loadWordleArchive();
+                    } else if (gameType === 'connections') {
+                        connectionsShowAll = !connectionsShowAll;
+                        loadConnectionsArchive();
+                    } else if (gameType === 'quordle') {
+                        quordleShowAll = !quordleShowAll;
+                        loadQuordleArchive();
+                    }
+                };
+            }
+        }
+
         loadWordleArchive();
         loadConnectionsArchive();
+        loadQuordleArchive();
     </script>
 </body>
 </html>
