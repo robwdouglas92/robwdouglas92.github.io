@@ -239,6 +239,16 @@ class GameComponent {
         const solvedCount = this.solvedBoards.filter(s => s).length;
         const won = solvedCount === 4;
         
+        // Flatten solvePath to avoid nested arrays - convert feedbacks arrays to strings
+        const flattenedSolvePath = this.solvePath.map(step => ({
+            word: step.word,
+            // Convert each feedback array to a string like "correct,present,absent,correct,present"
+            feedback0: step.feedbacks[0].join(','),
+            feedback1: step.feedbacks[1].join(','),
+            feedback2: step.feedbacks[2].join(','),
+            feedback3: step.feedbacks[3].join(',')
+        }));
+        
         const result = {
             gameId: this.gameId,
             userId: userId,
@@ -249,7 +259,7 @@ class GameComponent {
             solvedCount: solvedCount,
             guessCount: this.guesses.length,
             targetWords: this.gameData.targetWords,
-            solvePath: this.solvePath
+            solvePath: flattenedSolvePath
         };
         
         try {
@@ -283,7 +293,7 @@ class GameComponent {
 
                 ${this.message ? `<div class="message msg-${this.messageType}" style="margin: 0.5rem;">${this.message}</div>` : ''}
 
-                <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-start; gap: 1rem; padding: 1rem 0.5rem; overflow: auto;">
+                <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 0.5rem; padding: 0.5rem; overflow: hidden;">
                     ${!this.gameOver ? this.renderGrids() : this.renderGameOver()}
                     ${!this.gameOver ? this.renderKeyboard() : ''}
                 </div>
@@ -303,7 +313,7 @@ class GameComponent {
 
     renderGrids() {
         return `
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 0.75rem; margin-bottom: 1rem;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.5rem;">
                 ${this.gameData.targetWords.map((_, boardIndex) => this.renderBoard(boardIndex)).join('')}
             </div>
         `;
@@ -313,18 +323,18 @@ class GameComponent {
         const isSolved = this.solvedBoards[boardIndex];
         const borderColor = isSolved ? '#10b981' : '#d1d5db';
         
-        let html = `<div style="border: 3px solid ${borderColor}; border-radius: 0.5rem; padding: 0.5rem; background: white;">`;
+        let html = `<div style="border: 2px solid ${borderColor}; border-radius: 0.25rem; padding: 0.25rem; background: white;">`;
         
         // Board header
-        html += `<div style="text-align: center; font-size: 0.75rem; font-weight: bold; color: ${isSolved ? '#10b981' : '#6b7280'}; margin-bottom: 0.5rem;">
-            ${isSolved ? '✓ SOLVED' : `Board ${boardIndex + 1}`}
+        html += `<div style="text-align: center; font-size: 0.625rem; font-weight: bold; color: ${isSolved ? '#10b981' : '#6b7280'}; margin-bottom: 0.25rem;">
+            ${isSolved ? '✓' : `${boardIndex + 1}`}
         </div>`;
         
         // Grid
-        html += '<div style="display: flex; flex-direction: column; gap: 0.25rem;">';
+        html += '<div style="display: flex; flex-direction: column; gap: 0.125rem;">';
         
         for (let i = 0; i < this.MAX_GUESSES; i++) {
-            html += '<div style="display: flex; gap: 0.25rem; justify-content: center;">';
+            html += '<div style="display: flex; gap: 0.125rem; justify-content: center;">';
             
             if (i < this.guesses.length) {
                 const guess = this.guesses[i];
@@ -368,18 +378,18 @@ class GameComponent {
         
         return `
             <div class="quordle-tile ${shouldAnimate ? 'flip-animation' : ''}" style="
-                width: min(40px, 8vw);
-                height: min(40px, 8vw);
-                border: 2px solid ${borderColor};
+                width: min(28px, 6vw);
+                height: min(28px, 6vw);
+                border: 1.5px solid ${borderColor};
                 background: ${bgColor};
                 color: ${textColor};
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: clamp(0.875rem, 2.5vw, 1.25rem);
+                font-size: clamp(0.625rem, 2vw, 0.875rem);
                 font-weight: bold;
                 text-transform: uppercase;
-                border-radius: 0.25rem;
+                border-radius: 0.125rem;
             ">
                 ${letter}
             </div>
@@ -393,10 +403,10 @@ class GameComponent {
             ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'BACKSPACE']
         ];
 
-        let html = '<div style="display: flex; flex-direction: column; gap: 0.3rem; align-items: center; margin-top: auto;">';
+        let html = '<div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: center;">';
         
         rows.forEach(row => {
-            html += '<div style="display: flex; gap: 0.25rem; width: 100%; max-width: 600px; justify-content: center;">';
+            html += '<div style="display: flex; gap: 0.2rem; width: 100%; max-width: 600px; justify-content: center;">';
             row.forEach(key => {
                 html += this.renderKey(key);
             });
@@ -429,17 +439,17 @@ class GameComponent {
                 style="
                     flex: ${isSpecial ? '1.5' : '1'};
                     min-width: 0;
-                    height: min(58px, 13vw);
+                    height: min(48px, 11vw);
                     background: ${bgColor};
                     color: ${textColor};
                     border: none;
                     border-radius: 0.25rem;
-                    font-size: ${isSpecial ? 'clamp(0.65rem, 2.5vw, 0.75rem)' : 'clamp(1rem, 3.5vw, 1.25rem)'};
+                    font-size: ${isSpecial ? 'clamp(0.6rem, 2.2vw, 0.7rem)' : 'clamp(0.875rem, 3vw, 1.1rem)'};
                     font-weight: bold;
                     cursor: pointer;
                     transition: all 0.1s;
                     user-select: none;
-                    padding: 0.25rem;
+                    padding: 0.2rem;
                     overflow: hidden;
                     text-overflow: ellipsis;
                     touch-action: manipulation;
