@@ -398,7 +398,85 @@ class AdminComponent {
         `;
     }
 
-    renderPreview() {
+    updateWordInputUI(idx) {
+        // Update the input value to uppercase without re-rendering
+        const input = document.getElementById(`word-input-${idx}`);
+        if (input) {
+            const cursorPos = input.selectionStart;
+            input.value = this.targetWords[idx];
+            input.setSelectionRange(cursorPos, cursorPos);
+        }
+
+        // Update validation indicator on the label
+        const label = input?.closest('div')?.querySelector('label');
+        if (label) {
+            const validationState = this.wordsValid[idx];
+            let statusIcon = '';
+            if (validationState === true) statusIcon = ' <span style="color: #22c55e;">✓</span>';
+            else if (validationState === false) statusIcon = ' <span style="color: #ef4444;">✗</span>';
+            label.innerHTML = `Word ${idx + 1}${statusIcon}`;
+        }
+
+        // Update input border color
+        if (input) {
+            const validationState = this.wordsValid[idx];
+            if (validationState === true) input.style.borderColor = '#22c55e';
+            else if (validationState === false) input.style.borderColor = '#ef4444';
+            else input.style.borderColor = '#d1d5db';
+        }
+
+        // Update or remove the preview section without full re-render
+        this.updatePreview();
+    }
+
+    updatePreview() {
+        const allFilled = this.targetWords.every(w => w.length === 5);
+        let preview = document.querySelector('.preview-section');
+
+        if (!allFilled) {
+            if (preview) preview.remove();
+            return;
+        }
+
+        const previewHTML = `
+            <div class="preview-section" style="margin: 1.5rem 0; padding: 1.5rem; background: #f9fafb; border-radius: 0.5rem; border: 2px dashed #d1d5db;">
+                <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: #374151;">Preview:</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                    ${this.targetWords.map(word => `
+                        <div style="display: flex; gap: 0.25rem; justify-content: center;">
+                            ${word.split('').map(letter => `
+                                <div style="
+                                    width: 30px;
+                                    height: 30px;
+                                    border: 2px solid #d1d5db;
+                                    background: white;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    font-size: 1rem;
+                                    font-weight: bold;
+                                    border-radius: 0.25rem;
+                                ">
+                                    ${letter}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `).join('')}
+                </div>
+                <p style="text-align: center; color: #6b7280; font-size: 0.875rem; margin-top: 1rem;">
+                    These are the 4 words players will try to guess
+                </p>
+            </div>
+        `;
+
+        if (preview) {
+            preview.outerHTML = previewHTML;
+        } else {
+            // Insert preview before the button row
+            const buttonRow = document.querySelector('#validate-all-btn')?.closest('div');
+            if (buttonRow) buttonRow.insertAdjacentHTML('beforebegin', previewHTML);
+        }
+    }
         const allFilled = this.targetWords.every(w => w.length === 5);
         if (!allFilled) return '';
 
@@ -476,21 +554,10 @@ class AdminComponent {
         document.querySelectorAll('.word-input').forEach(input => {
             input.oninput = (e) => {
                 const idx = parseInt(e.target.dataset.idx);
-                const cursorPos = e.target.selectionStart;
-                const oldLength = this.targetWords[idx].length;
-                
                 this.updateTargetWord(idx, e.target.value);
-                this.render();
                 
-                setTimeout(() => {
-                    const newInput = document.getElementById(`word-input-${idx}`);
-                    if (newInput) {
-                        const newLength = this.targetWords[idx].length;
-                        const newCursorPos = cursorPos + (newLength - oldLength);
-                        newInput.setSelectionRange(newCursorPos, newCursorPos);
-                        newInput.focus();
-                    }
-                }, 0);
+                // Update just the validation indicator and preview without full re-render
+                this.updateWordInputUI(idx);
             };
         });
         
