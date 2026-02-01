@@ -327,8 +327,6 @@ class AdminComponent {
                             ${this.targetWords.map((word, idx) => this.renderWordInput(word, idx)).join('')}
                         </div>
 
-                        ${this.renderPreview()}
-
                         <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem; flex-wrap: wrap;">
                             <button class="btn btn-primary" id="validate-all-btn" ${this.isValidating ? 'disabled' : ''} style="background: #3b82f6;">
                                 ${this.isValidating ? '⏳ Validating...' : '✓ Validate All Words'}
