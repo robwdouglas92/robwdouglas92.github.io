@@ -477,41 +477,7 @@ class AdminComponent {
             if (buttonRow) buttonRow.insertAdjacentHTML('beforebegin', previewHTML);
         }
     }
-        const allFilled = this.targetWords.every(w => w.length === 5);
-        if (!allFilled) return '';
-
-        return `
-            <div style="margin: 1.5rem 0; padding: 1.5rem; background: #f9fafb; border-radius: 0.5rem; border: 2px dashed #d1d5db;">
-                <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: #374151;">Preview:</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
-                    ${this.targetWords.map(word => `
-                        <div style="display: flex; gap: 0.25rem; justify-content: center;">
-                            ${word.split('').map(letter => `
-                                <div style="
-                                    width: 30px;
-                                    height: 30px;
-                                    border: 2px solid #d1d5db;
-                                    background: white;
-                                    display: flex;
-                                    align-items: center;
-                                    justify-content: center;
-                                    font-size: 1rem;
-                                    font-weight: bold;
-                                    border-radius: 0.25rem;
-                                ">
-                                    ${letter}
-                                </div>
-                            `).join('')}
-                        </div>
-                    `).join('')}
-                </div>
-                <p style="text-align: center; color: #6b7280; font-size: 0.875rem; margin-top: 1rem;">
-                    These are the 4 words players will try to guess
-                </p>
-            </div>
-        `;
-    }
-
+        
     attachPasswordListeners() {
         const submitBtn = document.getElementById('submit-password');
         const cancelBtn = document.getElementById('cancel-password');
