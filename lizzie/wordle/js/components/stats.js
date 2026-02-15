@@ -179,6 +179,7 @@ class StatsComponent {
                     ${this.renderStatCard('⭐', 'Max Streak', this.userStats.maxStreak)}
                     ${this.renderStatCard('🎯', 'Avg Guesses', this.userStats.avgGuesses || 'N/A')}
                     ${this.renderStatCard('⚡', 'Best Time', this.userStats.bestTime ? formatTime(this.userStats.bestTime) : 'N/A')}
+                    ${this.renderStatCard('⏱️', 'Avg Time', this.userStats.avgTime ? formatTime(this.userStats.avgTime) : 'N/A')}
                 </div>
 
                 ${this.renderGuessDistribution()}
