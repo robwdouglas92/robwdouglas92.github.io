@@ -2,7 +2,7 @@ import { db } from '../firebase.js';
 import { doc, getDoc, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 import { router } from '../router.js';
 import { timer } from '../utils/timer.js';
-import { formatTime, getCurrentUserId, getCurrentUserName } from '../utils/helpers.js';
+import { formatTime, getCurrentUserId, getCurrentUserName, clearCurrentUser } from '../utils/helpers.js';
 import { isValidWord } from '../utils/wordValidation.js';
 
 class GameComponent {
@@ -18,7 +18,6 @@ class GameComponent {
         this.MAX_GUESSES = 6;
         this.message = '';
         this.messageType = '';
-        this.isValidating = false;
         this.lastGuessIndex = -1;
     }
 
@@ -69,7 +68,7 @@ class GameComponent {
     }
 
     handleKeyPress(key) {
-        if (this.gameOver || this.isValidating) return;
+        if (this.gameOver) return;
 
         timer.start();
 
@@ -95,12 +94,7 @@ class GameComponent {
         const isTargetWord = this.currentGuess === this.gameData.targetWord;
 
         if (!isTargetWord) {
-            this.isValidating = true;
-            this.showMessage('Validating word...', 'info');
-
             const valid = await isValidWord(this.currentGuess);
-            this.isValidating = false;
-
             if (!valid) {
                 this.showMessage('Not a valid word!', 'error');
                 return;
@@ -244,7 +238,7 @@ class GameComponent {
                         <button class="nav-link" onclick="window.location.href='../home.html'" style="font-size: 1.5rem; padding: 0.25rem; background: none; border: none; cursor: pointer;">🏠</button>
                         <div class="header-info" style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.75rem; color: #6b7280;">
                             ${timer.timerStarted ? `<span id="game-timer">${timer.getCurrent()}</span>` : ''}
-                            ${userName ? `<span>${userName}</span>` : ''}
+                            ${userName ? `<button id="switch-player-btn" title="Not you? Switch player" style="background: none; border: none; padding: 0; font: inherit; color: inherit; cursor: pointer; text-decoration: underline dotted;">${userName}</button>` : ''}
                         </div>
                         <div style="display: flex; gap: 0.25rem;">
                             <button class="nav-link" id="view-stats-btn" style="font-size: 1.5rem; padding: 0.25rem; background: none; border: none; cursor: pointer;">📊</button>
@@ -505,10 +499,18 @@ class GameComponent {
                 this.load(this.gameId).then(() => this.render());
             };
         }
+
+        const switchPlayerBtn = document.getElementById('switch-player-btn');
+        if (switchPlayerBtn) {
+            switchPlayerBtn.onclick = () => {
+                clearCurrentUser();
+                router.navigate('game', { id: this.gameId });
+            };
+        }
     }
 
     keyboardHandler = (e) => {
-        if (this.gameOver || this.isValidating) return;
+        if (this.gameOver) return;
         
         const key = e.key.toUpperCase();
         

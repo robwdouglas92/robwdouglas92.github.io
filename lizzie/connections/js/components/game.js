@@ -2,7 +2,7 @@ import { db } from '../firebase.js';
 import { doc, getDoc, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 import { router } from '../router.js';
 import { timer } from '../utils/timer.js';
-import { shuffleArray, formatTime, getCurrentUserId, getCurrentUserName } from '../utils/helpers.js';
+import { shuffleArray, formatTime, getCurrentUserId, getCurrentUserName, clearCurrentUser } from '../utils/helpers.js';
 
 class GameComponent {
     constructor() {
@@ -205,6 +205,7 @@ class GameComponent {
                         <button class="nav-link" onclick="window.location.href='../home.html'">🏠 Back to Home</button>
                         <button class="nav-link" id="view-stats-btn">📊 My Stats</button>
                         <button class="nav-link" id="view-leaderboard-btn">🏆 Leaderboard</button>
+                        ${userName ? `<button class="nav-link" id="switch-player-btn">🔀 Not You?</button>` : ''}
                     </div>
                 </header>
 
@@ -353,6 +354,14 @@ class GameComponent {
         viewLeaderboardButtons.forEach(btn => {
             btn.onclick = () => router.navigate('leaderboard');
         });
+
+        const switchPlayerBtn = document.getElementById('switch-player-btn');
+        if (switchPlayerBtn) {
+            switchPlayerBtn.onclick = () => {
+                clearCurrentUser();
+                router.navigate('game', { id: gameId });
+            };
+        }
 
         // Solve path hover listeners
         document.querySelectorAll('.solve-path-row').forEach(row => {

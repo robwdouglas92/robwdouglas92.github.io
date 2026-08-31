@@ -13,6 +13,8 @@ export function formatTime(seconds) {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
+// Shared across Wordle/Quordle/Connections (same localStorage, same origin)
+// so picking your name in one game carries over to the others.
 export function getCurrentUserId() {
     return localStorage.getItem('LizzieUserId');
 }
@@ -27,6 +29,6 @@ export function setCurrentUser(userId, userName) {
 }
 
 export function clearCurrentUser() {
-    localStorage.removeItem('userId');
-    localStorage.removeItem('userName');
+    localStorage.removeItem('LizzieUserId');
+    localStorage.removeItem('LizzieUserName');
 }

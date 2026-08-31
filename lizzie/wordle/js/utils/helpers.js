@@ -4,20 +4,22 @@ export function formatTime(seconds) {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
+// Shared across Wordle/Quordle/Connections (same localStorage, same origin)
+// so picking your name in one game carries over to the others.
 export function getCurrentUserId() {
-    return localStorage.getItem('LizzieWordleUserId');
+    return localStorage.getItem('LizzieUserId');
 }
 
 export function getCurrentUserName() {
-    return localStorage.getItem('LizzieWordleUserName');
+    return localStorage.getItem('LizzieUserName');
 }
 
 export function setCurrentUser(userId, userName) {
-    localStorage.setItem('LizzieWordleUserId', userId);
-    localStorage.setItem('LizzieWordleUserName', userName);
+    localStorage.setItem('LizzieUserId', userId);
+    localStorage.setItem('LizzieUserName', userName);
 }
 
 export function clearCurrentUser() {
-    localStorage.removeItem('userId');
-    localStorage.removeItem('userName');
+    localStorage.removeItem('LizzieUserId');
+    localStorage.removeItem('LizzieUserName');
 }
