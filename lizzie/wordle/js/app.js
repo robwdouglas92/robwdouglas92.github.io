@@ -5,6 +5,7 @@ import { userSelectComponent } from './components/userSelect.js';
 import { adminComponent } from './components/admin.js';
 import { statsComponent } from './components/stats.js';
 import { leaderboardComponent } from './components/leaderboard.js';
+import { playerStatsPickerComponent } from './components/playerStats.js';
 import { getCurrentUserId } from './utils/helpers.js';
 
 // Register routes
@@ -72,6 +73,18 @@ router.register('stats', async (params) => {
     
     await statsComponent.load();
     statsComponent.render(gameId);
+});
+
+router.register('player-stats', async (params) => {
+    const playerId = params.get('player');
+    const playerName = params.get('name');
+
+    if (playerId && playerName) {
+        await statsComponent.load(playerId, playerName);
+        statsComponent.render(null, { showPlayerPicker: true });
+    } else {
+        await playerStatsPickerComponent.render();
+    }
 });
 
 router.register('leaderboard', async (params) => {

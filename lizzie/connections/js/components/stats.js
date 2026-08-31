@@ -38,10 +38,11 @@ class StatsComponent {
         `;
     }
     
-    async load() {
-        const userId = getCurrentUserId();
-        const userName = getCurrentUserName();
-        
+    async load(overrideUserId, overrideUserName) {
+        const userId = overrideUserId || getCurrentUserId();
+        const userName = overrideUserName || getCurrentUserName();
+        this.loadedUserName = userName;
+
         if (!userId) {
             this.loading = false;
             return false;
@@ -103,9 +104,10 @@ class StatsComponent {
         }
     }
 
-    render(gameId) {
+    render(gameId, opts = {}) {
         const app = document.getElementById('app');
-        
+        this.showPlayerPicker = !!opts.showPlayerPicker;
+
         if (this.loading) {
             app.innerHTML = `
                 <div class="container">
@@ -121,24 +123,33 @@ class StatsComponent {
             app.innerHTML = `
                 <div class="container">
                     <header>
-                        <h1>📊 My Stats</h1>
+                        <h1>📊 ${this.showPlayerPicker && this.loadedUserName ? `${this.loadedUserName}'s Stats` : 'My Stats'}</h1>
                         <p class="subtitle">No games played yet!</p>
                     </header>
                     <div style="text-align: center; padding: 2rem; background: white; border-radius: 0.5rem; margin-top: 2rem;">
                         <p style="font-size: 4rem; margin-bottom: 1rem;">🎮</p>
-                        <p style="color: #6b7280; margin-bottom: 1.5rem;">Start playing to see your stats here!</p>
-                        <button class="btn btn-primary" id="back-btn">Go to Game</button>
+                        <p style="color: #6b7280; margin-bottom: 1.5rem;">${this.showPlayerPicker ? 'This player hasn\'t played yet!' : 'Start playing to see your stats here!'}</p>
+                        ${this.showPlayerPicker
+                            ? '<button class="btn btn-primary" id="choose-player-btn">🔀 Choose Different Player</button>'
+                            : '<button class="btn btn-primary" id="back-btn">Go to Game</button>'}
                     </div>
                 </div>
             `;
-            
-            document.getElementById('back-btn').onclick = () => {
-                if (gameId) {
-                    router.navigate('game', { id: gameId });
-                } else {
-                    history.back();
-                }
-            };
+
+            const backBtn = document.getElementById('back-btn');
+            if (backBtn) {
+                backBtn.onclick = () => {
+                    if (gameId) {
+                        router.navigate('game', { id: gameId });
+                    } else {
+                        history.back();
+                    }
+                };
+            }
+            const choosePlayerBtn = document.getElementById('choose-player-btn');
+            if (choosePlayerBtn) {
+                choosePlayerBtn.onclick = () => this.goToPlayerPicker();
+            }
             return;
         }
 
@@ -146,7 +157,8 @@ class StatsComponent {
             <div class="container" style="padding: 1rem;">
                 <header>
                     <h1>📊 ${this.userStats.userName}'s Stats</h1>
-                    <button class="nav-link" id="back-btn" style="margin-top: 0.5rem;">← Back to Game</button>
+                    <button class="nav-link" id="back-btn" style="margin-top: 0.5rem;">${this.showPlayerPicker ? '← Back' : '← Back to Game'}</button>
+                    ${this.showPlayerPicker ? '<button class="nav-link" id="choose-player-btn" style="margin-top: 0.5rem;">🔀 Choose Different Player</button>' : ''}
                 </header>
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
@@ -235,9 +247,21 @@ class StatsComponent {
             </tr>
         `;
     }
+    // Navigates to the player picker, clearing any player/name params so it
+    // doesn't just immediately re-select the current player.
+    goToPlayerPicker() {
+        const url = new URL(window.location);
+        url.searchParams.set('view', 'player-stats');
+        url.searchParams.delete('player');
+        url.searchParams.delete('name');
+        window.history.pushState({}, '', url);
+        router.handleRoute();
+    }
+
     attachListeners(gameId) {
         const backBtn = document.getElementById('back-btn');
         const leaderboardBtn = document.getElementById('view-leaderboard-btn');
+        const choosePlayerBtn = document.getElementById('choose-player-btn');
 
         if (backBtn) {
             backBtn.onclick = () => {
@@ -253,6 +277,10 @@ class StatsComponent {
             leaderboardBtn.onclick = () => {
                 router.navigate('leaderboard', gameId ? { id: gameId } : {});
             };
+        }
+
+        if (choosePlayerBtn) {
+            choosePlayerBtn.onclick = () => this.goToPlayerPicker();
         }
     }
 }
