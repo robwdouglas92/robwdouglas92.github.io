@@ -90,15 +90,21 @@ class GameComponent {
             return;
         }
 
-        this.isValidating = true;
-        this.showMessage('Validating word...', 'info');
-        
-        const valid = await isValidWord(this.currentGuess);
-        this.isValidating = false;
-        
-        if (!valid) {
-            this.showMessage('Not a valid word!', 'error');
-            return;
+        // The correct answer is always accepted, even if it's somehow missing
+        // from the local word list - the target word itself is authoritative.
+        const isTargetWord = this.currentGuess === this.gameData.targetWord;
+
+        if (!isTargetWord) {
+            this.isValidating = true;
+            this.showMessage('Validating word...', 'info');
+
+            const valid = await isValidWord(this.currentGuess);
+            this.isValidating = false;
+
+            if (!valid) {
+                this.showMessage('Not a valid word!', 'error');
+                return;
+            }
         }
 
         const feedback = this.calculateFeedback(this.currentGuess, this.gameData.targetWord);

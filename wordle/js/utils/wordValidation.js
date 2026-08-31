@@ -1,46 +1,23 @@
-// Word validation using Free Dictionary API
-// Cache validated words to reduce API calls
-const validatedWords = new Set();
-const invalidWords = new Set();
+// Word validation against a local, bundled word list.
+// Previously called the Free Dictionary API (api.dictionaryapi.dev) over the
+// network, which went unresponsive (hung with no response, no error) and
+// froze the game on "Validating word...". Validating locally removes that
+// external dependency entirely - instant, offline, and can't hang or go down.
+import { WORD_LIST } from './words.js';
+
+const VALID_WORDS = new Set(WORD_LIST);
 
 export async function isValidWord(word) {
     const upperWord = word.toUpperCase();
-    
-    // Check cache first
-    if (validatedWords.has(upperWord)) {
-        return true;
-    }
-    if (invalidWords.has(upperWord)) {
-        return false;
-    }
-    
+
     // Must be exactly 5 letters
-    if (word.length !== 5) {
-        invalidWords.add(upperWord);
+    if (upperWord.length !== 5) {
         return false;
     }
-    
-    // Validate with API
-    try {
-        const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word.toLowerCase()}`);
-        
-        if (response.ok) {
-            validatedWords.add(upperWord);
-            return true;
-        } else {
-            invalidWords.add(upperWord);
-            return false;
-        }
-    } catch (error) {
-        console.error('Word validation error:', error);
-        // On network error, be permissive and allow the word
-        // This prevents the game from breaking if the API is down
-        return true;
-    }
+
+    return VALID_WORDS.has(upperWord);
 }
 
-// Clear cache (useful for testing)
-export function clearValidationCache() {
-    validatedWords.clear();
-    invalidWords.clear();
-}
+// Kept for API compatibility with any existing callers; no-op now that
+// validation is a plain Set lookup with nothing to cache.
+export function clearValidationCache() {}

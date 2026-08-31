@@ -89,15 +89,21 @@ class GameComponent {
             return;
         }
 
-        this.isValidating = true;
-        this.showMessage('Validating word...', 'info');
-        
-        const valid = await isValidWord(this.currentGuess);
-        this.isValidating = false;
-        
-        if (!valid) {
-            this.showMessage('Not a valid word!', 'error');
-            return;
+        // Any of the 4 target words is always accepted, even if it's somehow
+        // missing from the local word list - the target words are authoritative.
+        const isTargetWord = this.gameData.targetWords.includes(this.currentGuess);
+
+        if (!isTargetWord) {
+            this.isValidating = true;
+            this.showMessage('Validating word...', 'info');
+
+            const valid = await isValidWord(this.currentGuess);
+            this.isValidating = false;
+
+            if (!valid) {
+                this.showMessage('Not a valid word!', 'error');
+                return;
+            }
         }
 
         // Calculate feedback for all 4 boards
