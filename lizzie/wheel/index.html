@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spin the Wheel 🎡</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #FFD93D 0%, #F6C324 50%, #4A90E2 100%);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            background: white;
+            padding: 1.5rem 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 6px solid #4A90E2;
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            color: #4A90E2;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 0.5rem 1.25rem;
+            background: white;
+            border: 2px solid #d1d5db;
+            border-radius: 0.5rem;
+            color: #333;
+            text-decoration: none;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .back-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(280px, 420px) 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 800px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 5px solid #FFD93D;
+        }
+
+        .wheel-wrap {
+            position: relative;
+            width: 100%;
+            max-width: 360px;
+            margin: 0 auto 1.5rem;
+        }
+
+        .wheel-wrap canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        .pointer {
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 16px solid transparent;
+            border-right: 16px solid transparent;
+            border-top: 26px solid #E74C3C;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.35));
+            z-index: 5;
+        }
+
+        .spin-controls {
+            text-align: center;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: #4A90E2;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            font-size: 1.1rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: #357ABD;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+        }
+
+        .btn:disabled {
+            background: #d1d5db;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            margin: 1rem 0 1.25rem;
+            color: #444;
+            font-size: 0.95rem;
+        }
+
+        .toggle-row input {
+            width: 1.15rem;
+            height: 1.15rem;
+        }
+
+        .panel h2 {
+            color: #4A90E2;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .add-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .input {
+            width: 100%;
+            padding: 0.6rem 0.85rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: #4A90E2;
+        }
+
+        .add-row .input {
+            flex: 1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+
+        td {
+            padding: 0.4rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .row-actions {
+            width: 2.5rem;
+            text-align: right;
+        }
+
+        .icon-btn {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: none;
+            border-radius: 0.4rem;
+            width: 2rem;
+            height: 2rem;
+            font-size: 1rem;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .icon-btn:hover {
+            background: #fecaca;
+        }
+
+        .empty-row {
+            color: #9ca3af;
+            text-align: center;
+            padding: 1.5rem 0;
+            font-style: italic;
+        }
+
+        .list-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .count-text {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            padding: 0.6rem 1.1rem;
+            font-size: 0.95rem;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: #dc2626;
+        }
+
+        .error-text {
+            color: #b91c1c;
+            font-size: 0.9rem;
+            margin-top: 0.75rem;
+            min-height: 1.2em;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.55);
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            padding: 2.5rem 2rem;
+            max-width: 24rem;
+            width: 100%;
+            text-align: center;
+            border: 6px solid #FFD93D;
+        }
+
+        .modal-content h2 {
+            font-size: 1.8rem;
+            color: #4A90E2;
+            margin-bottom: 0.75rem;
+            word-break: break-word;
+        }
+
+        .modal-content p {
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎡 Spin the Wheel</h1>
+            <p class="subtitle">Add your options, then let the wheel decide.</p>
+            <a href="../home.html" class="back-btn">🏠 Back to Home</a>
+        </header>
+
+        <div class="layout">
+            <div class="panel">
+                <div class="wheel-wrap">
+                    <div class="pointer"></div>
+                    <canvas id="wheel-canvas" width="360" height="360"></canvas>
+                </div>
+                <div class="spin-controls">
+                    <label class="toggle-row">
+                        <input type="checkbox" id="remove-toggle" checked>
+                        Remove option after it's picked
+                    </label>
+                    <button class="btn" id="spin-btn">🎡 Spin the Wheel</button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>Activities</h2>
+                <div class="add-row">
+                    <input type="text" id="add-input" class="input" placeholder="Add an activity…">
+                    <button class="btn" id="add-btn" style="padding: 0.6rem 1.25rem; font-size: 1rem;">Add</button>
+                </div>
+
+                <table>
+                    <tbody id="activities-body">
+                        <tr><td colspan="2" class="empty-row">Loading…</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="list-footer">
+                    <span class="count-text" id="activities-count"></span>
+                    <button class="btn btn-danger" id="clear-btn">🗑 Clear All</button>
+                </div>
+                <div class="error-text" id="list-error"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="winner-modal">
+        <div class="modal-content">
+            <h2 id="winner-text"></h2>
+            <p id="winner-note"></p>
+            <button class="btn" id="winner-close">Nice!</button>
+        </div>
+    </div>
+
+    <script type="module" src="./js/app.js"></script>
+</body>
+</html>
