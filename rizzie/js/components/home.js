@@ -1,4 +1,4 @@
-import { fetchGames, fetchMyPlays, getSession, signOut } from '../api.js';
+import { fetchGames, fetchMyPlays, fetchMyDrafts, getSession, signOut } from '../api.js';
 import { router } from '../router.js';
 import { app, esc } from '../utils/html.js';
 
@@ -7,10 +7,14 @@ class HomeComponent {
         const me = getSession();
         app().innerHTML = '<div class="loading">Loading games…</div>';
 
+        const canCreate = me.isCreator || me.isAdmin;
         let games;
         let plays;
+        let drafts;
         try {
-            [games, plays] = await Promise.all([fetchGames(), fetchMyPlays()]);
+            [games, plays, drafts] = await Promise.all([
+                fetchGames(), fetchMyPlays(), canCreate ? fetchMyDrafts() : [],
+            ]);
         } catch (err) {
             console.error(err);
             app().innerHTML = '<div class="container"><div class="card"><p class="error">Couldn’t load games. Check your connection and refresh.</p></div></div>';
@@ -25,10 +29,23 @@ class HomeComponent {
                     <p class="subtitle">Hi ${esc(me.username)}! The rarest answer wins.</p>
                 </header>
 
-                ${me.isCreator || me.isAdmin ? `
+                ${canCreate ? `
                     <div class="row">
                         <button class="btn btn-primary" id="create-game">+ Create a game</button>
                     </div>
+                ` : ''}
+                ${drafts.length ? `
+                    <h2>Your drafts</h2>
+                    ${drafts.map(d => `
+                        <div class="card game-card">
+                            <div>
+                                <div class="game-title">${d.title?.trim() ? esc(d.title) : '<em>Untitled game</em>'}</div>
+                                <div class="game-meta">${d.prompts.filter(p => p.answers.length).length} of 7 prompts have answers</div>
+                            </div>
+                            <div class="game-actions">
+                                <button class="btn btn-secondary btn-small" data-draft="${d.id}">Continue</button>
+                            </div>
+                        </div>`).join('')}
                 ` : ''}
                 ${me.isAdmin ? '<button class="btn btn-secondary" id="admin">Admin: players & PINs</button>' : ''}
 
@@ -48,6 +65,9 @@ class HomeComponent {
         });
         app().querySelectorAll('[data-results]').forEach(btn => {
             btn.addEventListener('click', () => router.navigate('results', { id: btn.dataset.results }));
+        });
+        app().querySelectorAll('[data-draft]').forEach(btn => {
+            btn.addEventListener('click', () => router.navigate('create', { id: btn.dataset.draft }));
         });
         document.getElementById('create-game')?.addEventListener('click', () => router.navigate('create'));
         document.getElementById('admin')?.addEventListener('click', () => router.navigate('admin'));

@@ -195,24 +195,56 @@ export async function fetchGames() {
     const snap = await getDocs(query(collection(db, 'games'), where('status', '==', 'published')));
     return snap.docs
         .map(d => ({ id: d.id, ...d.data() }))
-        .sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0));
+        .sort((a, b) => millis(b.publishedAt ?? b.createdAt) - millis(a.publishedAt ?? a.createdAt));
 }
+
+const millis = ts => ts?.toMillis?.() ?? 0;
 
 export async function fetchGame(gameId) {
     const snap = await getDoc(doc(db, 'games', gameId));
     return snap.exists() ? { id: snap.id, ...snap.data() } : null;
 }
 
-export async function createGame({ title, prompts }) {
+// Games start as drafts (saved as you go, invisible to players) and become
+// playable once published.
+
+export async function fetchMyDrafts() {
+    const snap = await getDocs(query(collection(db, 'games'), where('createdBy', '==', session.id)));
+    return snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .filter(g => g.status === 'draft')
+        .sort((a, b) => (b.updatedAt?.toMillis?.() ?? 0) - (a.updatedAt?.toMillis?.() ?? 0));
+}
+
+export async function createDraft({ title, prompts }) {
     const ref = await addDoc(collection(db, 'games'), {
         title,
         prompts,
         createdBy: session.id,
         createdByName: session.username,
-        status: 'published',
+        status: 'draft',
         createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
     });
     return ref.id;
+}
+
+export function saveDraft(gameId, { title, prompts }) {
+    return updateDoc(doc(db, 'games', gameId), { title, prompts, updatedAt: serverTimestamp() });
+}
+
+export function publishGame(gameId, { title, prompts }) {
+    return updateDoc(doc(db, 'games', gameId), {
+        title,
+        prompts,
+        status: 'published',
+        updatedAt: serverTimestamp(),
+        publishedAt: serverTimestamp(),
+    });
+}
+
+export function deleteGame(gameId) {
+    return deleteDoc(doc(db, 'games', gameId));
 }
 
 // ---- Plays: one doc per player per game, id "<gameId>_<profile id>" ----

@@ -88,12 +88,18 @@ service cloud.firestore {
           && getAfter(/databases/$(database)/documents/profiles/$(id)).data.resetCode == resource.data.code);
     }
 
+    // Games start as drafts, saved as the creator works, and become playable
+    // once published. A published game can't go back to being a draft.
     match /games/{gameId} {
       allow read: if signedIn();
-      allow create: if isCreator() && request.resource.data.createdBy == me();
+      allow create: if isCreator()
+        && request.resource.data.createdBy == me()
+        && request.resource.data.status in ['draft', 'published'];
       allow update: if isCreator()
         && (resource.data.createdBy == me() || isAdmin())
-        && request.resource.data.createdBy == resource.data.createdBy;
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.status in ['draft', 'published']
+        && !(resource.data.status == 'published' && request.resource.data.status == 'draft');
       allow delete: if isCreator() && (resource.data.createdBy == me() || isAdmin());
     }
 

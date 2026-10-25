@@ -14,6 +14,7 @@ import { app, showMessage } from './utils/html.js';
 function page(handler) {
     return async params => {
         playComponent.stop();
+        createComponent.flush();
         if (!getSession()) {
             authComponent.render(() => router.handleRoute());
             return;
@@ -41,7 +42,7 @@ router.register('results', page(params => resultsComponent.render(params.get('id
 
 router.register('create', page((params, me) => {
     if (!me.isCreator && !me.isAdmin) return router.navigate('home');
-    createComponent.render();
+    return createComponent.render(params.get('id'));
 }));
 
 router.register('admin', page((params, me) => {
