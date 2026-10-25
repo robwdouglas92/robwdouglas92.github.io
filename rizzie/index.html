@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
+    <meta name="theme-color" content="#1d4d3a">
+    <title>Rizzie</title>
+    <style>
+        :root {
+            --bg: #f8f4ec;
+            --card: #ffffff;
+            --ink: #1f2a24;
+            --muted: #6b6f69;
+            --line: #e6dfd3;
+            --green: #1d6b4a;
+            --green-dark: #1d4d3a;
+            --red: #b3261e;
+            --gold: #c9962b;
+            --radius: 0.9rem;
+            /* Tier colours, shallow → deep */
+            --t1: #9fb8a8;
+            --t2: #5f9c7b;
+            --t3: #2f7f64;
+            --t4: #1f5e7a;
+            --t5: #3b3f8f;
+            --t6: #b07a12;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            min-height: 100vh;
+            line-height: 1.45;
+        }
+
+        #app { min-height: 100vh; padding: 1rem; }
+
+        .container { max-width: 34rem; margin: 0 auto; }
+
+        .loading {
+            display: flex; align-items: center; justify-content: center;
+            min-height: 60vh; color: var(--muted); font-size: 1.1rem;
+        }
+
+        header { text-align: center; margin: 0.75rem 0 1.25rem; }
+        h1 { font-size: 1.9rem; line-height: 1.15; }
+        h1.logo { font-size: 2.8rem; color: var(--green-dark); letter-spacing: -0.02em; }
+        h2 { font-size: 1.15rem; margin: 1.5rem 0 0.6rem; }
+        .subtitle { color: var(--muted); margin-top: 0.25rem; }
+        .hint { color: var(--muted); font-size: 0.875rem; margin-top: 0.6rem; }
+        .error { color: var(--red); font-size: 0.9rem; min-height: 1.2em; margin-top: 0.5rem; }
+        .error:empty { min-height: 0; margin: 0; }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.6rem 0; }
+
+        .btn {
+            display: block; width: 100%;
+            font: inherit; font-weight: 650; font-size: 1rem;
+            padding: 0.8rem 1rem; margin-top: 0.6rem;
+            border-radius: 0.7rem; border: 2px solid transparent;
+            cursor: pointer;
+        }
+        .btn:disabled { opacity: 0.5; cursor: default; }
+        .btn-primary { background: var(--green); color: #fff; }
+        .btn-secondary { background: var(--card); color: var(--ink); border-color: var(--line); }
+        .btn-big { font-size: 1.15rem; padding: 1rem; }
+        .btn-small { width: auto; display: inline-block; font-size: 0.875rem; padding: 0.45rem 0.8rem; margin-top: 0; }
+        .link { background: none; border: none; font: inherit; color: var(--green); text-decoration: underline; cursor: pointer; }
+
+        label { display: block; font-weight: 600; margin: 0.8rem 0 0.3rem; }
+        /* 16px+ stops iPhones zooming in when an input is focused */
+        input, textarea {
+            width: 100%; font: inherit; font-size: 1rem;
+            padding: 0.7rem 0.8rem;
+            border: 2px solid var(--line); border-radius: 0.6rem;
+            background: #fff; color: var(--ink);
+        }
+        input:focus, textarea:focus { outline: none; border-color: var(--green); }
+        textarea { font-family: ui-monospace, Consolas, monospace; font-size: 0.85rem; }
+
+        .tabs { display: flex; gap: 0.4rem; margin-bottom: 0.4rem; }
+        .tab {
+            flex: 1; font: inherit; font-weight: 600; padding: 0.55rem;
+            border: 2px solid var(--line); border-radius: 0.6rem; background: var(--bg); cursor: pointer;
+        }
+        .tab.active { background: var(--green-dark); color: #fff; border-color: var(--green-dark); }
+
+        .footer { text-align: center; color: var(--muted); font-size: 0.875rem; margin: 2rem 0 1rem; }
+
+        /* Home */
+        .game-card { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+        .game-title { font-weight: 700; font-size: 1.05rem; }
+        .game-meta { color: var(--muted); font-size: 0.85rem; }
+        .game-actions { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+        .score-pill { font-weight: 700; color: var(--green-dark); white-space: nowrap; }
+
+        .tier-legend { list-style: none; margin: 0.8rem 0 0.2rem; }
+        .tier-legend li { display: flex; justify-content: space-between; padding: 0.25rem 0; border-bottom: 1px dashed var(--line); }
+
+        /* Playing — everything sits at the top, since the keyboard covers the bottom half */
+        .play-top { display: flex; justify-content: space-between; color: var(--muted); font-weight: 600; font-size: 0.9rem; }
+        .timer { height: 0.6rem; background: var(--line); border-radius: 1rem; overflow: hidden; margin-top: 0.6rem; }
+        .timer-fill { height: 100%; width: 100%; background: var(--green); transition: width 0.1s linear; }
+        .timer-fill.urgent { background: var(--red); }
+        .timer-secs { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; margin-top: 0.2rem; }
+        .prompt-text { font-size: 1.5rem; font-weight: 700; line-height: 1.25; margin: 0.5rem 0 1rem; }
+        .prompt-text-small { font-size: 1.1rem; margin: 0.4rem 0 0.6rem; }
+        .answer-form { display: flex; gap: 0.5rem; }
+        .answer-form input { font-size: 1.1rem; }
+        .answer-form .btn { width: auto; margin-top: 0; padding: 0 1.2rem; }
+
+        .nope { color: var(--red); font-weight: 600; margin-top: 0.7rem; min-height: 1.4em; }
+        .nope.shake { animation: shake 0.35s; }
+        @keyframes shake {
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+
+        .verdict { text-align: center; }
+        .verdict-tier { font-size: 1.5rem; font-weight: 800; }
+        .verdict-detail { color: var(--muted); margin-top: 0.2rem; }
+        .plus { color: var(--green); }
+
+        /* Descent placeholder — see js/descent.js */
+        .descent { display: flex; flex-direction: column; gap: 0.3rem; margin: 0.5rem 0 0.25rem; }
+        .descent-step {
+            display: flex; justify-content: space-between;
+            padding: 0.45rem 0.8rem; border-radius: 0.5rem;
+            background: var(--card); border: 1px solid var(--line); color: var(--muted);
+            font-size: 0.9rem; transition: background 0.25s, color 0.25s, transform 0.25s;
+        }
+        .descent-step.reached { color: #fff; border-color: transparent; }
+        .descent-step.reached[data-tier="1"] { background: var(--t1); }
+        .descent-step.reached[data-tier="2"] { background: var(--t2); }
+        .descent-step.reached[data-tier="3"] { background: var(--t3); }
+        .descent-step.reached[data-tier="4"] { background: var(--t4); }
+        .descent-step.reached[data-tier="5"] { background: var(--t5); }
+        .descent-step.reached[data-tier="6"] { background: var(--t6); }
+        .descent-step.landed { transform: scale(1.04); font-weight: 800; box-shadow: 0 4px 14px rgba(0,0,0,0.18); }
+
+        /* Results */
+        .my-score { text-align: center; }
+        .my-score-total { font-size: 2.6rem; font-weight: 800; color: var(--green-dark); line-height: 1.1; }
+        .leaderboard { list-style: none; }
+        .results-tabs { margin: 0.5rem 0 0.75rem; }
+        .leaderboard li { border-bottom: 1px solid var(--line); }
+        .leaderboard li:last-child { border-bottom: none; }
+        .leaderboard li.me > .lb-row, .answer-rows li.me { font-weight: 700; }
+        .lb-row {
+            display: flex; gap: 0.6rem; align-items: center; width: 100%;
+            padding: 0.6rem 0.2rem; background: none; border: none;
+            font: inherit; color: inherit; text-align: left; cursor: pointer;
+        }
+        .lb-rank { width: 1.6rem; color: var(--muted); }
+        .lb-name { flex: 1; }
+        .lb-total { font-variant-numeric: tabular-nums; }
+        .lb-chevron { color: var(--muted); width: 1rem; text-align: right; }
+        .lb-section { color: var(--muted); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 1rem; }
+        .player-answers { list-style: none; margin: 0 0 0.6rem 2.2rem; }
+        .player-answers li { padding: 0.4rem 0; border-bottom: 1px dashed var(--line); font-weight: 400; }
+        .player-answers li:last-child { border-bottom: none; }
+        .pa-prompt { display: block; color: var(--muted); font-size: 0.8rem; }
+        .pa-answer { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
+        .pop-count { width: 2rem; flex-shrink: 0; font-weight: 800; color: var(--green-dark); }
+
+        .prompt-label { color: var(--muted); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+        .answer-rows { list-style: none; }
+        .answer-rows li { display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0; border-bottom: 1px solid var(--line); font-size: 0.95rem; }
+        .ar-name { width: 30%; flex-shrink: 0; color: var(--muted); overflow: hidden; text-overflow: ellipsis; }
+        .ar-answer { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+        .tried { display: block; font-size: 0.75rem; color: var(--muted); font-weight: 400; font-style: italic; }
+        .tier-pill {
+            flex-shrink: 0; font-size: 0.75rem; font-weight: 700; color: #fff;
+            padding: 0.15rem 0.5rem; border-radius: 1rem; white-space: nowrap;
+        }
+        .tier-0 { background: #b9b4aa; }
+        .tier-1 { background: var(--t1); }
+        .tier-2 { background: var(--t2); }
+        .tier-3 { background: var(--t3); }
+        .tier-4 { background: var(--t4); }
+        .tier-5 { background: var(--t5); }
+        .tier-6 { background: var(--t6); }
+        .nobody-label { font-weight: 700; margin-top: 0.8rem; font-size: 0.9rem; }
+        .nobody { font-size: 0.9rem; }
+        .nobody-points { color: var(--gold); font-weight: 700; font-size: 0.8rem; }
+        details { margin-top: 0.7rem; font-size: 0.9rem; }
+        summary { cursor: pointer; color: var(--green); font-weight: 600; }
+        .full-list { list-style: none; margin-top: 0.4rem; max-height: 20rem; overflow-y: auto; }
+        .full-list li { display: flex; justify-content: space-between; gap: 0.5rem; padding: 0.25rem 0; border-bottom: 1px dashed var(--line); }
+
+        /* Admin */
+        .admin-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.4rem; }
+        .admin-roles { display: flex; gap: 1.2rem; margin-bottom: 0.6rem; }
+        .switch { display: flex; align-items: center; gap: 0.4rem; margin: 0; font-weight: 500; cursor: pointer; }
+        .switch input { width: 1.2rem; height: 1.2rem; accent-color: var(--green); }
+        .reset-code { background: var(--bg); border-radius: 0.6rem; padding: 0.7rem; }
+        .reset-code .code { font-size: 1.3rem; letter-spacing: 0.12em; font-variant-numeric: tabular-nums; }
+        .reset-code .btn { margin-top: 0.5rem; }
+
+        .preview-list { margin: 0.5rem 0 0 1.2rem; }
+        .preview-list li { margin-bottom: 0.4rem; }
+        .preview-list .hint { display: block; margin-top: 0; }
+    </style>
+</head>
+<body>
+    <div id="app"><div class="loading">Loading…</div></div>
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>

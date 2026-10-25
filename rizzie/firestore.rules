@@ -1,0 +1,120 @@
+rules_version = '2';
+
+// Rizzie's own Firebase project — not shared with the Lizzie games or
+// Legends XI. Deploy by pasting into Firebase console → Firestore → Rules.
+//
+// Trust model: this is a family game. Rules stop people writing as someone
+// else, changing roles, or editing a finished game, but scoring and the
+// timer run in the browser, so a determined cheat with dev tools could
+// still bend those. Same trust model as the other family games.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Each player's profile id is baked into their hidden sign-in email (see
+    // js/api.js): "<id>@rizzie.app", or "<id>.<suffix>@rizzie.app" after a
+    // PIN reset gives them a fresh login.
+    function me() {
+      return request.auth.token.email.split('@')[0].split('[.]')[0];
+    }
+
+    function profile(id) {
+      return get(/databases/$(database)/documents/profiles/$(id)).data;
+    }
+
+    // The login must be the one the profile currently points at — after a
+    // PIN reset, the old login stops counting as that player.
+    function isMe() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/profiles/$(me()))
+        && profile(me()).authUid == request.auth.uid;
+    }
+
+    function isAdmin() {
+      return isMe() && profile(me()).isAdmin == true;
+    }
+
+    function isCreator() {
+      return isMe() && (profile(me()).isCreator == true || profile(me()).isAdmin == true);
+    }
+
+    // Readable before sign-in: signing in looks up a username's login email
+    // here. Holds no secrets (the PIN lives only in Firebase Auth).
+    match /profiles/{id} {
+      allow read: if true;
+      allow create: if signedIn()
+        && id == me()
+        && request.resource.data.keys().hasOnly(['username', 'authUid', 'authEmail', 'isCreator', 'isAdmin', 'createdAt'])
+        && request.resource.data.username is string
+        && request.resource.data.username.size() <= 20
+        && request.resource.data.authUid == request.auth.uid
+        && request.resource.data.authEmail == request.auth.token.email
+        && request.resource.data.isCreator == false
+        && request.resource.data.isAdmin == false;
+      // Only admins can hand out roles (the first admin is set by hand in the
+      // Firebase console). The other kind of update is a PIN reset: the player
+      // points their profile at a brand-new login using an admin's code.
+      allow update: if (isAdmin()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isCreator', 'isAdmin']))
+        || reclaimsProfile(id);
+    }
+
+    // The code must match the admin-issued reset, which normal players can't
+    // read, and must not have expired. The new login's hidden email has to
+    // carry this profile's id, so a code can't be used to grab someone else.
+    function reclaimsProfile(id) {
+      let resetPath = /databases/$(database)/documents/resets/$(id);
+      return signedIn()
+        && id == me()
+        && exists(resetPath)
+        && request.time < get(resetPath).data.expiresAt
+        && request.resource.data.resetCode == get(resetPath).data.code
+        && request.resource.data.authUid == request.auth.uid
+        && request.resource.data.authEmail == request.auth.token.email
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['authUid', 'authEmail', 'resetCode']);
+    }
+
+    // One pending PIN reset per player, admin-only. The player's reset write
+    // deletes it in the same batch, so each code works once.
+    match /resets/{id} {
+      allow read, create, update: if isAdmin();
+      allow delete: if isAdmin()
+        || (signedIn()
+          && id == me()
+          && getAfter(/databases/$(database)/documents/profiles/$(id)).data.authUid == request.auth.uid
+          && getAfter(/databases/$(database)/documents/profiles/$(id)).data.resetCode == resource.data.code);
+    }
+
+    match /games/{gameId} {
+      allow read: if signedIn();
+      allow create: if isCreator() && request.resource.data.createdBy == me();
+      allow update: if isCreator()
+        && (resource.data.createdBy == me() || isAdmin())
+        && request.resource.data.createdBy == resource.data.createdBy;
+      allow delete: if isCreator() && (resource.data.createdBy == me() || isAdmin());
+    }
+
+    // One per player per game, id "<gameId>_<profile id>" — so each player
+    // only ever gets one go.
+    match /plays/{playId} {
+      allow read: if signedIn();
+      allow create: if isMe()
+        && playId == request.resource.data.gameId + '_' + me()
+        && request.resource.data.username == me()
+        && request.resource.data.status == 'in-progress'
+        && request.resource.data.answers.size() == 0
+        && get(/databases/$(database)/documents/games/$(request.resource.data.gameId)).data.status == 'published';
+      // Can be added to while in progress; frozen once complete.
+      allow update: if isMe()
+        && resource.data.username == me()
+        && resource.data.status == 'in-progress'
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['answers', 'total', 'status', 'finishedAt', 'currentIndex', 'currentStartedAt'])
+        && request.resource.data.answers.size() <= 7;
+      allow delete: if isAdmin();
+    }
+  }
+}

@@ -1,0 +1,1936 @@
+{
+  "title": "Christmas Classics",
+  "prompts": [
+    {
+      "text": "Name a Christmas film",
+      "answers": [
+        {
+          "name": "Elf",
+          "tier": 1
+        },
+        {
+          "name": "Home Alone",
+          "tier": 1
+        },
+        {
+          "name": "Love Actually",
+          "tier": 1
+        },
+        {
+          "name": "How the Grinch Stole Christmas",
+          "tier": 1,
+          "aliases": [
+            "The Grinch"
+          ]
+        },
+        {
+          "name": "The Polar Express",
+          "tier": 2
+        },
+        {
+          "name": "It's a Wonderful Life",
+          "tier": 2
+        },
+        {
+          "name": "Miracle on 34th Street",
+          "tier": 2
+        },
+        {
+          "name": "A Christmas Carol",
+          "tier": 2
+        },
+        {
+          "name": "The Muppet Christmas Carol",
+          "tier": 2,
+          "aliases": [
+            "Muppets Christmas Carol"
+          ]
+        },
+        {
+          "name": "The Holiday",
+          "tier": 2
+        },
+        {
+          "name": "The Santa Clause",
+          "tier": 2
+        },
+        {
+          "name": "The Snowman",
+          "tier": 2,
+          "aliases": [
+            "Raymond Briggs The Snowman"
+          ]
+        },
+        {
+          "name": "Home Alone 2: Lost in New York",
+          "tier": 2,
+          "aliases": [
+            "Home Alone 2"
+          ]
+        },
+        {
+          "name": "Jingle All the Way",
+          "tier": 3
+        },
+        {
+          "name": "The Nightmare Before Christmas",
+          "tier": 3
+        },
+        {
+          "name": "Arthur Christmas",
+          "tier": 3
+        },
+        {
+          "name": "Bad Santa",
+          "tier": 3
+        },
+        {
+          "name": "Last Christmas",
+          "tier": 3
+        },
+        {
+          "name": "National Lampoon's Christmas Vacation",
+          "tier": 3,
+          "aliases": [
+            "Christmas Vacation"
+          ]
+        },
+        {
+          "name": "White Christmas",
+          "tier": 3
+        },
+        {
+          "name": "Nativity!",
+          "tier": 3,
+          "aliases": [
+            "Nativity"
+          ]
+        },
+        {
+          "name": "Die Hard",
+          "tier": 3
+        },
+        {
+          "name": "Klaus",
+          "tier": 4
+        },
+        {
+          "name": "Four Christmases",
+          "tier": 4
+        },
+        {
+          "name": "Fred Claus",
+          "tier": 4
+        },
+        {
+          "name": "Gremlins",
+          "tier": 4
+        },
+        {
+          "name": "Scrooged",
+          "tier": 4
+        },
+        {
+          "name": "A Christmas Story",
+          "tier": 4
+        },
+        {
+          "name": "Christmas with the Kranks",
+          "tier": 4
+        },
+        {
+          "name": "The Christmas Chronicles",
+          "tier": 4
+        },
+        {
+          "name": "Jack Frost",
+          "tier": 4
+        },
+        {
+          "name": "Santa Claus: The Movie",
+          "tier": 4
+        },
+        {
+          "name": "Frosty the Snowman",
+          "tier": 4
+        },
+        {
+          "name": "Rudolph the Red-Nosed Reindeer",
+          "tier": 4,
+          "aliases": [
+            "Rudolph"
+          ]
+        },
+        {
+          "name": "Scrooge",
+          "tier": 4
+        },
+        {
+          "name": "Deck the Halls",
+          "tier": 5
+        },
+        {
+          "name": "Holiday Inn",
+          "tier": 5
+        },
+        {
+          "name": "Surviving Christmas",
+          "tier": 5
+        },
+        {
+          "name": "Get Santa",
+          "tier": 5
+        },
+        {
+          "name": "Noelle",
+          "tier": 5
+        },
+        {
+          "name": "Edward Scissorhands",
+          "tier": 5
+        },
+        {
+          "name": "Trading Places",
+          "tier": 5
+        },
+        {
+          "name": "Krampus",
+          "tier": 5
+        },
+        {
+          "name": "Happiest Season",
+          "tier": 5
+        },
+        {
+          "name": "Office Christmas Party",
+          "tier": 5
+        },
+        {
+          "name": "Daddy's Home 2",
+          "tier": 5
+        },
+        {
+          "name": "The Night Before",
+          "tier": 5
+        },
+        {
+          "name": "Violent Night",
+          "tier": 5
+        },
+        {
+          "name": "Spirited",
+          "tier": 5
+        },
+        {
+          "name": "Red One",
+          "tier": 5
+        },
+        {
+          "name": "The Family Stone",
+          "tier": 5
+        },
+        {
+          "name": "Batman Returns",
+          "tier": 5
+        },
+        {
+          "name": "The Bishop's Wife",
+          "tier": 6
+        },
+        {
+          "name": "Ernest Saves Christmas",
+          "tier": 6
+        },
+        {
+          "name": "Black Christmas",
+          "tier": 6
+        },
+        {
+          "name": "Carol",
+          "tier": 6
+        },
+        {
+          "name": "Joyeux Noël",
+          "tier": 6
+        },
+        {
+          "name": "Better Watch Out",
+          "tier": 6
+        },
+        {
+          "name": "Anna and the Apocalypse",
+          "tier": 6
+        },
+        {
+          "name": "While You Were Sleeping",
+          "tier": 6
+        },
+        {
+          "name": "The Holly and the Ivy",
+          "tier": 6
+        }
+      ]
+    },
+    {
+      "text": "Name a Christmas song or carol",
+      "answers": [
+        {
+          "name": "Jingle Bells",
+          "tier": 1
+        },
+        {
+          "name": "Silent Night",
+          "tier": 1
+        },
+        {
+          "name": "All I Want for Christmas Is You",
+          "tier": 1,
+          "aliases": [
+            "All I Want for Christmas"
+          ]
+        },
+        {
+          "name": "Last Christmas",
+          "tier": 1
+        },
+        {
+          "name": "Rudolph the Red-Nosed Reindeer",
+          "tier": 1,
+          "aliases": [
+            "Rudolph"
+          ]
+        },
+        {
+          "name": "White Christmas",
+          "tier": 2
+        },
+        {
+          "name": "Fairytale of New York",
+          "tier": 2
+        },
+        {
+          "name": "Deck the Halls",
+          "tier": 2
+        },
+        {
+          "name": "We Wish You a Merry Christmas",
+          "tier": 2
+        },
+        {
+          "name": "O Come All Ye Faithful",
+          "tier": 2,
+          "aliases": [
+            "Adeste Fideles"
+          ]
+        },
+        {
+          "name": "Away in a Manger",
+          "tier": 2
+        },
+        {
+          "name": "Hark! The Herald Angels Sing",
+          "tier": 2
+        },
+        {
+          "name": "Let It Snow!",
+          "tier": 2,
+          "aliases": [
+            "Let It Snow Let It Snow Let It Snow"
+          ]
+        },
+        {
+          "name": "Merry Christmas Everyone",
+          "tier": 2
+        },
+        {
+          "name": "Do They Know It's Christmas?",
+          "tier": 2
+        },
+        {
+          "name": "Jingle Bell Rock",
+          "tier": 2
+        },
+        {
+          "name": "Santa Claus Is Coming to Town",
+          "tier": 2,
+          "aliases": [
+            "Santa Claus Is Comin to Town"
+          ]
+        },
+        {
+          "name": "Driving Home for Christmas",
+          "tier": 2
+        },
+        {
+          "name": "Merry Xmas Everybody",
+          "tier": 2
+        },
+        {
+          "name": "I Wish It Could Be Christmas Everyday",
+          "tier": 2,
+          "aliases": [
+            "I Wish It Could Be Christmas Every Day"
+          ]
+        },
+        {
+          "name": "O Little Town of Bethlehem",
+          "tier": 2
+        },
+        {
+          "name": "The Twelve Days of Christmas",
+          "tier": 2,
+          "aliases": [
+            "12 Days of Christmas"
+          ]
+        },
+        {
+          "name": "Rockin' Around the Christmas Tree",
+          "tier": 2
+        },
+        {
+          "name": "Frosty the Snowman",
+          "tier": 3
+        },
+        {
+          "name": "Mistletoe and Wine",
+          "tier": 3
+        },
+        {
+          "name": "Wonderful Christmastime",
+          "tier": 3
+        },
+        {
+          "name": "Step Into Christmas",
+          "tier": 3
+        },
+        {
+          "name": "Once in Royal David's City",
+          "tier": 3
+        },
+        {
+          "name": "Good King Wenceslas",
+          "tier": 3
+        },
+        {
+          "name": "Joy to the World",
+          "tier": 3
+        },
+        {
+          "name": "O Holy Night",
+          "tier": 3
+        },
+        {
+          "name": "Little Donkey",
+          "tier": 3
+        },
+        {
+          "name": "In the Bleak Midwinter",
+          "tier": 3
+        },
+        {
+          "name": "God Rest Ye Merry Gentlemen",
+          "tier": 3
+        },
+        {
+          "name": "The First Noel",
+          "tier": 3,
+          "aliases": [
+            "The First Nowell"
+          ]
+        },
+        {
+          "name": "We Three Kings",
+          "tier": 3
+        },
+        {
+          "name": "Feliz Navidad",
+          "tier": 3
+        },
+        {
+          "name": "It's Beginning to Look a Lot Like Christmas",
+          "tier": 3
+        },
+        {
+          "name": "Have Yourself a Merry Little Christmas",
+          "tier": 3
+        },
+        {
+          "name": "Winter Wonderland",
+          "tier": 3
+        },
+        {
+          "name": "Little Drummer Boy",
+          "tier": 3,
+          "aliases": [
+            "The Little Drummer Boy"
+          ]
+        },
+        {
+          "name": "Walking in the Air",
+          "tier": 3
+        },
+        {
+          "name": "Santa Baby",
+          "tier": 3
+        },
+        {
+          "name": "Happy Xmas (War Is Over)",
+          "tier": 3,
+          "aliases": [
+            "Happy Christmas War Is Over"
+          ]
+        },
+        {
+          "name": "While Shepherds Watched Their Flocks",
+          "tier": 4
+        },
+        {
+          "name": "Ding Dong Merrily on High",
+          "tier": 4
+        },
+        {
+          "name": "The Holly and the Ivy",
+          "tier": 4
+        },
+        {
+          "name": "Silver Bells",
+          "tier": 4
+        },
+        {
+          "name": "Sleigh Ride",
+          "tier": 4
+        },
+        {
+          "name": "Blue Christmas",
+          "tier": 4
+        },
+        {
+          "name": "The Christmas Song",
+          "tier": 4,
+          "aliases": [
+            "Chestnuts Roasting on an Open Fire"
+          ]
+        },
+        {
+          "name": "Stop the Cavalry",
+          "tier": 4
+        },
+        {
+          "name": "Mary's Boy Child",
+          "tier": 4
+        },
+        {
+          "name": "Lonely This Christmas",
+          "tier": 4
+        },
+        {
+          "name": "Christmas Wrapping",
+          "tier": 5
+        },
+        {
+          "name": "Underneath the Tree",
+          "tier": 5
+        },
+        {
+          "name": "Mele Kalikimaka",
+          "tier": 5
+        },
+        {
+          "name": "Christmas Lights",
+          "tier": 5
+        },
+        {
+          "name": "2000 Miles",
+          "tier": 5
+        },
+        {
+          "name": "A Spaceman Came Travelling",
+          "tier": 5
+        },
+        {
+          "name": "I Believe in Father Christmas",
+          "tier": 5
+        },
+        {
+          "name": "Merry Christmas",
+          "tier": 5
+        },
+        {
+          "name": "Saviour's Day",
+          "tier": 5
+        },
+        {
+          "name": "Mistletoe",
+          "tier": 5
+        },
+        {
+          "name": "Santa Tell Me",
+          "tier": 5
+        },
+        {
+          "name": "Snowman",
+          "tier": 5
+        },
+        {
+          "name": "Thank God It's Christmas",
+          "tier": 5
+        },
+        {
+          "name": "Do You Hear What I Hear?",
+          "tier": 5
+        },
+        {
+          "name": "It Came Upon the Midnight Clear",
+          "tier": 5
+        },
+        {
+          "name": "Coventry Carol",
+          "tier": 6
+        },
+        {
+          "name": "Gaudete",
+          "tier": 6
+        },
+        {
+          "name": "Personent Hodie",
+          "tier": 6
+        },
+        {
+          "name": "Christmas Alphabet",
+          "tier": 6
+        },
+        {
+          "name": "Angels from the Realms of Glory",
+          "tier": 6
+        },
+        {
+          "name": "See Amid the Winter's Snow",
+          "tier": 6
+        },
+        {
+          "name": "Infant Holy, Infant Lowly",
+          "tier": 6
+        }
+      ]
+    },
+    {
+      "text": "Name something you'd eat or drink at Christmas",
+      "answers": [
+        {
+          "name": "Turkey",
+          "tier": 1
+        },
+        {
+          "name": "Mince pies",
+          "tier": 1
+        },
+        {
+          "name": "Christmas pudding",
+          "tier": 1,
+          "aliases": [
+            "Plum pudding",
+            "Figgy pudding"
+          ]
+        },
+        {
+          "name": "Brussels sprouts",
+          "tier": 1,
+          "aliases": [
+            "Sprouts"
+          ]
+        },
+        {
+          "name": "Roast potatoes",
+          "tier": 1,
+          "aliases": [
+            "Roasties"
+          ]
+        },
+        {
+          "name": "Pigs in blankets",
+          "tier": 2,
+          "aliases": [
+            "Pigs in a blanket"
+          ]
+        },
+        {
+          "name": "Christmas cake",
+          "tier": 2
+        },
+        {
+          "name": "Mulled wine",
+          "tier": 2
+        },
+        {
+          "name": "Stuffing",
+          "tier": 2
+        },
+        {
+          "name": "Yule log",
+          "tier": 2,
+          "aliases": [
+            "Chocolate log",
+            "Bûche de Noël"
+          ]
+        },
+        {
+          "name": "Gravy",
+          "tier": 2
+        },
+        {
+          "name": "Cranberry sauce",
+          "tier": 2
+        },
+        {
+          "name": "Quality Street",
+          "tier": 2
+        },
+        {
+          "name": "Chocolate",
+          "tier": 2
+        },
+        {
+          "name": "Ham",
+          "tier": 2
+        },
+        {
+          "name": "Carrots",
+          "tier": 2
+        },
+        {
+          "name": "Parsnips",
+          "tier": 2
+        },
+        {
+          "name": "Eggnog",
+          "tier": 2
+        },
+        {
+          "name": "Prosecco",
+          "tier": 3
+        },
+        {
+          "name": "Champagne",
+          "tier": 3
+        },
+        {
+          "name": "Sherry",
+          "tier": 3
+        },
+        {
+          "name": "Bread sauce",
+          "tier": 3
+        },
+        {
+          "name": "Trifle",
+          "tier": 3
+        },
+        {
+          "name": "Cheese board",
+          "tier": 3,
+          "aliases": [
+            "Cheese"
+          ]
+        },
+        {
+          "name": "Gingerbread",
+          "tier": 3,
+          "aliases": [
+            "Gingerbread men"
+          ]
+        },
+        {
+          "name": "Candy canes",
+          "tier": 3
+        },
+        {
+          "name": "Satsumas",
+          "tier": 3
+        },
+        {
+          "name": "Chocolate coins",
+          "tier": 3
+        },
+        {
+          "name": "Selection box",
+          "tier": 3
+        },
+        {
+          "name": "Roses",
+          "tier": 3,
+          "aliases": [
+            "Cadbury Roses"
+          ]
+        },
+        {
+          "name": "Celebrations",
+          "tier": 3
+        },
+        {
+          "name": "Terry's Chocolate Orange",
+          "tier": 3,
+          "aliases": [
+            "Chocolate orange"
+          ]
+        },
+        {
+          "name": "Chestnuts",
+          "tier": 3,
+          "aliases": [
+            "Roasted chestnuts"
+          ]
+        },
+        {
+          "name": "Nut roast",
+          "tier": 3
+        },
+        {
+          "name": "Red cabbage",
+          "tier": 3
+        },
+        {
+          "name": "Yorkshire puddings",
+          "tier": 3
+        },
+        {
+          "name": "Sausage rolls",
+          "tier": 3
+        },
+        {
+          "name": "Baileys",
+          "tier": 3
+        },
+        {
+          "name": "Hot chocolate",
+          "tier": 3
+        },
+        {
+          "name": "Stilton",
+          "tier": 4
+        },
+        {
+          "name": "Clementines",
+          "tier": 4
+        },
+        {
+          "name": "Tangerines",
+          "tier": 4
+        },
+        {
+          "name": "Pringles",
+          "tier": 4
+        },
+        {
+          "name": "Nuts",
+          "tier": 4
+        },
+        {
+          "name": "Dates",
+          "tier": 4
+        },
+        {
+          "name": "Turkish delight",
+          "tier": 4
+        },
+        {
+          "name": "After Eights",
+          "tier": 4
+        },
+        {
+          "name": "Marzipan",
+          "tier": 4
+        },
+        {
+          "name": "Stollen",
+          "tier": 4
+        },
+        {
+          "name": "Panettone",
+          "tier": 4
+        },
+        {
+          "name": "Goose",
+          "tier": 4
+        },
+        {
+          "name": "Beef Wellington",
+          "tier": 4
+        },
+        {
+          "name": "Mashed potato",
+          "tier": 4,
+          "aliases": [
+            "Mash"
+          ]
+        },
+        {
+          "name": "Cauliflower cheese",
+          "tier": 4
+        },
+        {
+          "name": "Turkey sandwiches",
+          "tier": 4,
+          "aliases": [
+            "Leftover turkey"
+          ]
+        },
+        {
+          "name": "Bubble and squeak",
+          "tier": 4
+        },
+        {
+          "name": "Smoked salmon",
+          "tier": 4
+        },
+        {
+          "name": "Prawn cocktail",
+          "tier": 4
+        },
+        {
+          "name": "Port",
+          "tier": 4
+        },
+        {
+          "name": "Brandy butter",
+          "tier": 4
+        },
+        {
+          "name": "Custard",
+          "tier": 4
+        },
+        {
+          "name": "Brandy",
+          "tier": 4
+        },
+        {
+          "name": "Cocktail sausages",
+          "tier": 4
+        },
+        {
+          "name": "Ferrero Rocher",
+          "tier": 4
+        },
+        {
+          "name": "Pâté",
+          "tier": 5
+        },
+        {
+          "name": "Pickled onions",
+          "tier": 5
+        },
+        {
+          "name": "Snowball",
+          "tier": 5
+        },
+        {
+          "name": "Advocaat",
+          "tier": 5
+        },
+        {
+          "name": "Mulled cider",
+          "tier": 5
+        },
+        {
+          "name": "Glühwein",
+          "tier": 5
+        },
+        {
+          "name": "Twiglets",
+          "tier": 5
+        },
+        {
+          "name": "Cheese straws",
+          "tier": 5
+        },
+        {
+          "name": "Swede",
+          "tier": 5
+        },
+        {
+          "name": "Vol-au-vents",
+          "tier": 5
+        },
+        {
+          "name": "Brazil nuts",
+          "tier": 5
+        },
+        {
+          "name": "Lebkuchen",
+          "tier": 6
+        },
+        {
+          "name": "Pfeffernüsse",
+          "tier": 6
+        },
+        {
+          "name": "Rum butter",
+          "tier": 6
+        }
+      ]
+    },
+    {
+      "text": "Name a character from a Christmas film, book, song or story",
+      "answers": [
+        {
+          "name": "Santa Claus",
+          "tier": 1,
+          "aliases": [
+            "Father Christmas",
+            "Santa",
+            "Saint Nick",
+            "Saint Nicholas",
+            "Kris Kringle"
+          ]
+        },
+        {
+          "name": "Rudolph",
+          "tier": 1,
+          "aliases": [
+            "Rudolph the Red-Nosed Reindeer"
+          ]
+        },
+        {
+          "name": "The Grinch",
+          "tier": 1
+        },
+        {
+          "name": "Scrooge",
+          "tier": 1,
+          "aliases": [
+            "Ebenezer Scrooge"
+          ]
+        },
+        {
+          "name": "Kevin McCallister",
+          "tier": 2,
+          "aliases": [
+            "Kevin"
+          ]
+        },
+        {
+          "name": "Buddy the Elf",
+          "tier": 2,
+          "aliases": [
+            "Buddy"
+          ]
+        },
+        {
+          "name": "Frosty the Snowman",
+          "tier": 2,
+          "aliases": [
+            "Frosty"
+          ]
+        },
+        {
+          "name": "Tiny Tim",
+          "tier": 2
+        },
+        {
+          "name": "Mrs Claus",
+          "tier": 2,
+          "aliases": [
+            "Mrs Santa"
+          ]
+        },
+        {
+          "name": "Jack Skellington",
+          "tier": 2
+        },
+        {
+          "name": "Bob Cratchit",
+          "tier": 2
+        },
+        {
+          "name": "The Snowman",
+          "tier": 2
+        },
+        {
+          "name": "Mary",
+          "tier": 2
+        },
+        {
+          "name": "Joseph",
+          "tier": 2
+        },
+        {
+          "name": "Baby Jesus",
+          "tier": 2,
+          "aliases": [
+            "Jesus"
+          ]
+        },
+        {
+          "name": "The Ghost of Christmas Past",
+          "tier": 3
+        },
+        {
+          "name": "The Ghost of Christmas Present",
+          "tier": 3
+        },
+        {
+          "name": "Jacob Marley",
+          "tier": 3,
+          "aliases": [
+            "Marley"
+          ]
+        },
+        {
+          "name": "Cindy Lou Who",
+          "tier": 3
+        },
+        {
+          "name": "The Three Wise Men",
+          "tier": 3,
+          "aliases": [
+            "Wise Men",
+            "Three Kings"
+          ]
+        },
+        {
+          "name": "Jack Frost",
+          "tier": 3
+        },
+        {
+          "name": "The Nutcracker",
+          "tier": 3
+        },
+        {
+          "name": "Dasher",
+          "tier": 3
+        },
+        {
+          "name": "The Gingerbread Man",
+          "tier": 3,
+          "aliases": [
+            "Gingy"
+          ]
+        },
+        {
+          "name": "The Elf on the Shelf",
+          "tier": 3
+        },
+        {
+          "name": "The Ghost of Christmas Yet to Come",
+          "tier": 4,
+          "aliases": [
+            "Ghost of Christmas Future"
+          ]
+        },
+        {
+          "name": "Max",
+          "tier": 4,
+          "aliases": [
+            "Max the dog"
+          ]
+        },
+        {
+          "name": "The Angel Gabriel",
+          "tier": 4,
+          "aliases": [
+            "Gabriel"
+          ]
+        },
+        {
+          "name": "The Little Drummer Boy",
+          "tier": 4
+        },
+        {
+          "name": "Good King Wenceslas",
+          "tier": 4
+        },
+        {
+          "name": "The Sugar Plum Fairy",
+          "tier": 4
+        },
+        {
+          "name": "Harry and Marv",
+          "tier": 4,
+          "aliases": [
+            "The Wet Bandits"
+          ]
+        },
+        {
+          "name": "Clark Griswold",
+          "tier": 4
+        },
+        {
+          "name": "Hans Gruber",
+          "tier": 4
+        },
+        {
+          "name": "John McClane",
+          "tier": 4
+        },
+        {
+          "name": "Arthur Christmas",
+          "tier": 4
+        },
+        {
+          "name": "Krampus",
+          "tier": 4
+        },
+        {
+          "name": "George Bailey",
+          "tier": 4
+        },
+        {
+          "name": "Dancer",
+          "tier": 4
+        },
+        {
+          "name": "Prancer",
+          "tier": 4
+        },
+        {
+          "name": "Vixen",
+          "tier": 4
+        },
+        {
+          "name": "Comet",
+          "tier": 4
+        },
+        {
+          "name": "Cupid",
+          "tier": 4
+        },
+        {
+          "name": "Donner",
+          "tier": 4,
+          "aliases": [
+            "Donder"
+          ]
+        },
+        {
+          "name": "Blitzen",
+          "tier": 4
+        },
+        {
+          "name": "Melchior",
+          "tier": 5
+        },
+        {
+          "name": "Balthazar",
+          "tier": 5
+        },
+        {
+          "name": "Caspar",
+          "tier": 5,
+          "aliases": [
+            "Gaspar"
+          ]
+        },
+        {
+          "name": "King Herod",
+          "tier": 5,
+          "aliases": [
+            "Herod"
+          ]
+        },
+        {
+          "name": "Clara",
+          "tier": 5
+        },
+        {
+          "name": "Ralphie",
+          "tier": 5
+        },
+        {
+          "name": "Zero",
+          "tier": 5
+        },
+        {
+          "name": "Sally",
+          "tier": 5
+        },
+        {
+          "name": "Oogie Boogie",
+          "tier": 5
+        },
+        {
+          "name": "Fezziwig",
+          "tier": 5
+        },
+        {
+          "name": "Klaus",
+          "tier": 5
+        },
+        {
+          "name": "The Conductor",
+          "tier": 5
+        },
+        {
+          "name": "Scott Calvin",
+          "tier": 5
+        },
+        {
+          "name": "Gizmo",
+          "tier": 5
+        },
+        {
+          "name": "Clarence",
+          "tier": 5
+        },
+        {
+          "name": "Hermey the Elf",
+          "tier": 6,
+          "aliases": [
+            "Hermey"
+          ]
+        },
+        {
+          "name": "Yukon Cornelius",
+          "tier": 6
+        },
+        {
+          "name": "Stripe",
+          "tier": 6
+        },
+        {
+          "name": "Sam the Snowman",
+          "tier": 6
+        },
+        {
+          "name": "Clarice",
+          "tier": 6
+        },
+        {
+          "name": "Olive the Other Reindeer",
+          "tier": 6
+        },
+        {
+          "name": "Mr Potter",
+          "tier": 6
+        },
+        {
+          "name": "Jesper",
+          "tier": 6
+        },
+        {
+          "name": "The Bumble",
+          "tier": 6,
+          "aliases": [
+            "Abominable Snow Monster"
+          ]
+        },
+        {
+          "name": "Fred (Scrooge's nephew)",
+          "tier": 6,
+          "aliases": [
+            "Fred"
+          ]
+        },
+        {
+          "name": "Belle",
+          "tier": 6
+        }
+      ]
+    },
+    {
+      "text": "Name something you'd hang on or put on a Christmas tree",
+      "answers": [
+        {
+          "name": "Baubles",
+          "tier": 1,
+          "aliases": [
+            "Bauble",
+            "Ornaments"
+          ]
+        },
+        {
+          "name": "Tinsel",
+          "tier": 1
+        },
+        {
+          "name": "Fairy lights",
+          "tier": 1,
+          "aliases": [
+            "Lights",
+            "Christmas lights"
+          ]
+        },
+        {
+          "name": "Star",
+          "tier": 1
+        },
+        {
+          "name": "Angel",
+          "tier": 2
+        },
+        {
+          "name": "Fairy",
+          "tier": 2
+        },
+        {
+          "name": "Candy canes",
+          "tier": 2
+        },
+        {
+          "name": "Chocolate decorations",
+          "tier": 3,
+          "aliases": [
+            "Chocolates"
+          ]
+        },
+        {
+          "name": "Tree topper",
+          "tier": 3
+        },
+        {
+          "name": "Snowflakes",
+          "tier": 3
+        },
+        {
+          "name": "Bells",
+          "tier": 3
+        },
+        {
+          "name": "Icicles",
+          "tier": 3
+        },
+        {
+          "name": "Pine cones",
+          "tier": 3
+        },
+        {
+          "name": "Ribbon",
+          "tier": 3
+        },
+        {
+          "name": "Garland",
+          "tier": 3
+        },
+        {
+          "name": "Bows",
+          "tier": 4
+        },
+        {
+          "name": "Beads",
+          "tier": 4
+        },
+        {
+          "name": "Gingerbread men",
+          "tier": 4
+        },
+        {
+          "name": "Snowmen",
+          "tier": 4
+        },
+        {
+          "name": "Santas",
+          "tier": 4
+        },
+        {
+          "name": "Reindeer",
+          "tier": 4
+        },
+        {
+          "name": "Paper chains",
+          "tier": 4
+        },
+        {
+          "name": "Handmade decorations",
+          "tier": 4
+        },
+        {
+          "name": "Fake snow",
+          "tier": 4,
+          "aliases": [
+            "Snow"
+          ]
+        },
+        {
+          "name": "Presents",
+          "tier": 4
+        },
+        {
+          "name": "Popcorn garland",
+          "tier": 5,
+          "aliases": [
+            "Popcorn"
+          ]
+        },
+        {
+          "name": "Robins",
+          "tier": 5
+        },
+        {
+          "name": "Clip-on birds",
+          "tier": 5,
+          "aliases": [
+            "Birds"
+          ]
+        },
+        {
+          "name": "Feathers",
+          "tier": 5
+        },
+        {
+          "name": "Hearts",
+          "tier": 5
+        },
+        {
+          "name": "Mini presents",
+          "tier": 5
+        },
+        {
+          "name": "Crackers",
+          "tier": 5
+        },
+        {
+          "name": "Tree skirt",
+          "tier": 5
+        },
+        {
+          "name": "Pom-poms",
+          "tier": 5
+        },
+        {
+          "name": "Felt decorations",
+          "tier": 5
+        },
+        {
+          "name": "Wooden decorations",
+          "tier": 5
+        },
+        {
+          "name": "Photos",
+          "tier": 5
+        },
+        {
+          "name": "Salt dough decorations",
+          "tier": 5
+        },
+        {
+          "name": "Dried orange slices",
+          "tier": 5,
+          "aliases": [
+            "Oranges"
+          ]
+        },
+        {
+          "name": "Teddy bears",
+          "tier": 5
+        },
+        {
+          "name": "Nutcrackers",
+          "tier": 5
+        },
+        {
+          "name": "Elves",
+          "tier": 5
+        },
+        {
+          "name": "Mistletoe",
+          "tier": 5
+        },
+        {
+          "name": "Holly",
+          "tier": 5
+        },
+        {
+          "name": "Christmas pickle",
+          "tier": 6,
+          "aliases": [
+            "Pickle"
+          ]
+        },
+        {
+          "name": "Cranberry garland",
+          "tier": 6
+        },
+        {
+          "name": "Lametta",
+          "tier": 6
+        },
+        {
+          "name": "Sugar mice",
+          "tier": 6
+        },
+        {
+          "name": "Cinnamon sticks",
+          "tier": 6
+        },
+        {
+          "name": "Doves",
+          "tier": 6
+        },
+        {
+          "name": "Owls",
+          "tier": 6
+        },
+        {
+          "name": "Bird's nest",
+          "tier": 6
+        },
+        {
+          "name": "Spider",
+          "tier": 6
+        },
+        {
+          "name": "Snow globes",
+          "tier": 6
+        }
+      ]
+    },
+    {
+      "text": "Name something you'd find inside a Christmas cracker",
+      "answers": [
+        {
+          "name": "Paper hat",
+          "tier": 1,
+          "aliases": [
+            "Hat",
+            "Crown",
+            "Paper crown"
+          ]
+        },
+        {
+          "name": "Joke",
+          "tier": 1,
+          "aliases": [
+            "Jokes"
+          ]
+        },
+        {
+          "name": "Toy",
+          "tier": 1,
+          "aliases": [
+            "Gift",
+            "Present"
+          ]
+        },
+        {
+          "name": "Snap",
+          "tier": 2,
+          "aliases": [
+            "Bang",
+            "Banger"
+          ]
+        },
+        {
+          "name": "Motto",
+          "tier": 3
+        },
+        {
+          "name": "Fortune-telling fish",
+          "tier": 3,
+          "aliases": [
+            "Fish",
+            "Magic fish",
+            "Fortune fish"
+          ]
+        },
+        {
+          "name": "Keyring",
+          "tier": 3
+        },
+        {
+          "name": "Puzzle",
+          "tier": 3
+        },
+        {
+          "name": "Spinning top",
+          "tier": 3
+        },
+        {
+          "name": "Comb",
+          "tier": 3
+        },
+        {
+          "name": "Nail clippers",
+          "tier": 3
+        },
+        {
+          "name": "Mini screwdriver set",
+          "tier": 4,
+          "aliases": [
+            "Screwdriver"
+          ]
+        },
+        {
+          "name": "Ring",
+          "tier": 4
+        },
+        {
+          "name": "Whistle",
+          "tier": 4
+        },
+        {
+          "name": "Dice",
+          "tier": 4
+        },
+        {
+          "name": "Playing cards",
+          "tier": 4
+        },
+        {
+          "name": "Tape measure",
+          "tier": 4
+        },
+        {
+          "name": "Golf tees",
+          "tier": 4
+        },
+        {
+          "name": "Bottle opener",
+          "tier": 4
+        },
+        {
+          "name": "Yo-yo",
+          "tier": 4
+        },
+        {
+          "name": "Bouncy ball",
+          "tier": 4,
+          "aliases": [
+            "Ball"
+          ]
+        },
+        {
+          "name": "Paper clips",
+          "tier": 5
+        },
+        {
+          "name": "Bookmark",
+          "tier": 5
+        },
+        {
+          "name": "Shoe horn",
+          "tier": 5
+        },
+        {
+          "name": "Fake moustache",
+          "tier": 5,
+          "aliases": [
+            "Moustache"
+          ]
+        },
+        {
+          "name": "Fridge magnet",
+          "tier": 5,
+          "aliases": [
+            "Magnet"
+          ]
+        },
+        {
+          "name": "Sticker",
+          "tier": 5
+        },
+        {
+          "name": "Tiny pencil",
+          "tier": 5,
+          "aliases": [
+            "Pencil"
+          ]
+        },
+        {
+          "name": "Hair clip",
+          "tier": 5
+        },
+        {
+          "name": "Badge",
+          "tier": 5
+        },
+        {
+          "name": "Party blower",
+          "tier": 5
+        },
+        {
+          "name": "Pen",
+          "tier": 5
+        },
+        {
+          "name": "Sewing kit",
+          "tier": 5
+        },
+        {
+          "name": "Jewellery",
+          "tier": 5
+        },
+        {
+          "name": "Chocolate",
+          "tier": 5
+        },
+        {
+          "name": "Jumping frog",
+          "tier": 5,
+          "aliases": [
+            "Frog"
+          ]
+        },
+        {
+          "name": "Pencil sharpener",
+          "tier": 5
+        },
+        {
+          "name": "Wind-up toy",
+          "tier": 5
+        },
+        {
+          "name": "Corkscrew",
+          "tier": 5
+        },
+        {
+          "name": "Mini torch",
+          "tier": 5,
+          "aliases": [
+            "Torch"
+          ]
+        },
+        {
+          "name": "Dominoes",
+          "tier": 6
+        },
+        {
+          "name": "Mini frying pan",
+          "tier": 6
+        },
+        {
+          "name": "Tweezers",
+          "tier": 6
+        },
+        {
+          "name": "Lip balm",
+          "tier": 6
+        },
+        {
+          "name": "Cufflinks",
+          "tier": 6
+        },
+        {
+          "name": "Miniature bottle of spirits",
+          "tier": 6,
+          "aliases": [
+            "Miniature"
+          ]
+        },
+        {
+          "name": "Plastic soldier",
+          "tier": 6
+        },
+        {
+          "name": "Mini skittles",
+          "tier": 6
+        },
+        {
+          "name": "Compass",
+          "tier": 6
+        },
+        {
+          "name": "Bottle stopper",
+          "tier": 6
+        },
+        {
+          "name": "Chopsticks",
+          "tier": 6
+        },
+        {
+          "name": "Cardboard tube",
+          "tier": 6
+        }
+      ]
+    },
+    {
+      "text": "Name one of the gifts in 'The Twelve Days of Christmas'",
+      "answers": [
+        {
+          "name": "A partridge in a pear tree",
+          "tier": 1,
+          "aliases": [
+            "Partridge",
+            "Pear tree"
+          ]
+        },
+        {
+          "name": "Five gold rings",
+          "tier": 1,
+          "aliases": [
+            "Gold rings",
+            "Five golden rings"
+          ]
+        },
+        {
+          "name": "Two turtle doves",
+          "tier": 2,
+          "aliases": [
+            "Turtle doves"
+          ]
+        },
+        {
+          "name": "Three French hens",
+          "tier": 2,
+          "aliases": [
+            "French hens"
+          ]
+        },
+        {
+          "name": "Four calling birds",
+          "tier": 3,
+          "aliases": [
+            "Calling birds",
+            "Four colly birds"
+          ]
+        },
+        {
+          "name": "Six geese a-laying",
+          "tier": 3,
+          "aliases": [
+            "Geese a-laying",
+            "Geese"
+          ]
+        },
+        {
+          "name": "Seven swans a-swimming",
+          "tier": 3,
+          "aliases": [
+            "Swans a-swimming",
+            "Swans"
+          ]
+        },
+        {
+          "name": "Eight maids a-milking",
+          "tier": 3,
+          "aliases": [
+            "Maids a-milking",
+            "Milkmaids"
+          ]
+        },
+        {
+          "name": "Twelve drummers drumming",
+          "tier": 4,
+          "aliases": [
+            "Drummers drumming",
+            "Drummers",
+            "Eleven drummers drumming"
+          ]
+        },
+        {
+          "name": "Ten lords a-leaping",
+          "tier": 4,
+          "aliases": [
+            "Lords a-leaping",
+            "Lords",
+            "Nine lords a-leaping"
+          ]
+        },
+        {
+          "name": "Eleven pipers piping",
+          "tier": 5,
+          "aliases": [
+            "Pipers piping",
+            "Pipers",
+            "Twelve pipers piping"
+          ]
+        },
+        {
+          "name": "Nine ladies dancing",
+          "tier": 5,
+          "aliases": [
+            "Ladies dancing",
+            "Ten ladies dancing"
+          ]
+        }
+      ]
+    }
+  ]
+}
