@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
     <meta name="theme-color" content="#1d4d3a">
     <title>Rizzie</title>
+    <!-- Display faces for the Christmas and Disco themes' verdicts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Monoton&family=Mountains+of+Christmas:wght@700&display=swap">
     <style>
         :root {
             --bg: #f8f4ec;
@@ -148,6 +151,73 @@
         .descent-step.reached[data-tier="5"] { background: var(--t5); }
         .descent-step.reached[data-tier="6"] { background: var(--t6); }
         .descent-step.landed { transform: scale(1.04); font-weight: 800; box-shadow: 0 4px 14px rgba(0,0,0,0.18); }
+
+        /* Themed scenes — see js/themes/. A dark window onto the scene,
+           sized to fit above the Next button on a phone. */
+        .theme-stage {
+            position: relative; overflow: hidden; border-radius: var(--radius);
+            height: clamp(300px, 50vh, 430px); margin: 0.5rem 0 0.25rem;
+        }
+        .stage-christmas { background: radial-gradient(120% 70% at 50% 0%, #1b3354 0%, #07101b 70%); }
+        .stage-disco { background: radial-gradient(120% 70% at 50% 0%, #2a1446 0%, #0b0614 70%); }
+        .theme-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        /* Themed verdicts sit on the scene's own dark colours so every tier colour reads */
+        .verdict-christmas { background: #12223a; border-color: #24395a; color: #f4f7fb; }
+        .verdict-disco { background: #1c1230; border-color: #33244f; color: #f7f0fd; }
+        .verdict-christmas .verdict-detail { color: #a3b3c9; }
+        .verdict-disco .verdict-detail { color: #ab9ec2; }
+        .verdict-christmas .plus, .verdict-disco .plus { color: #ffffff; }
+        .verdict-christmas .verdict-tier { font-family: 'Mountains of Christmas', Georgia, serif; font-size: 2rem; line-height: 1.05; }
+        .verdict-disco .verdict-tier { font-family: 'Monoton', 'Arial Black', sans-serif; font-weight: 400; font-size: 1.55rem; line-height: 1.2; }
+        .verdict-christmas .plus, .verdict-disco .plus { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 800; font-size: 1.2rem; }
+
+        /* Disco dance floor: six rows receding into the room, front row = tier 1 */
+        .disco-floor {
+            position: absolute; left: 12px; right: 12px; bottom: 10px; height: 64%;
+            display: grid; grid-template-rows: repeat(6, 1fr); gap: 5px;
+            transform: perspective(700px) rotateX(24deg); transform-origin: 50% 100%;
+        }
+        .df-row { display: grid; grid-template-columns: 74px repeat(5, 1fr); gap: 5px; }
+        .df-label {
+            font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+            color: #5d4f78; display: flex; align-items: center; line-height: 1.1; overflow-wrap: anywhere;
+        }
+        .df-tile { border-radius: 5px; background: #1a1129; border: 1px solid #2a1d40; transition: background 0.25s, box-shadow 0.25s; }
+        .df-row.lit .df-tile { background: var(--c); box-shadow: 0 0 14px var(--c), inset 0 0 10px rgba(255, 255, 255, 0.35); }
+        .df-row.lit .df-tile:nth-child(odd) { filter: brightness(0.82); }
+        .df-row.lit .df-label { color: var(--c); }
+        .df-row.landed .df-tile { animation: df-pulse 0.5s ease-in-out infinite alternate; }
+        .df-row.fused .df-tile { animation: df-fuse 1.1s ease-out forwards; }
+        @keyframes df-pulse { from { filter: brightness(0.75); } to { filter: brightness(1.35); } }
+        @keyframes df-fuse {
+            0% { background: #ff3b3b; box-shadow: 0 0 16px #ff3b3b; }
+            18% { background: #1a1129; box-shadow: none; }
+            32% { background: #ff3b3b; box-shadow: 0 0 12px #ff3b3b; }
+            100% { background: #120b1d; box-shadow: none; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .df-row.landed .df-tile { animation: none; }
+            .df-row.fused .df-tile { animation: none; background: #120b1d; }
+            .df-tile { transition: none; }
+        }
+
+        /* Theme picker on the create screen */
+        .field-label { font-weight: 600; }
+        .theme-hint { margin-top: 0.2rem; }
+        .theme-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 0.5rem; margin-top: 0.6rem; }
+        .theme-option {
+            position: relative; display: flex; flex-direction: column; gap: 0.15rem; margin: 0;
+            padding: 0.7rem 0.75rem; border: 2px solid var(--line); border-radius: 0.7rem; cursor: pointer; font-weight: 400;
+        }
+        .theme-option input { position: absolute; opacity: 0; pointer-events: none; }
+        .theme-option:has(input:checked) { border-color: var(--green); box-shadow: 0 0 0 1px var(--green); }
+        .theme-option:has(input:focus-visible) { outline: 2px solid var(--green); outline-offset: 2px; }
+        .theme-option-name { font-weight: 800; font-size: 1.05rem; }
+        .theme-option-christmas .theme-option-name { font-family: 'Mountains of Christmas', Georgia, serif; font-size: 1.3rem; color: #b3261e; }
+        .theme-option-disco .theme-option-name { font-family: 'Monoton', 'Arial Black', sans-serif; font-weight: 400; color: #8a3fd1; letter-spacing: 0.04em; }
+        .theme-option-blurb { font-size: 0.85rem; color: var(--muted); }
+        .theme-option-tiers { font-size: 0.75rem; color: var(--muted); font-style: italic; }
+        .theme-switch select { width: 100%; }
 
         /* Results */
         .my-score { text-align: center; }

@@ -14,6 +14,7 @@
 // }
 import { PROMPT_COUNT } from './tiers.js';
 import { normalize, matchAnswer } from './match.js';
+import { THEMES } from './themes/index.js';
 
 // Below this, players will hit "not on the list" a lot.
 export const SHORT_LIST = 20;
@@ -59,7 +60,9 @@ export function parseGame(text) {
         return { text: promptText, answers };
     });
 
-    return { title, prompts };
+    // Optional; anything unrecognised is left for the editor's own choice.
+    const theme = THEMES.some(t => t.id === data.theme) ? data.theme : undefined;
+    return theme ? { title, prompts, theme } : { title, prompts };
 }
 
 // Claude's reply to the copied prompt: ideally {"answers": [...]}, but it may

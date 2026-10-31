@@ -1,5 +1,6 @@
 {
   "title": "Christmas Classics",
+  "theme": "christmas",
   "prompts": [
     {
       "text": "Name a Christmas film",

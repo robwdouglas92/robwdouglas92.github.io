@@ -1,6 +1,7 @@
 import { fetchGame, fetchMyPlay, getSession, startPlay, startPrompt, saveAnswers, saveAttempts } from '../api.js';
 import { matchAnswer } from '../match.js';
-import { TIERS, PROMPT_COUNT, PROMPT_SECONDS, tierInfo, pointsFor } from '../tiers.js';
+import { TIERS, PROMPT_COUNT, PROMPT_SECONDS, pointsFor } from '../tiers.js';
+import { themeOf } from '../themes/index.js';
 import { renderDescent } from '../descent.js';
 import { router } from '../router.js';
 import { app, esc, showMessage } from '../utils/html.js';
@@ -12,6 +13,7 @@ class PlayComponent {
         this.stop();
         this.gameId = gameId;
         [this.game, this.play] = await Promise.all([fetchGame(gameId), fetchMyPlay(gameId)]);
+        this.theme = themeOf(this.game);
         this.answers = this.play?.answers ? [...this.play.answers] : [];
     }
 
@@ -72,7 +74,7 @@ class PlayComponent {
                     If your answer isn’t on the list, keep trying until the clock runs out.
                     The fewer people who’d think of it, the more it scores.</p>
                     <ul class="tier-legend">
-                        ${TIERS.map(t => `<li><span>${t.name}</span><span>${t.points} pts</span></li>`).join('')}
+                        ${TIERS.map(t => `<li><span>${esc(this.theme.tierNames[t.tier - 1])}</span><span>${t.points} pts</span></li>`).join('')}
                     </ul>
                     <p class="hint">You only get one go, and the clock keeps running if you leave mid-prompt.</p>
                     ${mine ? '<p class="hint">This is your game, so your score is just for fun and won’t go on the leaderboard.</p>' : ''}
@@ -209,20 +211,26 @@ class PlayComponent {
 
     renderFeedback(index, answer, finished) {
         const prompt = this.game.prompts[index];
-        const info = tierInfo(answer.tier);
+        const { theme } = this;
+        // Themed games have their own line for scoring nothing; the
+        // explanation underneath still says time ran out.
+        const zeroTitle = theme.zeroTitle || 'Out of time!';
+        const outOfTime = theme.zeroTitle ? 'Out of time! ' : '';
         let verdict;
         if (answer.matched) {
+            const color = theme.colors ? ` style="color:${theme.colors[answer.tier - 1]}"` : '';
             verdict = `
-                <p class="verdict-tier">${info.name}! <span class="plus">+${answer.points}</span></p>
+                <p class="verdict-tier"><span${color}>${esc(theme.tierNames[answer.tier - 1])}!</span> <span class="plus">+${answer.points}</span></p>
                 <p class="verdict-detail">Counted as <strong>${esc(answer.matched)}</strong></p>`;
         } else if (answer.attempts.length) {
             verdict = `
-                <p class="verdict-tier">Out of time!</p>
-                <p class="verdict-detail">None of your tries were on the list:
+                <p class="verdict-tier">${esc(zeroTitle)}</p>
+                <p class="verdict-detail">${outOfTime}None of your tries were on the list:
                     ${answer.attempts.map(a => `“${esc(a)}”`).join(', ')}.
                     ${esc(this.game.createdByName)} can review them later.</p>`;
         } else {
-            verdict = '<p class="verdict-tier">Out of time!</p>';
+            verdict = `<p class="verdict-tier">${esc(zeroTitle)}</p>
+                ${outOfTime ? '<p class="verdict-detail">Out of time!</p>' : ''}`;
         }
 
         app().innerHTML = `
@@ -232,13 +240,13 @@ class PlayComponent {
                     <span>${this.total} pts</span>
                 </div>
                 <p class="prompt-text prompt-text-small">${esc(prompt.text)}</p>
-                <div class="card verdict">${verdict}</div>
+                <div class="card verdict verdict-${theme.id}">${verdict}</div>
                 <div id="descent"></div>
                 <button class="btn btn-primary btn-big" id="next">${finished ? 'See results →' : 'Next prompt →'}</button>
                 <p class="save-error error" id="save-error"></p>
             </div>
         `;
-        renderDescent(document.getElementById('descent'), answer.tier);
+        renderDescent(document.getElementById('descent'), answer.tier, theme);
         document.getElementById('next').addEventListener('click', () => {
             if (finished) router.navigate('results', { id: this.gameId });
             else this.beginPrompt(index + 1);

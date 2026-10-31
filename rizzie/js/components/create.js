@@ -6,6 +6,7 @@ import {
 } from '../gameFormat.js';
 import { buildClaudePrompt } from '../claudePrompt.js';
 import { TIERS, PROMPT_COUNT } from '../tiers.js';
+import { THEMES } from '../themes/index.js';
 import { router } from '../router.js';
 import { app, esc, showMessage } from '../utils/html.js';
 
@@ -16,6 +17,7 @@ const OPEN_SECTION_MAX = 12;
 
 const emptyGame = () => ({
     title: '',
+    theme: 'classic',
     prompts: Array.from({ length: PROMPT_COUNT }, () => ({ text: '', answers: [] })),
 });
 
@@ -48,6 +50,7 @@ class CreateComponent {
         }
         this.game = {
             title: game.title || '',
+            theme: game.theme || 'classic',
             prompts: game.prompts.map(p => ({ text: p.text || '', answers: p.answers.map(cleanAnswer) })),
         };
         this.draw();
@@ -123,6 +126,20 @@ class CreateComponent {
                     <input id="title" maxlength="60" placeholder="e.g. Christmas Classics" value="${esc(game.title)}">
                 </div>
 
+                <div class="card">
+                    <p class="field-label">Theme</p>
+                    <p class="hint theme-hint">What players see after each answer. Points are the same in every theme.</p>
+                    <div class="theme-options" role="radiogroup" aria-label="Theme">
+                        ${THEMES.map(t => `
+                            <label class="theme-option theme-option-${t.id}">
+                                <input type="radio" name="theme" value="${t.id}" ${game.theme === t.id ? 'checked' : ''}>
+                                <span class="theme-option-name">${t.label}</span>
+                                <span class="theme-option-blurb">${t.blurb}</span>
+                                <span class="theme-option-tiers">${t.tierNames[0]} → ${t.tierNames[5]}</span>
+                            </label>`).join('')}
+                    </div>
+                </div>
+
                 <h2>Prompts</h2>
                 ${game.prompts.map((p, i) => this.promptSlot(p, i)).join('')}
 
@@ -147,6 +164,12 @@ class CreateComponent {
         document.getElementById('title').addEventListener('input', e => {
             game.title = e.target.value;
             this.changed();
+        });
+        app().querySelectorAll('input[name="theme"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                game.theme = radio.value;
+                this.changed();
+            });
         });
         app().querySelectorAll('[data-prompt]').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -193,7 +216,7 @@ class CreateComponent {
         }
         const hasWork = this.game.title.trim() || this.game.prompts.some(p => p.text.trim() || p.answers.length);
         if (hasWork && !confirm('Replace everything in this draft with the pasted game?')) return;
-        this.game = parsed;
+        this.game = { ...parsed, theme: parsed.theme || this.game.theme };
         this.changed();
         this.draw();
     }

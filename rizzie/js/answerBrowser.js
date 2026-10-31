@@ -53,12 +53,13 @@ function closest(text, answers) {
         .map(x => x.a);
 }
 
-const pill = tier => `<span class="tier-pill tier-${tier}">${tierInfo(tier).name} · ${tierInfo(tier).points}</span>`;
 
 // container: element to draw into. answers: [{ name, tier, aliases }].
 // onPick(answer): if given, rows are tappable. suggestFor: text to find
 // close matches for (picking only).
-export function renderAnswerBrowser(container, answers, { onPick = null, suggestFor = '' } = {}) {
+// names: the six tier names to show (a themed game's own, or Classic's).
+export function renderAnswerBrowser(container, answers, { onPick = null, suggestFor = '', names = TIERS.map(t => t.name) } = {}) {
+    const pill = tier => `<span class="tier-pill tier-${tier}">${esc(names[tier - 1])} · ${tierInfo(tier).points}</span>`;
     const state = { tier: 0, letter: '', search: '' };
     const sorted = [...answers].sort((a, b) => sortKey(a.name).localeCompare(sortKey(b.name)));
     const suggestions = onPick && suggestFor ? closest(suggestFor, answers) : [];
@@ -99,7 +100,7 @@ export function renderAnswerBrowser(container, answers, { onPick = null, suggest
                 <p class="ab-label">Or find it in the list</p>` : ''}
             <div class="ab-chips">
                 <button type="button" class="ab-chip" data-tier="0">All ${answers.length}</button>
-                ${TIERS.map(t => `<button type="button" class="ab-chip tier-chip-${t.tier}" data-tier="${t.tier}">${t.name} ${answers.filter(a => a.tier === t.tier).length}</button>`).join('')}
+                ${TIERS.map(t => `<button type="button" class="ab-chip tier-chip-${t.tier}" data-tier="${t.tier}">${esc(names[t.tier - 1])} ${answers.filter(a => a.tier === t.tier).length}</button>`).join('')}
             </div>
             <input type="search" class="ab-search" placeholder="Search ${answers.length} answers…" aria-label="Search answers">
             <div class="ab-letters">

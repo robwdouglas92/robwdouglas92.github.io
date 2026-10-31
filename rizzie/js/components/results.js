@@ -1,5 +1,6 @@
 import { fetchGame, fetchPlays, getSession } from '../api.js';
-import { PROMPT_COUNT, tierInfo } from '../tiers.js';
+import { PROMPT_COUNT, TIERS, tierInfo } from '../tiers.js';
+import { themeOf } from '../themes/index.js';
 import { renderAnswerBrowser } from '../answerBrowser.js';
 import { router } from '../router.js';
 import { app, esc, showMessage } from '../utils/html.js';
@@ -11,8 +12,11 @@ const TABS = [
     { id: 'popular', label: 'Popular' },
 ];
 
+// The game's theme names the tiers (Classic: Obvious…Legendary); set per game in render().
+let tierNames = TIERS.map(t => t.name);
+
 const tierPill = tier => tier
-    ? `<span class="tier-pill tier-${tier}">${tierInfo(tier).name} · ${tierInfo(tier).points}</span>`
+    ? `<span class="tier-pill tier-${tier}">${esc(tierNames[tier - 1])} · ${tierInfo(tier).points}</span>`
     : '<span class="tier-pill tier-0">0</span>';
 
 const triedLine = answer => answer.attempts?.length
@@ -49,6 +53,7 @@ class ResultsComponent {
         }
 
         this.game = game;
+        tierNames = themeOf(game).tierNames;
         this.finished = plays.filter(isFinished);
         this.ranked = this.finished.filter(p => p.username !== game.createdBy).sort((a, b) => b.total - a.total);
         this.creatorPlay = this.finished.find(p => p.username === game.createdBy);
@@ -105,7 +110,7 @@ class ResultsComponent {
             details.addEventListener('toggle', () => {
                 const target = details.querySelector('.browse-body');
                 if (!details.open || target.childElementCount) return;
-                renderAnswerBrowser(target, this.game.prompts[Number(details.dataset.browse)].answers);
+                renderAnswerBrowser(target, this.game.prompts[Number(details.dataset.browse)].answers, { names: tierNames });
             });
         });
         body.querySelectorAll('[data-player]').forEach(btn => {

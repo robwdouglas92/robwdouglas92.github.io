@@ -25,7 +25,12 @@ separate from the one shared by the Lizzie games and Legends XI.
   match exactly).
 - `js/gameFormat.js`: the JSON format a game is written in, plus the check
   that runs on a pasted game.
-- `js/descent.js`: the after-answer tier visual. It's a placeholder until the
-  theme is chosen, and swapping it doesn't touch anything else.
+- `js/descent.js`: the scene shown after each answer. Classic games get a
+  six-step bar; themed games hand off to their theme.
+- `js/themes/`: the themes a creator can pick (Classic, Christmas, Disco).
+  Each one renames the six tiers, sets their colours, and draws its own scene,
+  including what happens when an answer scores nothing. Points never change
+  between themes. To add a theme, add an entry to `themes/index.js` and a
+  scene file next to it.
 - `sample-game.json`: "Christmas Classics", a ready-made game you can load
   from the Create screen.

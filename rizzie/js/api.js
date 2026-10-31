@@ -216,10 +216,11 @@ export async function fetchMyDrafts() {
         .sort((a, b) => (b.updatedAt?.toMillis?.() ?? 0) - (a.updatedAt?.toMillis?.() ?? 0));
 }
 
-export async function createDraft({ title, prompts }) {
+export async function createDraft({ title, prompts, theme = 'classic' }) {
     const ref = await addDoc(collection(db, 'games'), {
         title,
         prompts,
+        theme,
         createdBy: session.id,
         createdByName: session.username,
         status: 'draft',
@@ -229,18 +230,25 @@ export async function createDraft({ title, prompts }) {
     return ref.id;
 }
 
-export function saveDraft(gameId, { title, prompts }) {
-    return updateDoc(doc(db, 'games', gameId), { title, prompts, updatedAt: serverTimestamp() });
+export function saveDraft(gameId, { title, prompts, theme = 'classic' }) {
+    return updateDoc(doc(db, 'games', gameId), { title, prompts, theme, updatedAt: serverTimestamp() });
 }
 
-export function publishGame(gameId, { title, prompts }) {
+export function publishGame(gameId, { title, prompts, theme = 'classic' }) {
     return updateDoc(doc(db, 'games', gameId), {
         title,
         prompts,
+        theme,
         status: 'published',
         updatedAt: serverTimestamp(),
         publishedAt: serverTimestamp(),
     });
+}
+
+// The theme is only looks, so it can change after publishing without
+// affecting anyone's score.
+export function setGameTheme(gameId, theme) {
+    return updateDoc(doc(db, 'games', gameId), { theme, updatedAt: serverTimestamp() });
 }
 
 export function deleteGame(gameId) {

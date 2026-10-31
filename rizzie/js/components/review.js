@@ -1,6 +1,7 @@
 // The creator's review of players' rejected tries for one published game.
 // Each decision updates the answer list and re-scores everyone straight away.
-import { fetchGame, fetchPlays, applyReview, getSession } from '../api.js';
+import { fetchGame, fetchPlays, applyReview, setGameTheme, getSession } from '../api.js';
+import { THEMES, themeOf } from '../themes/index.js';
 import { buildQueue, rescoreAll } from '../review.js';
 import { renderAnswerBrowser } from '../answerBrowser.js';
 import { TIERS } from '../tiers.js';
@@ -68,6 +69,13 @@ class ReviewComponent {
                     <p>These are tries players made that weren’t on your list.
                     Approving one updates everyone’s scores straight away — players keep whichever scores more,
                     so approving never costs anyone points.</p>
+                </div>
+                <div class="card theme-switch">
+                    <label for="theme-select">Theme</label>
+                    <select id="theme-select">
+                        ${THEMES.map(t => `<option value="${t.id}" ${themeOf(this.game).id === t.id ? 'selected' : ''}>${t.label} — ${t.blurb}</option>`).join('')}
+                    </select>
+                    <p class="hint" id="theme-status">Only changes the look. Scores stay exactly as they are.</p>
                 </div>
                 ${this.message ? `<p class="review-message" role="status">${this.message}</p>` : ''}
                 <p class="error" id="review-error" role="alert"></p>
@@ -156,6 +164,19 @@ class ReviewComponent {
                 const item = this.queue[Number(btn.dataset.reject)];
                 this.decide(item, null, `Rejected “${esc(item.text)}”`, true);
             });
+        });
+        document.getElementById('theme-select').addEventListener('change', async e => {
+            const status = document.getElementById('theme-status');
+            const theme = e.target.value;
+            try {
+                await setGameTheme(this.gameId, theme);
+                this.game.theme = theme;
+                status.textContent = `Theme changed to ${themeOf(this.game).label}.`;
+            } catch (err) {
+                console.error(err);
+                e.target.value = themeOf(this.game).id;
+                status.textContent = 'Couldn’t change the theme — check your connection.';
+            }
         });
         document.getElementById('results').addEventListener('click', () => router.navigate('results', { id: this.gameId }));
         document.getElementById('back').addEventListener('click', () => router.navigate('home'));
