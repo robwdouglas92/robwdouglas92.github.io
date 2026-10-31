@@ -74,6 +74,7 @@ class ResultsComponent {
                 </div>
                 <div id="tab-body"></div>
 
+                ${mine || this.me.isAdmin ? '<button class="btn btn-secondary" id="review">Review rejected tries</button>' : ''}
                 <button class="btn btn-secondary" id="home">← Home</button>
             </div>
         `;
@@ -84,6 +85,7 @@ class ResultsComponent {
             });
         });
         document.getElementById('home').addEventListener('click', () => router.navigate('home'));
+        document.getElementById('review')?.addEventListener('click', () => router.navigate('review', { id: gameId }));
         this.renderTab();
     }
 

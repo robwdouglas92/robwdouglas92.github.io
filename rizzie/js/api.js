@@ -247,6 +247,22 @@ export function deleteGame(gameId) {
     return deleteDoc(doc(db, 'games', gameId));
 }
 
+// A review decision: the game's updated answer lists / rejected tries, plus
+// any finished plays whose scores went up, all in one write so they can't
+// end up out of step.
+export function applyReview(gameId, { prompts, rejected }, rescoredPlays) {
+    const batch = writeBatch(db);
+    batch.update(doc(db, 'games', gameId), { prompts, rejected, updatedAt: serverTimestamp() });
+    for (const play of rescoredPlays) {
+        batch.update(doc(db, 'plays', `${gameId}_${play.username}`), {
+            answers: play.answers,
+            total: play.total,
+            rescoredAt: serverTimestamp(),
+        });
+    }
+    return batch.commit();
+}
+
 // ---- Plays: one doc per player per game, id "<gameId>_<profile id>" ----
 
 const playRef = gameId => doc(db, 'plays', `${gameId}_${session.id}`);
@@ -281,6 +297,7 @@ export function startPlay(gameId) {
         total: 0,
         currentIndex: 0,
         currentStartedAt: Date.now(),
+        currentAttempts: [],
         startedAt: serverTimestamp(),
     });
 }
@@ -289,11 +306,17 @@ export function startPrompt(gameId, index) {
     return updateDoc(playRef(gameId), { currentIndex: index, currentStartedAt: Date.now() });
 }
 
+// Rejected tries on the prompt in progress, so a refresh doesn't lose them.
+export function saveAttempts(gameId, attempts) {
+    return updateDoc(playRef(gameId), { currentAttempts: attempts });
+}
+
 export function saveAnswers(gameId, answers, finished) {
     const total = answers.reduce((sum, a) => sum + a.points, 0);
     return updateDoc(playRef(gameId), {
         answers,
         total,
+        currentAttempts: [],
         ...(finished ? { status: 'complete', finishedAt: serverTimestamp() } : {}),
     });
 }

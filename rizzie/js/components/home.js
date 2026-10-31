@@ -66,6 +66,9 @@ class HomeComponent {
         app().querySelectorAll('[data-results]').forEach(btn => {
             btn.addEventListener('click', () => router.navigate('results', { id: btn.dataset.results }));
         });
+        app().querySelectorAll('[data-review]').forEach(btn => {
+            btn.addEventListener('click', () => router.navigate('review', { id: btn.dataset.review }));
+        });
         app().querySelectorAll('[data-draft]').forEach(btn => {
             btn.addEventListener('click', () => router.navigate('create', { id: btn.dataset.draft }));
         });
@@ -93,6 +96,7 @@ class HomeComponent {
         } else {
             action = `<button class="btn btn-primary btn-small" data-play="${game.id}">Play</button>`;
         }
+        if (mine) action += `<button class="btn btn-secondary btn-small" data-review="${game.id}">Review</button>`;
         return `
             <div class="card game-card">
                 <div>

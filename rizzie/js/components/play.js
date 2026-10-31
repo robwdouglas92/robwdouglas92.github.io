@@ -1,4 +1,4 @@
-import { fetchGame, fetchMyPlay, getSession, startPlay, startPrompt, saveAnswers } from '../api.js';
+import { fetchGame, fetchMyPlay, getSession, startPlay, startPrompt, saveAnswers, saveAttempts } from '../api.js';
 import { matchAnswer } from '../match.js';
 import { TIERS, PROMPT_COUNT, PROMPT_SECONDS, tierInfo, pointsFor } from '../tiers.js';
 import { renderDescent } from '../descent.js';
@@ -46,7 +46,7 @@ class PlayComponent {
         if (this.play.currentIndex === index && this.play.currentStartedAt) {
             const deadline = this.play.currentStartedAt + PROMPT_MS;
             if (Date.now() >= deadline) {
-                this.recordAnswer('', null, [], { timedOut: true });
+                this.recordAnswer('', null, this.play.currentAttempts || [], { timedOut: true });
             } else {
                 this.renderReady(index, deadline);
             }
@@ -103,6 +103,8 @@ class PlayComponent {
     }
 
     beginPrompt(index, resumeDeadline = null) {
+        // Tries already rejected on this prompt before a refresh still count.
+        this.carriedAttempts = resumeDeadline ? (this.play.currentAttempts || []) : [];
         if (resumeDeadline) {
             this.deadline = resumeDeadline;
         } else {
@@ -141,7 +143,7 @@ class PlayComponent {
         const input = document.getElementById('answer');
         const nope = document.getElementById('nope');
         // Rejected tries are kept so the creator can approve one later.
-        const attempts = [];
+        const attempts = [...this.carriedAttempts];
         input.focus();
 
         // An answer that isn't on the list doesn't end the prompt: it's cleared
@@ -157,6 +159,7 @@ class PlayComponent {
                 return;
             }
             attempts.push(text);
+            this.persist(saveAttempts(this.gameId, [...attempts]));
             input.value = '';
             input.focus();
             nope.textContent = `“${text}” isn’t on the list — try another!`;

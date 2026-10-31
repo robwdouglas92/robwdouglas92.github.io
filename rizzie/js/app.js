@@ -7,6 +7,7 @@ import { playComponent } from './components/play.js';
 import { resultsComponent } from './components/results.js';
 import { createComponent } from './components/create.js';
 import { adminComponent } from './components/admin.js';
+import { reviewComponent } from './components/review.js';
 import { app, showMessage } from './utils/html.js';
 
 // Every page needs a signed-in player. Signing in re-runs the same route, so a
@@ -43,6 +44,11 @@ router.register('results', page(params => resultsComponent.render(params.get('id
 router.register('create', page((params, me) => {
     if (!me.isCreator && !me.isAdmin) return router.navigate('home');
     return createComponent.render(params.get('id'));
+}));
+
+router.register('review', page((params, me) => {
+    if (!me.isCreator && !me.isAdmin) return router.navigate('home');
+    return reviewComponent.render(params.get('id'));
 }));
 
 router.register('admin', page((params, me) => {

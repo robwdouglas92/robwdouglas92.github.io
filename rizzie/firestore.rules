@@ -113,13 +113,20 @@ service cloud.firestore {
         && request.resource.data.status == 'in-progress'
         && request.resource.data.answers.size() == 0
         && get(/databases/$(database)/documents/games/$(request.resource.data.gameId)).data.status == 'published';
-      // Can be added to while in progress; frozen once complete.
-      allow update: if isMe()
-        && resource.data.username == me()
-        && resource.data.status == 'in-progress'
-        && request.resource.data.diff(resource.data).affectedKeys()
-             .hasOnly(['answers', 'total', 'status', 'finishedAt', 'currentIndex', 'currentStartedAt'])
-        && request.resource.data.answers.size() <= 7;
+      // The player can add to it while in progress; it's frozen to them once
+      // complete. After that, only the game's creator (or an admin) can touch
+      // the answers and total — that's re-scoring after approving a rejected
+      // try. The app only ever raises a score; rules can't check the maths.
+      allow update: if (isMe()
+          && resource.data.username == me()
+          && resource.data.status == 'in-progress'
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['answers', 'total', 'status', 'finishedAt', 'currentIndex', 'currentStartedAt', 'currentAttempts'])
+          && request.resource.data.answers.size() <= 7)
+        || (isCreator()
+          && resource.data.status == 'complete'
+          && (get(/databases/$(database)/documents/games/$(resource.data.gameId)).data.createdBy == me() || isAdmin())
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['answers', 'total', 'rescoredAt']));
       allow delete: if isAdmin();
     }
   }
