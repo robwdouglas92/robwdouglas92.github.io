@@ -2,6 +2,7 @@
 // Each decision updates the answer list and re-scores everyone straight away.
 import { fetchGame, fetchPlays, applyReview, getSession } from '../api.js';
 import { buildQueue, rescoreAll } from '../review.js';
+import { renderAnswerBrowser } from '../answerBrowser.js';
 import { TIERS } from '../tiers.js';
 import { router } from '../router.js';
 import { app, esc, showMessage } from '../utils/html.js';
@@ -88,8 +89,6 @@ class ReviewComponent {
 
     row(item, i) {
         const open = this.open?.index === i ? this.open.mode : null;
-        const prompt = this.game.prompts[item.prompt];
-        const existing = [...prompt.answers].sort((a, b) => a.name.localeCompare(b.name));
         return `
             <div class="review-row">
                 <div class="review-try">
@@ -110,13 +109,10 @@ class ReviewComponent {
                         <button class="btn btn-primary" type="submit">Approve</button>
                     </form>` : ''}
                 ${open === 'same' ? `
-                    <form class="review-form" data-same="${i}">
-                        <label>Another way of saying…</label>
-                        <select name="answer">
-                            ${existing.map(a => `<option value="${esc(a.name)}">${esc(a.name)} (${TIERS[a.tier - 1].name} · ${TIERS[a.tier - 1].points})</option>`).join('')}
-                        </select>
-                        <button class="btn btn-primary" type="submit">Approve</button>
-                    </form>` : ''}
+                    <div class="review-form">
+                        <label>“${esc(item.text)}” is another way of saying… <span class="hint">(tap one)</span></label>
+                        <div data-same="${i}"></div>
+                    </div>` : ''}
             </div>
         `;
     }
@@ -143,14 +139,16 @@ class ReviewComponent {
                 }, `Approved “${esc(name)}”`);
             });
         });
-        app().querySelectorAll('[data-same]').forEach(form => {
-            form.addEventListener('submit', e => {
-                e.preventDefault();
-                const item = this.queue[Number(form.dataset.same)];
-                const target = form.elements.answer.value;
-                this.decide(item, prompts => {
-                    prompts[item.prompt].answers.find(a => a.name === target).aliases.push(item.text);
-                }, `“${esc(item.text)}” now counts as ${esc(target)}`);
+        app().querySelectorAll('[data-same]').forEach(el => {
+            const item = this.queue[Number(el.dataset.same)];
+            renderAnswerBrowser(el, this.game.prompts[item.prompt].answers, {
+                suggestFor: item.text,
+                onPick: target => {
+                    if (!confirm(`Count “${item.text}” as ${target.name}?`)) return;
+                    this.decide(item, prompts => {
+                        prompts[item.prompt].answers.find(a => a.name === target.name).aliases.push(item.text);
+                    }, `“${esc(item.text)}” now counts as ${esc(target.name)}`);
+                },
             });
         });
         app().querySelectorAll('[data-reject]').forEach(btn => {

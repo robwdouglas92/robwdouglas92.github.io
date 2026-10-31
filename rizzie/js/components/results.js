@@ -1,5 +1,6 @@
 import { fetchGame, fetchPlays, getSession } from '../api.js';
 import { PROMPT_COUNT, tierInfo } from '../tiers.js';
+import { renderAnswerBrowser } from '../answerBrowser.js';
 import { router } from '../router.js';
 import { app, esc, showMessage } from '../utils/html.js';
 
@@ -99,6 +100,14 @@ class ResultsComponent {
         else if (this.tab === 'answers') body.innerHTML = this.game.prompts.map((p, i) => this.answersBlock(p, i)).join('');
         else body.innerHTML = this.game.prompts.map((p, i) => this.popularBlock(p, i)).join('');
 
+        // Built the first time it's opened, so seven long lists don't slow the page.
+        body.querySelectorAll('[data-browse]').forEach(details => {
+            details.addEventListener('toggle', () => {
+                const target = details.querySelector('.browse-body');
+                if (!details.open || target.childElementCount) return;
+                renderAnswerBrowser(target, this.game.prompts[Number(details.dataset.browse)].answers);
+            });
+        });
         body.querySelectorAll('[data-player]').forEach(btn => {
             btn.addEventListener('click', () => {
                 this.openPlayer = this.openPlayer === btn.dataset.player ? null : btn.dataset.player;
@@ -173,8 +182,6 @@ class ResultsComponent {
             .map(p => ({ player: p, answer: p.answers[index] }))
             .filter(r => r.answer)
             .sort((a, b) => b.answer.points - a.answer.points);
-        const byTier = [...prompt.answers].sort((a, b) => b.tier - a.tier || a.name.localeCompare(b.name));
-
         return `
             <div class="card prompt-block">
                 <p class="prompt-label">Prompt ${index + 1}</p>
@@ -187,11 +194,9 @@ class ResultsComponent {
                             ${tierPill(answer.tier)}
                         </li>`).join('') || '<li class="hint">No answers yet.</li>'}
                 </ul>
-                <details>
+                <details data-browse="${index}">
                     <summary>All ${prompt.answers.length} answers on the list</summary>
-                    <ul class="full-list">
-                        ${byTier.map(a => `<li><span>${esc(a.name)}</span>${tierPill(a.tier)}</li>`).join('')}
-                    </ul>
+                    <div class="browse-body"></div>
                 </details>
             </div>
         `;

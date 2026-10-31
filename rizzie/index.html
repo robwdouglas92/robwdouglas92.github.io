@@ -196,8 +196,34 @@
         .nobody-points { color: var(--gold); font-weight: 700; font-size: 0.8rem; }
         details { margin-top: 0.7rem; font-size: 0.9rem; }
         summary { cursor: pointer; color: var(--green); font-weight: 600; }
-        .full-list { list-style: none; margin-top: 0.4rem; max-height: 20rem; overflow-y: auto; }
-        .full-list li { display: flex; justify-content: space-between; gap: 0.5rem; padding: 0.25rem 0; border-bottom: 1px dashed var(--line); }
+
+        /* Answer browser — js/answerBrowser.js */
+        .answer-browser { margin-top: 0.6rem; }
+        .ab-label { font-size: 0.8rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 0.6rem 0 0.3rem; }
+        .ab-suggestions { margin-bottom: 0.4rem; }
+        .ab-chips { display: flex; gap: 0.35rem; overflow-x: auto; padding-bottom: 0.3rem; scrollbar-width: none; }
+        .ab-chip {
+            flex-shrink: 0; font: inherit; font-size: 0.8rem; font-weight: 600; white-space: nowrap;
+            padding: 0.35rem 0.7rem; border-radius: 1rem; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer;
+        }
+        .ab-chip.active { background: var(--green-dark); border-color: var(--green-dark); color: #fff; }
+        .ab-search { margin: 0.4rem 0; }
+        .ab-letters { display: grid; grid-template-columns: repeat(9, 1fr); gap: 0.25rem; margin-bottom: 0.4rem; }
+        .ab-letter {
+            font: inherit; font-size: 0.85rem; font-weight: 700; padding: 0.4rem 0;
+            border: 1px solid var(--line); border-radius: 0.4rem; background: var(--card); color: var(--ink); cursor: pointer;
+        }
+        .ab-letter.active { background: var(--green); border-color: var(--green); color: #fff; }
+        .ab-letter:disabled { opacity: 0.3; cursor: default; }
+        .ab-list { max-height: 22rem; overflow-y: auto; border-top: 1px solid var(--line); }
+        .ab-row {
+            display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; width: 100%;
+            padding: 0.5rem 0.2rem; border: none; border-bottom: 1px dashed var(--line);
+            background: none; font: inherit; font-size: 0.95rem; color: var(--ink); text-align: left;
+        }
+        button.ab-row { cursor: pointer; }
+        button.ab-row:active { background: var(--bg); }
+        .ab-list .hint { padding: 0.6rem 0.2rem; }
 
         /* Review */
         .review-message { background: #e5f1ea; border-radius: 0.6rem; padding: 0.6rem 0.8rem; margin-bottom: 0.75rem; font-weight: 600; }
