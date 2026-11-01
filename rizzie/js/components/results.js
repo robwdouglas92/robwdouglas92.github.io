@@ -1,6 +1,7 @@
 import { fetchGame, fetchPlays, getSession } from '../api.js';
 import { PROMPT_COUNT, TIERS, tierInfo } from '../tiers.js';
 import { themeOf } from '../themes/index.js';
+import { setPageTheme } from '../themes/page.js';
 import { renderAnswerBrowser } from '../answerBrowser.js';
 import { router } from '../router.js';
 import { app, esc, showMessage } from '../utils/html.js';
@@ -54,6 +55,7 @@ class ResultsComponent {
 
         this.game = game;
         tierNames = themeOf(game).tierNames;
+        setPageTheme(themeOf(game).id);
         this.finished = plays.filter(isFinished);
         this.ranked = this.finished.filter(p => p.username !== game.createdBy).sort((a, b) => b.total - a.total);
         this.creatorPlay = this.finished.find(p => p.username === game.createdBy);

@@ -8,14 +8,18 @@ import { resultsComponent } from './components/results.js';
 import { createComponent } from './components/create.js';
 import { adminComponent } from './components/admin.js';
 import { reviewComponent } from './components/review.js';
+import { setPageTheme } from './themes/page.js';
 import { app, showMessage } from './utils/html.js';
 
 // Every page needs a signed-in player. Signing in re-runs the same route, so a
 // shared game link still lands on that game afterwards.
-function page(handler) {
+// Pages inside one game (play, results, review) dress themselves in that
+// game's theme once it's loaded; every other page is Classic.
+function page(handler, { gamePage = false } = {}) {
     return async params => {
         playComponent.stop();
         createComponent.flush();
+        if (!gamePage || !getSession()) setPageTheme('classic');
         if (!getSession()) {
             authComponent.render(() => router.handleRoute());
             return;
@@ -36,10 +40,11 @@ router.register('play', page(async params => {
     if (!id) return router.navigate('home');
     app().innerHTML = '<div class="loading">Loading game…</div>';
     await playComponent.load(id);
+    setPageTheme(playComponent.theme.id);
     playComponent.render();
-}));
+}, { gamePage: true }));
 
-router.register('results', page(params => resultsComponent.render(params.get('id'))));
+router.register('results', page(params => resultsComponent.render(params.get('id')), { gamePage: true }));
 
 router.register('create', page((params, me) => {
     if (!me.isCreator && !me.isAdmin) return router.navigate('home');
@@ -49,7 +54,7 @@ router.register('create', page((params, me) => {
 router.register('review', page((params, me) => {
     if (!me.isCreator && !me.isAdmin) return router.navigate('home');
     return reviewComponent.render(params.get('id'));
-}));
+}, { gamePage: true }));
 
 router.register('admin', page((params, me) => {
     if (!me.isAdmin) return router.navigate('home');

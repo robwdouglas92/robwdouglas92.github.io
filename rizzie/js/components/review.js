@@ -2,6 +2,7 @@
 // Each decision updates the answer list and re-scores everyone straight away.
 import { fetchGame, fetchPlays, applyReview, setGameTheme, getSession } from '../api.js';
 import { THEMES, themeOf } from '../themes/index.js';
+import { setPageTheme } from '../themes/page.js';
 import { buildQueue, rescoreAll } from '../review.js';
 import { renderAnswerBrowser } from '../answerBrowser.js';
 import { TIERS } from '../tiers.js';
@@ -26,6 +27,7 @@ class ReviewComponent {
             return;
         }
         this.gameId = gameId;
+        setPageTheme(themeOf(game).id);
         this.game = { ...game, rejected: game.rejected || [] };
         this.plays = plays;
         this.open = null;
@@ -171,6 +173,7 @@ class ReviewComponent {
             try {
                 await setGameTheme(this.gameId, theme);
                 this.game.theme = theme;
+                setPageTheme(themeOf(this.game).id);
                 status.textContent = `Theme changed to ${themeOf(this.game).label}.`;
             } catch (err) {
                 console.error(err);

@@ -12,6 +12,8 @@
         :root {
             --bg: #f8f4ec;
             --card: #ffffff;
+            --field: #ffffff;
+            --accent-text: #1d4d3a;
             --ink: #1f2a24;
             --muted: #6b6f69;
             --line: #e6dfd3;
@@ -28,6 +30,46 @@
             --t5: #3b3f8f;
             --t6: #b07a12;
         }
+
+        body[data-theme="christmas"] {
+            --bg: #0c1828;
+            --card: #14243b;
+            --field: #0f1e33;
+            --ink: #f2f5f9;
+            --muted: #a3b3c9;
+            --line: #29405f;
+            --green: #c8323a;        /* buttons: Christmas red */
+            --green-dark: #1f6b45;   /* active tabs and chips: holly green */
+            --accent-text: #ffd36b;  /* scores and links: gold */
+            --red: #ff8f8f;
+            --gold: #ffd36b;
+            --t1: #6f8a7c; --t2: #6f8299; --t3: #c0392b; --t4: #2e8b57; --t5: #b0577a; --t6: #b8860b;
+            background: radial-gradient(120% 45% at 50% 0%, #1b3354 0%, var(--bg) 65%) fixed var(--bg);
+        }
+        body[data-theme="disco"] {
+            --bg: #110a1c;
+            --card: #1c1230;
+            --field: #160d26;
+            --ink: #f7f0fd;
+            --muted: #ab9ec2;
+            --line: #33244f;
+            --green: #c2338a;        /* buttons: hot pink */
+            --green-dark: #6a3fd0;   /* active tabs and chips: violet */
+            --accent-text: #3ce7ff;  /* scores and links: neon cyan */
+            --red: #ff7a9c;
+            --gold: #ffd36b;
+            --t1: #6d5a8f; --t2: #7b4fe0; --t3: #1a8fa8; --t4: #1f9e6a; --t5: #d0368f; --t6: #b8860b;
+            background: radial-gradient(120% 45% at 50% 0%, #2a1446 0%, var(--bg) 65%) fixed var(--bg);
+        }
+        body[data-theme] { color-scheme: dark; }
+        body[data-theme="christmas"] h1:not(.logo) { font-family: 'Mountains of Christmas', Georgia, serif; color: var(--gold); font-size: 2.4rem; }
+        body[data-theme="disco"] h1:not(.logo) {
+            font-family: 'Monoton', 'Arial Black', sans-serif; font-weight: 400; font-size: 1.9rem; line-height: 1.2;
+            color: #ff4fb8; text-shadow: 0 0 14px rgba(255, 79, 184, 0.45);
+        }
+        /* Snow or sparkles drift behind the page; cards stay solid on top. */
+        .ambient { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+        #app { position: relative; z-index: 1; }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -50,7 +92,7 @@
 
         header { text-align: center; margin: 0.75rem 0 1.25rem; }
         h1 { font-size: 1.9rem; line-height: 1.15; }
-        h1.logo { font-size: 2.8rem; color: var(--green-dark); letter-spacing: -0.02em; }
+        h1.logo { font-size: 2.8rem; color: var(--accent-text); letter-spacing: -0.02em; }
         h2 { font-size: 1.15rem; margin: 1.5rem 0 0.6rem; }
         .subtitle { color: var(--muted); margin-top: 0.25rem; }
         .hint { color: var(--muted); font-size: 0.875rem; margin-top: 0.6rem; }
@@ -79,7 +121,7 @@
         .btn-secondary { background: var(--card); color: var(--ink); border-color: var(--line); }
         .btn-big { font-size: 1.15rem; padding: 1rem; }
         .btn-small { width: auto; display: inline-block; font-size: 0.875rem; padding: 0.45rem 0.8rem; margin-top: 0; }
-        .link { background: none; border: none; font: inherit; color: var(--green); text-decoration: underline; cursor: pointer; }
+        .link { background: none; border: none; font: inherit; color: var(--accent-text); text-decoration: underline; cursor: pointer; }
 
         label { display: block; font-weight: 600; margin: 0.8rem 0 0.3rem; }
         /* 16px+ stops iPhones zooming in when an input is focused */
@@ -87,7 +129,7 @@
             width: 100%; font: inherit; font-size: 1rem;
             padding: 0.7rem 0.8rem;
             border: 2px solid var(--line); border-radius: 0.6rem;
-            background: #fff; color: var(--ink);
+            background: var(--field); color: var(--ink);
         }
         input:focus, textarea:focus { outline: none; border-color: var(--green); }
         textarea { font-family: ui-monospace, Consolas, monospace; font-size: 0.85rem; }
@@ -106,7 +148,7 @@
         .game-title { font-weight: 700; font-size: 1.05rem; }
         .game-meta { color: var(--muted); font-size: 0.85rem; }
         .game-actions { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
-        .score-pill { font-weight: 700; color: var(--green-dark); white-space: nowrap; }
+        .score-pill { font-weight: 700; color: var(--accent-text); white-space: nowrap; }
 
         .tier-legend { list-style: none; margin: 0.8rem 0 0.2rem; }
         .tier-legend li { display: flex; justify-content: space-between; padding: 0.25rem 0; border-bottom: 1px dashed var(--line); }
@@ -133,7 +175,7 @@
         .verdict { text-align: center; }
         .verdict-tier { font-size: 1.5rem; font-weight: 800; }
         .verdict-detail { color: var(--muted); margin-top: 0.2rem; }
-        .plus { color: var(--green); }
+        .plus { color: var(--accent-text); }
 
         /* Descent placeholder — see js/descent.js */
         .descent { display: flex; flex-direction: column; gap: 0.3rem; margin: 0.5rem 0 0.25rem; }
@@ -221,7 +263,7 @@
 
         /* Results */
         .my-score { text-align: center; }
-        .my-score-total { font-size: 2.6rem; font-weight: 800; color: var(--green-dark); line-height: 1.1; }
+        .my-score-total { font-size: 2.6rem; font-weight: 800; color: var(--accent-text); line-height: 1.1; }
         .leaderboard { list-style: none; }
         .results-tabs { margin: 0.5rem 0 0.75rem; }
         .leaderboard li { border-bottom: 1px solid var(--line); }
@@ -242,7 +284,7 @@
         .player-answers li:last-child { border-bottom: none; }
         .pa-prompt { display: block; color: var(--muted); font-size: 0.8rem; }
         .pa-answer { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
-        .pop-count { width: 2rem; flex-shrink: 0; font-weight: 800; color: var(--green-dark); }
+        .pop-count { width: 2rem; flex-shrink: 0; font-weight: 800; color: var(--accent-text); }
 
         .prompt-label { color: var(--muted); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
         .answer-rows { list-style: none; }
@@ -265,7 +307,7 @@
         .nobody { font-size: 0.9rem; }
         .nobody-points { color: var(--gold); font-weight: 700; font-size: 0.8rem; }
         details { margin-top: 0.7rem; font-size: 0.9rem; }
-        summary { cursor: pointer; color: var(--green); font-weight: 600; }
+        summary { cursor: pointer; color: var(--accent-text); font-weight: 600; }
 
         /* Answer browser — js/answerBrowser.js */
         .answer-browser { margin-top: 0.6rem; }
@@ -296,7 +338,7 @@
         .ab-list .hint { padding: 0.6rem 0.2rem; }
 
         /* Review */
-        .review-message { background: #e5f1ea; border-radius: 0.6rem; padding: 0.6rem 0.8rem; margin-bottom: 0.75rem; font-weight: 600; }
+        .review-message { background: color-mix(in srgb, var(--green) 16%, var(--card)); border-radius: 0.6rem; padding: 0.6rem 0.8rem; margin-bottom: 0.75rem; font-weight: 600; }
         .review-row { padding: 0.7rem 0; border-bottom: 1px solid var(--line); }
         .review-row:last-child { border-bottom: none; }
         .review-try strong { display: block; font-size: 1.05rem; }
@@ -317,7 +359,7 @@
         h3 { font-size: 1.05rem; margin-bottom: 0.5rem; }
         select {
             font: inherit; font-size: 1rem; padding: 0.55rem 0.4rem;
-            border: 2px solid var(--line); border-radius: 0.6rem; background: #fff; color: var(--ink);
+            border: 2px solid var(--line); border-radius: 0.6rem; background: var(--field); color: var(--ink);
         }
         .save-status { font-size: 0.85rem; color: var(--muted); }
         .save-status.error { color: var(--red); }
@@ -338,7 +380,7 @@
         .slot-text { display: block; font-weight: 650; }
         .slot-meta { display: block; color: var(--muted); font-size: 0.85rem; }
         .slot-arrow { color: var(--muted); font-size: 1.5rem; }
-        .warn { background: #fdf3e1; border: 1px solid #ecd4a4; border-radius: 0.6rem; padding: 0.7rem 0.8rem; margin: 0.6rem 0; font-size: 0.9rem; }
+        .warn { background: color-mix(in srgb, var(--gold) 16%, var(--card)); border: 1px solid color-mix(in srgb, var(--gold) 45%, var(--card)); border-radius: 0.6rem; padding: 0.7rem 0.8rem; margin: 0.6rem 0; font-size: 0.9rem; }
         .warn ul { margin: 0.3rem 0 0 1.1rem; }
         .advanced summary { margin-bottom: 0.5rem; }
         .advanced textarea { margin-top: 0.5rem; }
