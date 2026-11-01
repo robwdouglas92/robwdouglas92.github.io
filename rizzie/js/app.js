@@ -9,17 +9,18 @@ import { createComponent } from './components/create.js';
 import { adminComponent } from './components/admin.js';
 import { reviewComponent } from './components/review.js';
 import { setPageTheme } from './themes/page.js';
+import { SITE_THEME } from './themes/index.js';
 import { app, showMessage } from './utils/html.js';
 
 // Every page needs a signed-in player. Signing in re-runs the same route, so a
 // shared game link still lands on that game afterwards.
 // Pages inside one game (play, results, review) dress themselves in that
-// game's theme once it's loaded; every other page is Classic.
+// game's theme once it's loaded; every other page wears the site theme.
 function page(handler, { gamePage = false } = {}) {
     return async params => {
         playComponent.stop();
         createComponent.flush();
-        if (!gamePage || !getSession()) setPageTheme('classic');
+        if (!gamePage || !getSession()) setPageTheme(SITE_THEME);
         if (!getSession()) {
             authComponent.render(() => router.handleRoute());
             return;
@@ -60,6 +61,8 @@ router.register('admin', page((params, me) => {
     if (!me.isAdmin) return router.navigate('home');
     return adminComponent.render();
 }));
+
+setPageTheme(SITE_THEME);
 
 if (configured) {
     try {

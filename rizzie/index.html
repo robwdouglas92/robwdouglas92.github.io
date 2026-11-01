@@ -62,6 +62,10 @@
             background: radial-gradient(120% 45% at 50% 0%, #2a1446 0%, var(--bg) 65%) fixed var(--bg);
         }
         body[data-theme] { color-scheme: dark; }
+        body[data-theme="christmas"] h1.logo { font-family: 'Mountains of Christmas', Georgia, serif; color: var(--gold); font-size: 3.6rem; text-shadow: 0 0 18px rgba(255, 211, 107, 0.35); }
+        body[data-theme="disco"] h1.logo { font-family: 'Monoton', 'Arial Black', sans-serif; font-weight: 400; color: #3ce7ff; font-size: 2.8rem; text-shadow: 0 0 16px rgba(60, 231, 255, 0.5); }
+        body[data-theme] .theme-option-christmas .theme-option-name { color: #ff7b7b; }
+        body[data-theme] .theme-option-disco .theme-option-name { color: #c79bff; }
         body[data-theme="christmas"] h1:not(.logo) { font-family: 'Mountains of Christmas', Georgia, serif; color: var(--gold); font-size: 2.4rem; }
         body[data-theme="disco"] h1:not(.logo) {
             font-family: 'Monoton', 'Arial Black', sans-serif; font-weight: 400; font-size: 1.9rem; line-height: 1.2;

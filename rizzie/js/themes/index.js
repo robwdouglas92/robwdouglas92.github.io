@@ -35,7 +35,14 @@ export const THEMES = [
     },
 ];
 
+// Seasonal settings — set for the Christmas launch. After Christmas, change
+// both back to 'classic'.
+// DEFAULT_THEME: what new games start on, and what games with no theme
+// saved (made before themes existed) are shown in.
+// SITE_THEME: how pages outside a game look (home, sign-in, create, admin).
+export const DEFAULT_THEME = 'christmas';
+export const SITE_THEME = 'christmas';
+
 export const themeById = id => THEMES.find(t => t.id === id) || THEMES[0];
 
-// Games made before themes existed have no theme set, so they stay Classic.
-export const themeOf = game => themeById(game?.theme);
+export const themeOf = game => themeById(game?.theme || DEFAULT_THEME);

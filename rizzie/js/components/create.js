@@ -6,7 +6,7 @@ import {
 } from '../gameFormat.js';
 import { buildClaudePrompt } from '../claudePrompt.js';
 import { TIERS, PROMPT_COUNT } from '../tiers.js';
-import { THEMES } from '../themes/index.js';
+import { THEMES, DEFAULT_THEME } from '../themes/index.js';
 import { router } from '../router.js';
 import { app, esc, showMessage } from '../utils/html.js';
 
@@ -17,7 +17,7 @@ const OPEN_SECTION_MAX = 12;
 
 const emptyGame = () => ({
     title: '',
-    theme: 'classic',
+    theme: DEFAULT_THEME,
     prompts: Array.from({ length: PROMPT_COUNT }, () => ({ text: '', answers: [] })),
 });
 
@@ -50,7 +50,7 @@ class CreateComponent {
         }
         this.game = {
             title: game.title || '',
-            theme: game.theme || 'classic',
+            theme: game.theme || DEFAULT_THEME,
             prompts: game.prompts.map(p => ({ text: p.text || '', answers: p.answers.map(cleanAnswer) })),
         };
         this.draw();
