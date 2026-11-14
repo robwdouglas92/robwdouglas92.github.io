@@ -2,9 +2,9 @@
 // Saved as a draft as you go (players can't see drafts), then published.
 import { fetchGame, createDraft, saveDraft, publishGame, deleteGame, getSession } from '../api.js';
 import {
-    parseGame, parseAnswerList, mergeAnswers, findClashes, publishProblems, cleanAnswer, SHORT_LIST,
+    parseGame, parseAnswerList, parseWholeGameReply, mergeAnswers, findClashes, publishProblems, cleanAnswer, SHORT_LIST,
 } from '../gameFormat.js';
-import { buildClaudePrompt } from '../claudePrompt.js';
+import { buildClaudePrompt, buildWholeGamePrompt } from '../claudePrompt.js';
 import { TIERS, PROMPT_COUNT } from '../tiers.js';
 import { THEMES, DEFAULT_THEME } from '../themes/index.js';
 import { router } from '../router.js';
@@ -143,6 +143,22 @@ class CreateComponent {
                 <h2>Prompts</h2>
                 ${game.prompts.map((p, i) => this.promptSlot(p, i)).join('')}
 
+                <div class="card claude-steps">
+                    <h3>Fill every prompt with AI</h3>
+                    <p class="hint">Write your questions first by tapping each prompt above. Answers you’ve already placed stay exactly where you put them; the AI only adds new ones, which you can re-tier afterwards.</p>
+                    <p class="step"><span class="step-num">1</span> Copy the request, then paste it into a new chat with an AI such as Claude.</p>
+                    <div class="row">
+                        <button class="btn btn-primary btn-small" id="copy-whole">Copy request for AI</button>
+                        <a class="btn btn-secondary btn-small" href="https://claude.ai/new" target="_blank" rel="noopener">Open Claude ↗</a>
+                    </div>
+                    <p class="hint" id="whole-copy-status"></p>
+                    <textarea id="whole-copy-fallback" rows="5" readonly hidden></textarea>
+                    <p class="step"><span class="step-num">2</span> Paste the AI’s whole reply here. If it stopped part-way, ask it to “continue” and paste the next reply too.</p>
+                    <textarea id="whole-reply" rows="4" spellcheck="false" placeholder="Paste the AI’s reply here"></textarea>
+                    <button class="btn btn-primary" id="add-whole">Add these answers</button>
+                    <p class="hint" id="whole-status" role="status"></p>
+                </div>
+
                 <div id="publish-problems"></div>
                 <button class="btn btn-primary btn-big" id="publish">Publish</button>
 
@@ -178,6 +194,8 @@ class CreateComponent {
                 window.scrollTo(0, 0);
             });
         });
+        document.getElementById('copy-whole').addEventListener('click', () => this.copyWholeRequest());
+        document.getElementById('add-whole').addEventListener('click', () => this.addWholeReply());
         document.getElementById('publish').addEventListener('click', () => this.publish());
         document.getElementById('load-sample').addEventListener('click', async () => {
             const res = await fetch('sample-game.json');
@@ -203,6 +221,65 @@ class CreateComponent {
                 <span class="slot-arrow">›</span>
             </button>
         `;
+    }
+
+    async copyWholeRequest() {
+        const status = document.getElementById('whole-copy-status');
+        if (!this.game.prompts.some(p => p.text.trim())) {
+            status.textContent = 'Write at least one question first — tap a prompt above.';
+            return;
+        }
+        const text = buildWholeGamePrompt(this.game);
+        const written = this.game.prompts.filter(p => p.text.trim()).length;
+        try {
+            await navigator.clipboard.writeText(text);
+            status.textContent = `Copied a request for ${written} question${written === 1 ? '' : 's'}. Now paste it into the AI.`;
+        } catch {
+            const fallback = document.getElementById('whole-copy-fallback');
+            fallback.value = text;
+            fallback.hidden = false;
+            fallback.select();
+            status.textContent = 'Couldn’t copy automatically — select all the text below and copy it.';
+        }
+    }
+
+    // Adds the AI's answers to each prompt. Anything already on a list —
+    // including every answer the creator placed themselves — is left alone, so
+    // their tiers always win.
+    addWholeReply() {
+        const status = document.getElementById('whole-status');
+        let parsed;
+        try {
+            parsed = parseWholeGameReply(document.getElementById('whole-reply').value);
+        } catch (err) {
+            status.textContent = err.message;
+            return;
+        }
+        let added = 0;
+        let dupes = 0;
+        const touched = [];
+        const noQuestion = [];
+        for (const [index, answers] of parsed.answersByPrompt) {
+            const prompt = this.game.prompts[index];
+            if (!prompt.text.trim()) {
+                noQuestion.push(index + 1);
+                continue;
+            }
+            const n = mergeAnswers(prompt.answers, answers);
+            added += n;
+            dupes += answers.length - n;
+            if (n) touched.push(index + 1);
+        }
+        if (added) this.changed();
+        this.draw();
+
+        const notes = [];
+        notes.push(`Added ${added} answer${added === 1 ? '' : 's'}${touched.length ? ` to question${touched.length === 1 ? '' : 's'} ${touched.join(', ')}` : ''}.`);
+        if (dupes) notes.push(`${dupes} ${dupes === 1 ? 'was' : 'were'} already on the list and left as they are.`);
+        if (parsed.skipped) notes.push(`${parsed.skipped} incomplete entr${parsed.skipped === 1 ? 'y was' : 'ies were'} skipped.`);
+        if (noQuestion.length) notes.push(`Ignored answers for question${noQuestion.length === 1 ? '' : 's'} ${noQuestion.join(', ')}, which ${noQuestion.length === 1 ? 'has' : 'have'} no question written yet.`);
+        if (parsed.cutOff.length) notes.push(`Question${parsed.cutOff.length === 1 ? '' : 's'} ${parsed.cutOff.join(', ')} got cut off — ask the AI to “continue” and paste its next reply here too.`);
+        document.getElementById('whole-status').textContent = notes.join(' ');
     }
 
     useJson() {

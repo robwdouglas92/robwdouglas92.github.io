@@ -95,6 +95,63 @@ export function parseAnswerList(text) {
     return { answers, skipped };
 }
 
+// The reply to buildWholeGamePrompt(): one line per question, e.g.
+//   {"number": 1, "answers": [["Elf", 1], ["Home Alone 2", 2, ["HA2"]]]}
+// Also accepts a single {"prompts": [...]} object, and answers written as
+// {name, tier, aliases} objects. A line that was cut off is reported by its
+// question number rather than failing the whole paste.
+// Returns { answersByPrompt: Map(index → answers), skipped, cutOff: [numbers] }.
+export function parseWholeGameReply(text) {
+    let lines = [];
+    let cutOff = [];
+    const fromPrompts = prompts => prompts.map((p, i) => ({ number: p.number ?? i + 1, answers: p.answers }));
+    for (const raw of text.split(/\r?\n/)) {
+        const line = raw.trim().replace(/,$/, '');
+        if (!line.startsWith('{')) continue;
+        try {
+            const obj = JSON.parse(line);
+            if (Array.isArray(obj.prompts)) lines.push(...fromPrompts(obj.prompts));
+            else lines.push(obj);
+        } catch {
+            const n = line.match(/"number"\s*:\s*(\d+)/);
+            if (n) cutOff.push(Number(n[1]));
+        }
+    }
+    // No line stood on its own: maybe it's one (possibly pretty-printed)
+    // {"prompts": [...]} object instead.
+    if (!lines.length) {
+        try {
+            const whole = JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1));
+            if (Array.isArray(whole?.prompts)) {
+                lines = fromPrompts(whole.prompts);
+                cutOff = [];
+            }
+        } catch {
+            // Neither shape — reported below.
+        }
+    }
+    if (!lines.length && !cutOff.length) {
+        throw new Error('Couldn’t find any answer lists in that — copy the AI’s whole reply.');
+    }
+
+    const answersByPrompt = new Map();
+    let skipped = 0;
+    for (const line of lines) {
+        const index = Number(line.number) - 1;
+        if (!Number.isInteger(index) || index < 0 || index >= PROMPT_COUNT || !Array.isArray(line.answers)) continue;
+        const list = answersByPrompt.get(index) || [];
+        for (const a of line.answers) {
+            try {
+                list.push(cleanAnswer(Array.isArray(a) ? { name: a[0], tier: a[1], aliases: a[2] } : a));
+            } catch {
+                skipped++;
+            }
+        }
+        answersByPrompt.set(index, list);
+    }
+    return { answersByPrompt, skipped, cutOff };
+}
+
 const key = text => normalize(text).join(' ');
 
 // Adds answers that aren't already on the list (by name or alias, after the
