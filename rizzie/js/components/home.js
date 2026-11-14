@@ -1,4 +1,4 @@
-import { fetchGames, fetchMyPlays, fetchMyDrafts, getSession, signOut } from '../api.js';
+import { fetchGames, fetchMyPlays, fetchMyDrafts, getSession, signOut, canEdit } from '../api.js';
 import { router } from '../router.js';
 import { app, esc } from '../utils/html.js';
 
@@ -13,7 +13,7 @@ class HomeComponent {
         let drafts;
         try {
             [games, plays, drafts] = await Promise.all([
-                fetchGames(), fetchMyPlays(), canCreate ? fetchMyDrafts() : [],
+                fetchGames(), fetchMyPlays(), fetchMyDrafts(),
             ]);
         } catch (err) {
             console.error(err);
@@ -40,7 +40,9 @@ class HomeComponent {
                         <div class="card game-card">
                             <div>
                                 <div class="game-title">${d.title?.trim() ? esc(d.title) : '<em>Untitled game</em>'}</div>
-                                <div class="game-meta">${d.prompts.filter(p => p.answers.length).length} of 7 prompts have answers</div>
+                                <div class="game-meta">${d.prompts.filter(p => p.answers.length).length} of 7 prompts have answers${d.createdBy === me.id
+                                    ? ((d.editors || []).length ? ` · with ${esc(d.editors.map(id => d.editorNames?.[id] || id).join(', '))}` : '')
+                                    : ` · helping ${esc(d.createdByName)}`}</div>
                             </div>
                             <div class="game-actions">
                                 <button class="btn btn-secondary btn-small" data-draft="${d.id}">Continue</button>
@@ -81,7 +83,8 @@ class HomeComponent {
     }
 
     gameCard(game, play, me) {
-        const mine = game.createdBy === me.id;
+        // Co-editors have seen every answer too, so they count as the game's makers.
+        const mine = canEdit(game, me);
         let action;
         if (play?.status === 'complete') {
             action = `<span class="score-pill">${play.total} pts</span>
@@ -101,7 +104,7 @@ class HomeComponent {
             <div class="card game-card">
                 <div>
                     <div class="game-title">${esc(game.title)}</div>
-                    <div class="game-meta">${mine ? 'Your game' : `By ${esc(game.createdByName)}`}</div>
+                    <div class="game-meta">${game.createdBy === me.id ? 'Your game' : mine ? `You helped ${esc(game.createdByName)} make this` : `By ${esc(game.createdByName)}`}</div>
                 </div>
                 <div class="game-actions">${action}</div>
             </div>

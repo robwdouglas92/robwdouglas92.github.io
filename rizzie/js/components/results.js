@@ -1,4 +1,4 @@
-import { fetchGame, fetchPlays, getSession } from '../api.js';
+import { fetchGame, fetchPlays, getSession, canEdit } from '../api.js';
 import { PROMPT_COUNT, TIERS, tierInfo } from '../tiers.js';
 import { themeOf } from '../themes/index.js';
 import { setPageTheme } from '../themes/page.js';
@@ -44,7 +44,7 @@ class ResultsComponent {
             return;
         }
 
-        const mine = game.createdBy === this.me.id;
+        const mine = canEdit(game, this.me);
         const myPlay = plays.find(p => p.username === this.me.id);
         // Answers stay hidden until you've played, so nothing gets spoiled.
         // The creator wrote the list, so they can always look.
@@ -57,8 +57,9 @@ class ResultsComponent {
         tierNames = themeOf(game).tierNames;
         setPageTheme(themeOf(game).id);
         this.finished = plays.filter(isFinished);
-        this.ranked = this.finished.filter(p => p.username !== game.createdBy).sort((a, b) => b.total - a.total);
-        this.creatorPlay = this.finished.find(p => p.username === game.createdBy);
+        const makers = new Set([game.createdBy, ...(game.editors || [])]);
+        this.ranked = this.finished.filter(p => !makers.has(p.username)).sort((a, b) => b.total - a.total);
+        this.makerPlays = this.finished.filter(p => makers.has(p.username));
         this.stillPlaying = plays.length - this.finished.length;
         this.tab = 'leaderboard';
         this.openPlayer = null;
@@ -144,9 +145,9 @@ class ResultsComponent {
                     </ol>
                     <p class="hint">Tap a player to see their answers.</p>
                 ` : '<p>Nobody has finished yet.</p>'}
-                ${this.creatorPlay ? `
+                ${this.makerPlays.length ? `
                     <p class="lb-section">Just for fun</p>
-                    <ol class="leaderboard">${this.playerRow(this.creatorPlay, '–', ' (creator)')}</ol>
+                    <ol class="leaderboard">${this.makerPlays.map(p => this.playerRow(p, '–', p.username === this.game.createdBy ? ' (creator)' : ' (co-editor)')).join('')}</ol>
                 ` : ''}
                 ${this.stillPlaying ? `<p class="hint">${this.stillPlaying} still playing.</p>` : ''}
             </div>

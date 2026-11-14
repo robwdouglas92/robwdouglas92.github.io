@@ -1,6 +1,6 @@
 // The creator's review of players' rejected tries for one published game.
 // Each decision updates the answer list and re-scores everyone straight away.
-import { fetchGame, fetchPlays, applyReview, setGameTheme, getSession } from '../api.js';
+import { fetchGame, fetchPlays, applyReview, setGameTheme, getSession, canEdit } from '../api.js';
 import { THEMES, themeOf } from '../themes/index.js';
 import { setPageTheme } from '../themes/page.js';
 import { buildQueue, rescoreAll } from '../review.js';
@@ -22,7 +22,7 @@ class ReviewComponent {
             showMessage('Game not found', 'Only published games have tries to review.');
             return;
         }
-        if (game.createdBy !== me.id && !me.isAdmin) {
+        if (!canEdit(game, me) && !me.isAdmin) {
             showMessage('Not your game', 'Only the person who made this game can review its answers.');
             return;
         }

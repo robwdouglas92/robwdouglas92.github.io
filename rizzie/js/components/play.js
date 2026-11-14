@@ -1,4 +1,4 @@
-import { fetchGame, fetchMyPlay, getSession, startPlay, startPrompt, saveAnswers, saveAttempts } from '../api.js';
+import { fetchGame, fetchMyPlay, getSession, startPlay, startPrompt, saveAnswers, saveAttempts, canEdit } from '../api.js';
 import { matchAnswer } from '../match.js';
 import { TIERS, PROMPT_COUNT, PROMPT_SECONDS, pointsFor } from '../tiers.js';
 import { themeOf } from '../themes/index.js';
@@ -62,7 +62,7 @@ class PlayComponent {
     }
 
     renderIntro() {
-        const mine = this.game.createdBy === getSession().id;
+        const mine = canEdit(this.game, getSession());
         app().innerHTML = `
             <div class="container">
                 <header>

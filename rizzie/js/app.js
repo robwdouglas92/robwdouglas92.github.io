@@ -19,7 +19,7 @@ import { app, showMessage } from './utils/html.js';
 function page(handler, { gamePage = false } = {}) {
     return async params => {
         playComponent.stop();
-        createComponent.flush();
+        createComponent.leave();
         if (!gamePage || !getSession()) setPageTheme(SITE_THEME);
         if (!getSession()) {
             authComponent.render(() => router.handleRoute());
@@ -48,12 +48,11 @@ router.register('play', page(async params => {
 router.register('results', page(params => resultsComponent.render(params.get('id')), { gamePage: true }));
 
 router.register('create', page((params, me) => {
-    if (!me.isCreator && !me.isAdmin) return router.navigate('home');
+    if (!params.get('id') && !me.isCreator && !me.isAdmin) return router.navigate('home');
     return createComponent.render(params.get('id'));
 }));
 
-router.register('review', page((params, me) => {
-    if (!me.isCreator && !me.isAdmin) return router.navigate('home');
+router.register('review', page(params => {
     return reviewComponent.render(params.get('id'));
 }, { gamePage: true }));
 

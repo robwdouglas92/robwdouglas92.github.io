@@ -88,18 +88,29 @@ service cloud.firestore {
           && getAfter(/databases/$(database)/documents/profiles/$(id)).data.resetCode == resource.data.code);
     }
 
-    // Games start as drafts, saved as the creator works, and become playable
+    // Someone the game's creator has added as a co-editor (any player).
+    function isCoEditor(game) {
+      return isMe() && me() in game.get('editors', []);
+    }
+
+    // Games start as drafts, saved as the creators work, and become playable
     // once published. A published game can't go back to being a draft.
+    // The creator can change anything, including who the co-editors are.
+    // Co-editors can edit the content, claim prompts and publish, and after
+    // publishing can review answers — but can't change the co-editor list or
+    // who made the game, and can't delete it.
     match /games/{gameId} {
       allow read: if signedIn();
       allow create: if isCreator()
         && request.resource.data.createdBy == me()
         && request.resource.data.status in ['draft', 'published'];
-      allow update: if isCreator()
-        && (resource.data.createdBy == me() || isAdmin())
-        && request.resource.data.createdBy == resource.data.createdBy
+      allow update: if request.resource.data.createdBy == resource.data.createdBy
         && request.resource.data.status in ['draft', 'published']
-        && !(resource.data.status == 'published' && request.resource.data.status == 'draft');
+        && !(resource.data.status == 'published' && request.resource.data.status == 'draft')
+        && ((isCreator() && (resource.data.createdBy == me() || isAdmin()))
+          || (isCoEditor(resource.data)
+            && request.resource.data.diff(resource.data).affectedKeys()
+                 .hasOnly(['title', 'prompts', 'theme', 'locks', 'status', 'updatedAt', 'publishedAt', 'rejected'])));
       allow delete: if isCreator() && (resource.data.createdBy == me() || isAdmin());
     }
 
@@ -114,18 +125,21 @@ service cloud.firestore {
         && request.resource.data.answers.size() == 0
         && get(/databases/$(database)/documents/games/$(request.resource.data.gameId)).data.status == 'published';
       // The player can add to it while in progress; it's frozen to them once
-      // complete. After that, only the game's creator (or an admin) can touch
-      // the answers and total — that's re-scoring after approving a rejected
-      // try. The app only ever raises a score; rules can't check the maths.
+      // complete. After that, only the game's creator, a co-editor, or an
+      // admin can touch the answers and total — that's re-scoring after
+      // approving a rejected try. The app only ever raises a score; rules
+      // can't check the maths.
       allow update: if (isMe()
           && resource.data.username == me()
           && resource.data.status == 'in-progress'
           && request.resource.data.diff(resource.data).affectedKeys()
                .hasOnly(['answers', 'total', 'status', 'finishedAt', 'currentIndex', 'currentStartedAt', 'currentAttempts'])
           && request.resource.data.answers.size() <= 7)
-        || (isCreator()
+        || (isMe()
           && resource.data.status == 'complete'
-          && (get(/databases/$(database)/documents/games/$(resource.data.gameId)).data.createdBy == me() || isAdmin())
+          && ((isCreator() && get(/databases/$(database)/documents/games/$(resource.data.gameId)).data.createdBy == me())
+            || isCoEditor(get(/databases/$(database)/documents/games/$(resource.data.gameId)).data)
+            || isAdmin())
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['answers', 'total', 'rescoredAt']));
       allow delete: if isAdmin();
     }

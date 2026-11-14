@@ -11,7 +11,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 import {
     doc, getDoc, setDoc, updateDoc, addDoc, deleteDoc, collection, query, where, getDocs,
-    serverTimestamp, writeBatch, Timestamp,
+    serverTimestamp, writeBatch, Timestamp, onSnapshot, runTransaction, deleteField, arrayUnion, arrayRemove,
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 const EMAIL_DOMAIN = 'rizzie.app';
@@ -208,10 +208,20 @@ export async function fetchGame(gameId) {
 // Games start as drafts (saved as you go, invisible to players) and become
 // playable once published.
 
+// A game's creator can add co-editors (`editors`: profile ids, with their
+// display names in `editorNames`). Co-editors can edit and publish a draft;
+// once published they're treated like the creator.
+export const canEdit = (game, me = session) =>
+    game.createdBy === me.id || (game.editors || []).includes(me.id);
+
+// Drafts I made, plus drafts someone has added me to.
 export async function fetchMyDrafts() {
-    const snap = await getDocs(query(collection(db, 'games'), where('createdBy', '==', session.id)));
-    return snap.docs
-        .map(d => ({ id: d.id, ...d.data() }))
+    const [mine, shared] = await Promise.all([
+        getDocs(query(collection(db, 'games'), where('createdBy', '==', session.id))),
+        getDocs(query(collection(db, 'games'), where('editors', 'array-contains', session.id))),
+    ]);
+    const byId = new Map([...mine.docs, ...shared.docs].map(d => [d.id, { id: d.id, ...d.data() }]));
+    return [...byId.values()]
         .filter(g => g.status === 'draft')
         .sort((a, b) => (b.updatedAt?.toMillis?.() ?? 0) - (a.updatedAt?.toMillis?.() ?? 0));
 }
@@ -223,6 +233,9 @@ export async function createDraft({ title, prompts, theme = 'classic' }) {
         theme,
         createdBy: session.id,
         createdByName: session.username,
+        editors: [],
+        editorNames: {},
+        locks: {},
         status: 'draft',
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
@@ -230,18 +243,84 @@ export async function createDraft({ title, prompts, theme = 'classic' }) {
     return ref.id;
 }
 
-export function saveDraft(gameId, { title, prompts, theme = 'classic' }) {
-    return updateDoc(doc(db, 'games', gameId), { title, prompts, theme, updatedAt: serverTimestamp() });
+// Live view of a draft, so co-editors see each other's changes and locks.
+// Returns a function that stops listening.
+export function watchGame(gameId, onChange, onError) {
+    return onSnapshot(doc(db, 'games', gameId), snap => {
+        onChange(snap.exists() ? { id: snap.id, ...snap.data() } : null);   // null: deleted
+    }, onError);
 }
 
-export function publishGame(gameId, { title, prompts, theme = 'classic' }) {
+// Saves only what this editor changed, on top of the latest version of the
+// draft — so two people working on different prompts never overwrite each
+// other. changes: { title?, theme?, prompts?: { [index]: prompt } }
+export function saveDraftChanges(gameId, changes) {
+    const ref = doc(db, 'games', gameId);
+    return runTransaction(db, async tx => {
+        const snap = await tx.get(ref);
+        if (!snap.exists()) throw new Error('This draft no longer exists.');
+        const latest = snap.data();
+        const update = { updatedAt: serverTimestamp() };
+        if (changes.prompts && Object.keys(changes.prompts).length) {
+            update.prompts = latest.prompts.map((p, i) => changes.prompts[i] ?? p);
+        }
+        if (changes.title !== undefined) update.title = changes.title;
+        if (changes.theme !== undefined) update.theme = changes.theme;
+        tx.update(ref, update);
+    });
+}
+
+// Publishing only flips the status — the content is whatever's been saved,
+// including every co-editor's work.
+export function publishGame(gameId) {
     return updateDoc(doc(db, 'games', gameId), {
-        title,
-        prompts,
-        theme,
         status: 'published',
+        locks: {},
         updatedAt: serverTimestamp(),
         publishedAt: serverTimestamp(),
+    });
+}
+
+// ---- Prompt locks: one editor per prompt at a time ----
+// A lock is { by, name, at }. One that hasn't been refreshed for a while is
+// treated as abandoned (a phone went to sleep or a tab was closed).
+export const LOCK_STALE_MS = 90 * 1000;
+export const LOCK_REFRESH_MS = 30 * 1000;
+export const lockIsLive = lock => lock && Date.now() - lock.at < LOCK_STALE_MS;
+
+// Resolves { ok: true }, or { ok: false, name } if someone else has it.
+export function claimPrompt(gameId, index) {
+    const ref = doc(db, 'games', gameId);
+    return runTransaction(db, async tx => {
+        const snap = await tx.get(ref);
+        const lock = snap.data()?.locks?.[index];
+        if (lockIsLive(lock) && lock.by !== session.id) return { ok: false, name: lock.name };
+        tx.update(ref, { [`locks.${index}`]: { by: session.id, name: session.username, at: Date.now() } });
+        return { ok: true };
+    });
+}
+
+export function refreshPromptClaim(gameId, index) {
+    return updateDoc(doc(db, 'games', gameId), { [`locks.${index}.at`]: Date.now() });
+}
+
+export function releasePrompt(gameId, index) {
+    return updateDoc(doc(db, 'games', gameId), { [`locks.${index}`]: deleteField() });
+}
+
+// ---- Co-editors (creator only) ----
+
+export function addEditor(gameId, profile) {
+    return updateDoc(doc(db, 'games', gameId), {
+        editors: arrayUnion(profile.id),
+        [`editorNames.${profile.id}`]: profile.username,
+    });
+}
+
+export function removeEditor(gameId, profileId) {
+    return updateDoc(doc(db, 'games', gameId), {
+        editors: arrayRemove(profileId),
+        [`editorNames.${profileId}`]: deleteField(),
     });
 }
 
