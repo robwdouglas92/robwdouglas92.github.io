@@ -19,7 +19,12 @@ import { THEMES } from './themes/index.js';
 // Below this, players will hit "not on the list" a lot.
 export const SHORT_LIST = 20;
 
-// Returns a tidy { name, tier, aliases } or throws with a readable reason.
+// The top tier is meant to be one answer per prompt — two or three at most.
+export const LEGENDARY_MAX = 3;
+export const NOTE_MAX = 280;
+
+// Returns a tidy { name, tier, aliases, note? } or throws with a readable
+// reason. note: an optional fun fact shown with the answer after playing.
 export function cleanAnswer(a) {
     const name = typeof a?.name === 'string' ? a.name.trim() : '';
     if (!name) throw new Error('an answer is missing its "name"');
@@ -28,7 +33,8 @@ export function cleanAnswer(a) {
     const aliases = Array.isArray(a.aliases)
         ? [...new Set(a.aliases.filter(x => typeof x === 'string' && x.trim()).map(x => x.trim()))]
         : [];
-    return { name, tier, aliases };
+    const note = typeof a.note === 'string' ? a.note.trim().slice(0, NOTE_MAX) : '';
+    return note ? { name, tier, aliases, note } : { name, tier, aliases };
 }
 
 export function parseGame(text) {
@@ -142,7 +148,7 @@ export function parseWholeGameReply(text) {
         const list = answersByPrompt.get(index) || [];
         for (const a of line.answers) {
             try {
-                list.push(cleanAnswer(Array.isArray(a) ? { name: a[0], tier: a[1], aliases: a[2] } : a));
+                list.push(cleanAnswer(Array.isArray(a) ? { name: a[0], tier: a[1], aliases: a[2], note: a[3] } : a));
             } catch {
                 skipped++;
             }

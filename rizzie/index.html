@@ -340,6 +340,17 @@
         button.ab-row { cursor: pointer; }
         button.ab-row:active { background: var(--bg); }
         .ab-list .hint { padding: 0.6rem 0.2rem; }
+        .ab-note { display: block; font-size: 0.8rem; color: var(--muted); font-style: italic; margin-top: 0.15rem; }
+
+        /* The top-tier answer's spotlight on the results Answers tab */
+        .legendary {
+            margin: 0.4rem 0 0.7rem; padding: 0.7rem 0.8rem; border-radius: 0.7rem;
+            border: 2px solid var(--gold); background: color-mix(in srgb, var(--gold) 12%, var(--card));
+        }
+        .legendary-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+        .legendary-name { font-size: 1.15rem; font-weight: 800; margin-top: 0.1rem; }
+        .legendary-note { margin-top: 0.3rem; font-size: 0.92rem; line-height: 1.45; }
+        .legendary-found { margin-top: 0.35rem; font-size: 0.85rem; color: var(--muted); font-weight: 600; }
 
         /* Review */
         .review-message { background: color-mix(in srgb, var(--green) 16%, var(--card)); border-radius: 0.6rem; padding: 0.6rem 0.8rem; margin-bottom: 0.75rem; font-weight: 600; }
@@ -418,6 +429,7 @@
             background: none; border: 2px solid var(--line); border-radius: 0.6rem; color: var(--red); cursor: pointer;
         }
         .ans-aliases { margin-top: 0.3rem; padding: 0.4rem 0.6rem; border-width: 1px; color: var(--muted); }
+        .ans-note { margin-top: 0.3rem; padding: 0.4rem 0.6rem; border-width: 1px; font-family: inherit; font-size: 1rem; resize: vertical; }
     </style>
 </head>
 <body>

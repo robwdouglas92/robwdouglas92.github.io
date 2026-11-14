@@ -12,6 +12,7 @@ import {
 } from '../api.js';
 import {
     parseGame, parseAnswerList, parseWholeGameReply, mergeAnswers, findClashes, publishProblems, cleanAnswer, SHORT_LIST,
+    LEGENDARY_MAX, NOTE_MAX,
 } from '../gameFormat.js';
 import { buildClaudePrompt, buildWholeGamePrompt } from '../claudePrompt.js';
 import { TIERS, PROMPT_COUNT } from '../tiers.js';
@@ -606,9 +607,12 @@ class CreateComponent {
             return;
         }
         const short = this.game.prompts.filter(p => p.answers.length < SHORT_LIST).length;
-        const warning = short
+        const crowded = this.game.prompts
+            .map((p, i) => (p.answers.filter(a => a.tier === 6).length > LEGENDARY_MAX ? i + 1 : null)).filter(Boolean);
+        let warning = short
             ? `\n\n${short} prompt${short === 1 ? ' has' : 's have'} fewer than ${SHORT_LIST} answers, so players may often hear “not on the list”.`
             : '';
+        if (crowded.length) warning += `\n\nPrompt${crowded.length === 1 ? '' : 's'} ${crowded.join(', ')} ${crowded.length === 1 ? 'has' : 'have'} more than ${LEGENDARY_MAX} Legendary answers.`;
         if (!confirm(`Publish “${this.game.title.trim()}”? Players can start straight away, and it can’t be edited afterwards.${warning}`)) return;
 
         const button = document.getElementById('publish');
@@ -661,6 +665,7 @@ class CreateComponent {
         const { answers } = prompt;
         const clashes = findClashes(answers);
         const shared = this.meta.editors.length > 0;
+        const legendary = answers.filter(a => a.tier === 6).length;
 
         app().innerHTML = `
             <div class="container">
@@ -694,6 +699,9 @@ class CreateComponent {
                 <div class="card">
                     <h3>Answers (${answers.length})</h3>
                     <p class="hint tier-counts">${TIERS.map(t => `${t.name} ${answers.filter(a => a.tier === t.tier).length}`).join(' · ')}</p>
+                    ${legendary > LEGENDARY_MAX ? `
+                        <div class="warn"><p>Legendary is meant for just one answer — two or three at most — so finding it feels special.
+                        This prompt has ${legendary}. Move some down to Rare.</p></div>` : ''}
 
                     <form class="add-answer" id="add-one" autocomplete="off">
                         <input id="new-name" placeholder="Add an answer" maxlength="80">
@@ -740,6 +748,7 @@ class CreateComponent {
                             <button class="ans-del" aria-label="Delete ${esc(a.name)}">×</button>
                         </div>
                         <input class="ans-aliases" value="${esc(a.aliases.join(', '))}" placeholder="Other ways to say it, separated by commas">
+                        ${a.tier === 6 ? `<textarea class="ans-note" rows="2" maxlength="${NOTE_MAX}" placeholder="Fun fact players see after they finish (optional)">${esc(a.note || '')}</textarea>` : ''}
                     </div>`).join('') || '<p class="hint">None yet.</p>'}
             </details>
         `;
@@ -833,6 +842,12 @@ class CreateComponent {
             });
             row.querySelector('.ans-aliases').addEventListener('input', e => {
                 answer.aliases = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                changed();
+            });
+            row.querySelector('.ans-note')?.addEventListener('input', e => {
+                const note = e.target.value.trim();
+                if (note) answer.note = note;
+                else delete answer.note;
                 changed();
             });
             row.querySelector('.ans-tier').addEventListener('change', e => {

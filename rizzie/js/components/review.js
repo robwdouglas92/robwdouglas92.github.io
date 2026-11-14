@@ -5,6 +5,7 @@ import { THEMES, themeOf } from '../themes/index.js';
 import { setPageTheme } from '../themes/page.js';
 import { buildQueue, rescoreAll } from '../review.js';
 import { renderAnswerBrowser } from '../answerBrowser.js';
+import { NOTE_MAX } from '../gameFormat.js';
 import { TIERS } from '../tiers.js';
 import { router } from '../router.js';
 import { app, esc, showMessage } from '../utils/html.js';
@@ -116,6 +117,10 @@ class ReviewComponent {
                         <input name="name" value="${esc(item.text)}" maxlength="80">
                         <label>Tier — how many people would think of it?</label>
                         <select name="tier">${tierOptions(4)}</select>
+                        <div class="note-field" hidden>
+                            <label>Fun fact players see after they finish (optional)</label>
+                            <textarea name="note" rows="2" maxlength="${NOTE_MAX}"></textarea>
+                        </div>
                         <button class="btn btn-primary" type="submit">Approve</button>
                     </form>` : ''}
                 ${open === 'same' ? `
@@ -138,14 +143,20 @@ class ReviewComponent {
             });
         });
         app().querySelectorAll('[data-add]').forEach(form => {
+            // The fun fact box only applies to the top tier.
+            const noteField = form.querySelector('.note-field');
+            form.elements.tier.addEventListener('change', () => { noteField.hidden = form.elements.tier.value !== '6'; });
             form.addEventListener('submit', e => {
                 e.preventDefault();
                 const item = this.queue[Number(form.dataset.add)];
                 const name = form.elements.name.value.trim();
                 if (!name) return;
                 const tier = Number(form.elements.tier.value);
+                const note = tier === 6 ? form.elements.note.value.trim() : '';
                 this.decide(item, prompts => {
-                    prompts[item.prompt].answers.push({ name, tier, aliases: name === item.text ? [] : [item.text] });
+                    const answer = { name, tier, aliases: name === item.text ? [] : [item.text] };
+                    if (note) answer.note = note;
+                    prompts[item.prompt].answers.push(answer);
                 }, `Approved “${esc(name)}”`);
             });
         });

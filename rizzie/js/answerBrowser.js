@@ -64,9 +64,11 @@ export function renderAnswerBrowser(container, answers, { onPick = null, suggest
     const sorted = [...answers].sort((a, b) => sortKey(a.name).localeCompare(sortKey(b.name)));
     const suggestions = onPick && suggestFor ? closest(suggestFor, answers) : [];
 
+    // An answer's fun fact, if it has one, sits under its name.
+    const label = a => `<span>${esc(a.name)}${a.note ? `<span class="ab-note">${esc(a.note)}</span>` : ''}</span>`;
     const row = a => onPick
-        ? `<button type="button" class="ab-row" data-name="${esc(a.name)}"><span>${esc(a.name)}</span>${pill(a.tier)}</button>`
-        : `<div class="ab-row"><span>${esc(a.name)}</span>${pill(a.tier)}</div>`;
+        ? `<button type="button" class="ab-row" data-name="${esc(a.name)}">${label(a)}${pill(a.tier)}</button>`
+        : `<div class="ab-row">${label(a)}${pill(a.tier)}</div>`;
 
     function filtered() {
         const q = state.search.trim().toLowerCase();

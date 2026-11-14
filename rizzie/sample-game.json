@@ -236,39 +236,40 @@
         },
         {
           "name": "The Bishop's Wife",
-          "tier": 6
+          "tier": 6,
+          "note": "Cary Grant plays an angel sent to help a stressed bishop in this 1947 film. It was remade in 1996 as The Preacher’s Wife, starring Denzel Washington and Whitney Houston."
         },
         {
           "name": "Ernest Saves Christmas",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Black Christmas",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Carol",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Joyeux Noël",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Better Watch Out",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Anna and the Apocalypse",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "While You Were Sleeping",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "The Holly and the Ivy",
-          "tier": 6
+          "tier": 5
         }
       ]
     },
@@ -586,31 +587,32 @@
         },
         {
           "name": "Coventry Carol",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Gaudete",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Personent Hodie",
-          "tier": 6
+          "tier": 6,
+          "note": "A medieval Latin carol first printed in Piae Cantiones, a collection of Finnish school songs published in 1582."
         },
         {
           "name": "Christmas Alphabet",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Angels from the Realms of Glory",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "See Amid the Winter's Snow",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Infant Holy, Infant Lowly",
-          "tier": 6
+          "tier": 5
         }
       ]
     },
@@ -957,15 +959,16 @@
         },
         {
           "name": "Lebkuchen",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Pfeffernüsse",
-          "tier": 6
+          "tier": 6,
+          "note": "Small spiced German biscuits dusted with icing sugar. The name means “pepper nuts” — some recipes really do include a pinch of black pepper."
         },
         {
           "name": "Rum butter",
-          "tier": 6
+          "tier": 5
         }
       ]
     },
@@ -1273,56 +1276,57 @@
         },
         {
           "name": "Hermey the Elf",
-          "tier": 6,
+          "tier": 5,
           "aliases": [
             "Hermey"
           ]
         },
         {
           "name": "Yukon Cornelius",
-          "tier": 6
+          "tier": 6,
+          "note": "The bearded prospector from the 1964 stop-motion TV special Rudolph the Red-Nosed Reindeer, forever searching for silver and gold."
         },
         {
           "name": "Stripe",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Sam the Snowman",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Clarice",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Olive the Other Reindeer",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Mr Potter",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Jesper",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "The Bumble",
-          "tier": 6,
+          "tier": 5,
           "aliases": [
             "Abominable Snow Monster"
           ]
         },
         {
           "name": "Fred (Scrooge's nephew)",
-          "tier": 6,
+          "tier": 5,
           "aliases": [
             "Fred"
           ]
         },
         {
           "name": "Belle",
-          "tier": 6
+          "tier": 5
         }
       ]
     },
@@ -1533,43 +1537,44 @@
           "tier": 6,
           "aliases": [
             "Pickle"
-          ]
+          ],
+          "note": "A glass pickle hidden in the branches: whoever finds it on Christmas morning gets an extra present. It’s usually called a German tradition, but most Germans have never heard of it."
         },
         {
           "name": "Cranberry garland",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Lametta",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Sugar mice",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Cinnamon sticks",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Doves",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Owls",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Bird's nest",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Spider",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Snow globes",
-          "tier": 6
+          "tier": 5
         }
       ]
     },
@@ -1780,54 +1785,55 @@
         },
         {
           "name": "Dominoes",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Mini frying pan",
-          "tier": 6
+          "tier": 6,
+          "note": "Tiny frying pans are a cracker classic. Crackers themselves were invented by London sweet-maker Tom Smith in the 1840s, inspired by French bonbons wrapped in twisted paper."
         },
         {
           "name": "Tweezers",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Lip balm",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Cufflinks",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Miniature bottle of spirits",
-          "tier": 6,
+          "tier": 5,
           "aliases": [
             "Miniature"
           ]
         },
         {
           "name": "Plastic soldier",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Mini skittles",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Compass",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Bottle stopper",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Chopsticks",
-          "tier": 6
+          "tier": 5
         },
         {
           "name": "Cardboard tube",
-          "tier": 6
+          "tier": 5
         }
       ]
     },
@@ -1868,8 +1874,7 @@
           "name": "Four calling birds",
           "tier": 3,
           "aliases": [
-            "Calling birds",
-            "Four colly birds"
+            "Calling birds"
           ]
         },
         {
@@ -1930,6 +1935,14 @@
             "Ladies dancing",
             "Ten ladies dancing"
           ]
+        },
+        {
+          "name": "Four colly birds",
+          "tier": 6,
+          "aliases": [
+            "Colly birds"
+          ],
+          "note": "The original lyric. “Colly” is an old word for coal-black, so the true love was sending four blackbirds — they only became “calling birds” in the 20th century."
         }
       ]
     }

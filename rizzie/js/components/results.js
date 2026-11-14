@@ -3,6 +3,7 @@ import { PROMPT_COUNT, TIERS, tierInfo } from '../tiers.js';
 import { themeOf } from '../themes/index.js';
 import { setPageTheme } from '../themes/page.js';
 import { renderAnswerBrowser } from '../answerBrowser.js';
+import { LEGENDARY_MAX } from '../gameFormat.js';
 import { router } from '../router.js';
 import { app, esc, showMessage } from '../utils/html.js';
 
@@ -190,10 +191,26 @@ class ResultsComponent {
             .map(p => ({ player: p, answer: p.answers[index] }))
             .filter(r => r.answer)
             .sort((a, b) => b.answer.points - a.answer.points);
+        // The top-tier answer gets its own spotlight, with its fun fact and
+        // whoever managed to find it.
+        const foundBy = name => rows.filter(r => r.answer.matched === name).map(r => r.player.displayName);
+        // Games made before the one-Legendary rule can have lots; then only
+        // spotlight those with a fun fact or that someone actually found.
+        let legendary = prompt.answers.filter(a => a.tier === 6);
+        if (legendary.length > LEGENDARY_MAX) legendary = legendary.filter(a => a.note || foundBy(a.name).length);
         return `
             <div class="card prompt-block">
                 <p class="prompt-label">Prompt ${index + 1}</p>
                 <p class="prompt-text prompt-text-small">${esc(prompt.text)}</p>
+                ${legendary.map(a => `
+                    <div class="legendary">
+                        <p class="legendary-label">${esc(tierNames[5])} answer · ${tierInfo(6).points} pts</p>
+                        <p class="legendary-name">${esc(a.name)}</p>
+                        ${a.note ? `<p class="legendary-note">${esc(a.note)}</p>` : ''}
+                        <p class="legendary-found">${foundBy(a.name).length
+                            ? `Found by ${esc(foundBy(a.name).join(', '))}!`
+                            : 'Nobody found it.'}</p>
+                    </div>`).join('')}
                 <ul class="answer-rows">
                     ${rows.map(({ player, answer }) => `
                         <li class="${player.username === this.me.id ? 'me' : ''}">
