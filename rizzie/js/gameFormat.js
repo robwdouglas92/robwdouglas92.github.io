@@ -174,6 +174,62 @@ export function mergeAnswers(existing, incoming) {
     return added;
 }
 
+// Works out what an AI's updated list would change, without changing anything:
+// answers it moved to a different tier, new answers, and answers it left out.
+// Answers are matched by name or other name. A match keeps the creator's own
+// wording; only its tier changes, other names are added to, and a fun fact
+// is filled in only if there wasn't one.
+// Returns { apply(removeMissing) → new list, retiered, added, missing, noted }.
+export function planListUpdate(existing, incoming) {
+    const byVariant = new Map();
+    for (const a of existing) for (const v of [a.name, ...a.aliases]) if (!byVariant.has(key(v))) byVariant.set(key(v), a);
+
+    const updates = new Map();          // existing answer → its updated copy
+    const added = [];
+    const retiered = [];
+    const noted = [];
+    for (const inc of incoming) {
+        const match = [inc.name, ...inc.aliases].map(v => byVariant.get(key(v))).find(Boolean);
+        if (!match) {
+            added.push(inc);
+            continue;
+        }
+        if (updates.has(match)) continue;   // the AI listed it twice
+        const next = { ...match, aliases: [...match.aliases] };
+        if (inc.tier !== match.tier) {
+            retiered.push({ name: match.name, from: match.tier, to: inc.tier });
+            next.tier = inc.tier;
+        }
+        const known = new Set([next.name, ...next.aliases].map(key));
+        for (const v of [inc.name, ...inc.aliases]) {
+            if (!known.has(key(v))) {
+                next.aliases.push(v);
+                known.add(key(v));
+            }
+        }
+        if (!match.note && inc.note) {
+            next.note = inc.note;
+            noted.push(match.name);
+        }
+        updates.set(match, next);
+    }
+    const missing = existing.filter(a => !updates.has(a));
+
+    return {
+        retiered,
+        added,
+        missing,
+        noted,
+        apply(removeMissing = false) {
+            const list = existing
+                .filter(a => !(removeMissing && !updates.has(a)))
+                .map(a => updates.get(a) || { ...a, aliases: [...a.aliases] });
+            mergeAnswers(list, added);
+            return list;
+        },
+    };
+}
+
 // Spots entries the matcher would mix up: typing one answer (or one of its
 // aliases) would be scored as a different answer on the list.
 export function findClashes(answers) {

@@ -12,9 +12,10 @@ import {
 } from '../api.js';
 import {
     parseGame, parseAnswerList, parseWholeGameReply, mergeAnswers, findClashes, publishProblems, cleanAnswer, SHORT_LIST,
+    planListUpdate,
     LEGENDARY_MAX, NOTE_MAX,
 } from '../gameFormat.js';
-import { buildClaudePrompt, buildWholeGamePrompt } from '../claudePrompt.js';
+import { buildClaudePrompt, buildWholeGamePrompt, buildExportPrompt } from '../claudePrompt.js';
 import { TIERS, PROMPT_COUNT } from '../tiers.js';
 import { THEMES, DEFAULT_THEME } from '../themes/index.js';
 import { router } from '../router.js';
@@ -328,6 +329,8 @@ class CreateComponent {
                     <p class="hint" id="whole-status" role="status"></p>
                 </div>
 
+                ${this.sortCardHtml(true)}
+
                 <div id="publish-problems"></div>
                 <button class="btn btn-primary btn-big" id="publish">Publish</button>
 
@@ -360,6 +363,7 @@ class CreateComponent {
         this.bindEditors();
         document.getElementById('copy-whole').addEventListener('click', () => this.copyWholeRequest());
         document.getElementById('add-whole').addEventListener('click', () => this.addWholeReply());
+        this.bindSortCard(() => this.game.prompts.map((p, i) => i).filter(i => this.game.prompts[i].text.trim()));
         document.getElementById('publish').addEventListener('click', () => this.publish());
         document.getElementById('load-sample').addEventListener('click', async () => {
             const res = await fetch('sample-game.json');
@@ -496,6 +500,142 @@ class CreateComponent {
             console.error(err);
             status.textContent = 'Couldn’t add them — check your connection.';
         }
+    }
+
+    // ---- Sort or improve existing lists with AI ----
+    // Exports the current lists for an AI to re-sort (or to discuss first),
+    // then shows exactly what its reply would change before anything moves.
+
+    sortCardHtml(wholeGame) {
+        return `
+            <div class="card claude-steps sort-card">
+                <h3>Sort or improve ${wholeGame ? 'every list' : 'this list'} with AI</h3>
+                <p class="hint">Sends the ${wholeGame ? 'current lists' : 'current list'} — answers, tiers, other names and fun facts — to an AI to re-sort the tiers, or to talk through with you first.
+                You see every change before it’s applied.</p>
+                <p class="step"><span class="step-num">1</span> Copy one of these, then paste it into a new chat with an AI such as Claude.</p>
+                <div class="row">
+                    <button class="btn btn-primary btn-small" data-sort-copy="resort">Copy: re-sort the tiers</button>
+                    <button class="btn btn-secondary btn-small" data-sort-copy="chat">Copy: chat it through</button>
+                </div>
+                <p class="hint" id="sort-copy-status"></p>
+                <textarea id="sort-copy-fallback" rows="5" readonly hidden></textarea>
+                <p class="step"><span class="step-num">2</span> Paste the AI’s updated list here. After a chat, ask it for the “final list” first.
+                If it stops part-way, ask it to “continue” and paste each reply here.</p>
+                <textarea id="sort-reply" rows="4" spellcheck="false" placeholder="Paste the AI’s updated list here"></textarea>
+                <button class="btn btn-primary" id="sort-review">Review changes</button>
+                <div id="sort-preview" role="status"></div>
+            </div>`;
+    }
+
+    bindSortCard(scope) {
+        app().querySelectorAll('[data-sort-copy]').forEach(btn => {
+            btn.addEventListener('click', () => this.copySortRequest(scope(), btn.dataset.sortCopy));
+        });
+        document.getElementById('sort-review').addEventListener('click', () => this.reviewSortReply(scope()));
+    }
+
+    async copySortRequest(indexes, mode) {
+        const status = document.getElementById('sort-copy-status');
+        const withAnswers = indexes.filter(i => this.game.prompts[i].answers.length);
+        if (!withAnswers.length) {
+            status.textContent = 'There are no answers to sort yet.';
+            return;
+        }
+        const text = buildExportPrompt(this.game, withAnswers, mode);
+        const total = withAnswers.reduce((n, i) => n + this.game.prompts[i].answers.length, 0);
+        try {
+            await navigator.clipboard.writeText(text);
+            status.textContent = `Copied ${total} answers${withAnswers.length > 1 ? ` from ${withAnswers.length} questions` : ''}. Now paste it into the AI.`;
+        } catch {
+            const fallback = document.getElementById('sort-copy-fallback');
+            fallback.value = text;
+            fallback.hidden = false;
+            fallback.select();
+            status.textContent = 'Couldn’t copy automatically — select all the text below and copy it.';
+        }
+    }
+
+    reviewSortReply(indexes) {
+        const preview = document.getElementById('sort-preview');
+        let parsed;
+        try {
+            parsed = parseWholeGameReply(document.getElementById('sort-reply').value);
+        } catch (err) {
+            preview.innerHTML = `<p class="error">${esc(err.message)}</p>`;
+            return;
+        }
+        const tierName = t => TIERS[t - 1].name;
+        const plans = [];
+        const notes = [];
+        for (const [i, incoming] of parsed.answersByPrompt) {
+            if (!indexes.includes(i)) {
+                notes.push(`Ignored question ${i + 1}, which isn’t part of this.`);
+                continue;
+            }
+            const lock = this.lockedBy(i);
+            if (lock) {
+                notes.push(`Skipped question ${i + 1} — ${lock.name} is editing it. Review again once they’ve finished.`);
+                continue;
+            }
+            plans.push({ i, plan: planListUpdate(this.game.prompts[i].answers, incoming) });
+        }
+        if (parsed.cutOff.length) notes.push(`Part of question ${parsed.cutOff.join(', ')} was cut off — ask the AI to “continue” and review again with the rest pasted in too.`);
+
+        const changes = p => p.retiered.length + p.added.length + p.noted.length;
+        if (!plans.some(({ plan }) => changes(plan) || plan.missing.length)) {
+            preview.innerHTML = `<p class="hint">No changes found.</p>${notes.map(n => `<p class="hint">${esc(n)}</p>`).join('')}`;
+            return;
+        }
+        const SHOWN = 12;
+        const missingTotal = plans.reduce((n, { plan }) => n + plan.missing.length, 0);
+        preview.innerHTML = `
+            <div class="sort-preview">
+                ${plans.map(({ i, plan }) => {
+                    const legendaryAfter = plan.apply(false).filter(a => a.tier === 6).length;
+                    // New answers and fun facts first — they're easy to miss among many tier moves.
+                    const lines = [
+                        ...plan.added.map(a => `New: ${esc(a.name)} (${tierName(a.tier)})`),
+                        ...plan.noted.map(n => `Fun fact added to ${esc(n)}`),
+                        ...plan.retiered.map(r => `${esc(r.name)}: ${tierName(r.from)} → <strong>${tierName(r.to)}</strong>`),
+                    ];
+                    return `
+                        <div class="sort-prompt">
+                            <p class="sort-title">Question ${i + 1}: ${esc(this.game.prompts[i].text)}</p>
+                            <p class="hint">${plan.retiered.length} moving tier · ${plan.added.length} new · ${plan.missing.length} left out by the AI${plan.noted.length ? ` · ${plan.noted.length} fun fact${plan.noted.length === 1 ? '' : 's'}` : ''}</p>
+                            ${lines.length ? `<ul class="sort-changes">${lines.slice(0, SHOWN).map(l => `<li>${l}</li>`).join('')}</ul>` : ''}
+                            ${lines.length > SHOWN ? `<p class="hint">…and ${lines.length - SHOWN} more.</p>` : ''}
+                            ${legendaryAfter > LEGENDARY_MAX ? `<p class="error">This would still leave ${legendaryAfter} Legendary answers.</p>` : ''}
+                        </div>`;
+                }).join('')}
+                ${notes.map(n => `<p class="hint">${esc(n)}</p>`).join('')}
+                ${missingTotal ? `
+                    <label class="switch sort-remove"><input type="checkbox" id="sort-remove">
+                        Also remove the ${missingTotal} answer${missingTotal === 1 ? '' : 's'} the AI left out</label>
+                    <p class="hint">Left unticked, they stay exactly as they are.</p>` : ''}
+                <div class="row">
+                    <button class="btn btn-primary btn-small" id="sort-apply">Apply these changes</button>
+                    <button class="btn btn-secondary btn-small" id="sort-cancel">Cancel</button>
+                </div>
+            </div>`;
+        document.getElementById('sort-cancel').addEventListener('click', () => { preview.innerHTML = ''; });
+        document.getElementById('sort-apply').addEventListener('click', () => {
+            const remove = document.getElementById('sort-remove')?.checked || false;
+            let moved = 0;
+            let added = 0;
+            let removed = 0;
+            for (const { i, plan } of plans) {
+                this.game.prompts[i].answers = plan.apply(remove);
+                moved += plan.retiered.length;
+                added += plan.added.length;
+                if (remove) removed += plan.missing.length;
+                this.changed(i);
+            }
+            const y = window.scrollY;
+            this.draw();
+            window.scrollTo(0, y);
+            const done = document.getElementById('sort-preview');
+            if (done) done.innerHTML = `<p class="sort-done">Done: ${moved} moved tier, ${added} added${removed ? `, ${removed} removed` : ''}.</p>`;
+        });
     }
 
     // ---- Whole-game AI fill ----
@@ -696,6 +836,8 @@ class CreateComponent {
                     <p class="hint" id="reply-status" role="status"></p>
                 </div>
 
+                ${answers.length ? this.sortCardHtml(false) : ''}
+
                 <div class="card">
                     <h3>Answers (${answers.length})</h3>
                     <p class="hint tier-counts">${TIERS.map(t => `${t.name} ${answers.filter(a => a.tier === t.tier).length}`).join(' · ')}</p>
@@ -766,6 +908,7 @@ class CreateComponent {
         };
         document.getElementById('to-overview').addEventListener('click', () => this.closePrompt());
         document.getElementById('to-overview-bottom').addEventListener('click', () => this.closePrompt());
+        if (answers.length) this.bindSortCard(() => [index]);
 
         document.getElementById('prompt-text').addEventListener('input', e => {
             prompt.text = e.target.value;
